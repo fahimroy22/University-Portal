@@ -1,0 +1,1582 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .student-results-page {
+        --result-ink: #0f172a;
+        --result-text: #334155;
+        --result-muted: #64748b;
+        --result-faint: #94a3b8;
+
+        --result-line: #e2e8f0;
+        --result-line-soft: #eef2f7;
+        --result-canvas: #f8fafc;
+        --result-surface: #ffffff;
+
+        --result-accent: #9f1c1c;
+        --result-accent-dark: #7f1717;
+        --result-accent-soft: #fff1f2;
+        --result-accent-line: #fecaca;
+
+        --result-success: #047857;
+        --result-success-soft: #ecfdf5;
+        --result-success-line: #bbf7d0;
+
+        --result-blue: #2563eb;
+        --result-blue-soft: #eff6ff;
+        --result-blue-line: #bfdbfe;
+
+        display: grid;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .student-results-page,
+    .student-results-page * {
+        box-sizing: border-box;
+    }
+
+    .student-results-page a {
+        text-decoration: none;
+    }
+
+    .result-tabular {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* =========================================================
+       SHARED SURFACES
+    ========================================================= */
+
+    .result-surface {
+        background: var(--result-surface);
+        border: 1px solid var(--result-line);
+        border-radius: 30px;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.05);
+    }
+
+    /* =========================================================
+       PAGE HEADER
+    ========================================================= */
+
+    .result-page-header {
+        padding: 28px 30px;
+    }
+
+    .result-page-header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .result-page-kicker {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 15px;
+        border-radius: 999px;
+        background: var(--result-accent-soft);
+        color: var(--result-accent-dark);
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+    }
+
+    .result-page-title {
+        margin: 14px 0 0;
+        color: var(--result-ink);
+        font-size: 38px;
+        line-height: 1.05;
+        font-weight: 900;
+        letter-spacing: -0.055em;
+    }
+
+    .result-page-subtitle {
+        margin: 9px 0 0;
+        color: var(--result-muted);
+        font-size: 14px;
+        line-height: 1.6;
+        font-weight: 650;
+    }
+
+    .result-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .result-btn {
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid var(--result-line);
+        background: #ffffff;
+        color: var(--result-ink);
+        font-size: 13px;
+        font-weight: 850;
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .result-btn:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    .result-btn.primary {
+        background: #b91c1c;
+        border-color: #b91c1c;
+        color: #ffffff;
+    }
+
+    .result-btn.primary:hover {
+        background: #991b1b;
+        border-color: #991b1b;
+    }
+
+    .result-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* =========================================================
+       SUMMARY CARDS
+    ========================================================= */
+
+    .result-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .result-summary-card {
+        min-height: 102px;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: 56px minmax(0, 1fr);
+        gap: 16px;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid var(--result-line);
+        border-radius: 26px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+    }
+
+    .result-summary-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 17px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+    }
+
+    .result-summary-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .result-summary-icon.rose {
+        background: #9f1239;
+    }
+
+    .result-summary-icon.green {
+        background: #059669;
+    }
+
+    .result-summary-icon.blue {
+        background: #2563eb;
+    }
+
+    .result-summary-icon.slate {
+        background: #334155;
+    }
+
+    .result-summary-label {
+        color: var(--result-faint);
+        font-size: 10.5px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    .result-summary-value {
+        margin-top: 6px;
+        color: var(--result-ink);
+        font-size: 28px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+    }
+
+    .result-summary-value.status-text {
+        font-size: 24px;
+    }
+
+    /* =========================================================
+       SECTION
+    ========================================================= */
+
+    .result-section {
+        padding: 24px 26px;
+    }
+
+    .result-section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .result-section-title {
+        margin: 0;
+        color: var(--result-ink);
+        font-size: 26px;
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: -0.045em;
+    }
+
+    .result-section-subtitle {
+        margin: 7px 0 0;
+        color: var(--result-muted);
+        font-size: 14px;
+        line-height: 1.55;
+        font-weight: 650;
+    }
+
+    .result-status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 15px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .result-status-pill.published {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .result-status-pill.midterm {
+        background: #fff1f2;
+        color: #9f1239;
+    }
+
+    .result-status-pill.pending {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    /* =========================================================
+       RESULT TABLES
+    ========================================================= */
+
+    .result-table-wrap {
+        width: 100%;
+        overflow: hidden;
+        border: 1px solid var(--result-line);
+        border-radius: 24px;
+        background: #ffffff;
+    }
+
+    .result-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    .result-table th {
+        padding: 16px 14px;
+        background: #f8fafc;
+        border-bottom: 1px solid var(--result-line);
+
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.13em;
+        line-height: 1.3;
+        text-transform: uppercase;
+        text-align: left;
+    }
+
+    .result-table td {
+        padding: 17px 14px;
+        border-bottom: 1px solid var(--result-line-soft);
+
+        color: #334155;
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 700;
+        vertical-align: middle;
+    }
+
+    .result-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .result-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .result-table .text-center {
+        text-align: center;
+    }
+
+    .result-course-code {
+        color: var(--result-ink) !important;
+        font-weight: 900 !important;
+    }
+
+    .result-course-title {
+        color: var(--result-muted) !important;
+    }
+
+    .result-grade,
+    .result-gpa,
+    .result-mid-total {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 48px;
+        min-height: 30px;
+        padding: 0 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        line-height: 1;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .result-grade {
+        background: var(--result-success-soft);
+        color: var(--result-success);
+    }
+
+    .result-gpa {
+        background: var(--result-blue-soft);
+        color: var(--result-blue);
+    }
+
+    .result-mid-total {
+        background: var(--result-accent-soft);
+        color: var(--result-accent-dark);
+    }
+
+    /* Midterm desktop widths */
+    .midterm-result-table th:nth-child(1),
+    .midterm-result-table td:nth-child(1) {
+        width: 15%;
+    }
+
+    .midterm-result-table th:nth-child(2),
+    .midterm-result-table td:nth-child(2) {
+        width: 25%;
+    }
+
+    .midterm-result-table th:nth-child(3),
+    .midterm-result-table td:nth-child(3),
+    .midterm-result-table th:nth-child(4),
+    .midterm-result-table td:nth-child(4),
+    .midterm-result-table th:nth-child(5),
+    .midterm-result-table td:nth-child(5) {
+        width: 12%;
+    }
+
+    .midterm-result-table th:nth-child(6),
+    .midterm-result-table td:nth-child(6) {
+        width: 12%;
+    }
+
+    .midterm-result-table th:nth-child(7),
+    .midterm-result-table td:nth-child(7) {
+        width: 12%;
+    }
+
+    /* Final desktop widths */
+    .final-result-table th:nth-child(1),
+    .final-result-table td:nth-child(1) {
+        width: 19%;
+    }
+
+    .final-result-table th:nth-child(2),
+    .final-result-table td:nth-child(2) {
+        width: 39%;
+    }
+
+    .final-result-table th:nth-child(3),
+    .final-result-table td:nth-child(3) {
+        width: 14%;
+    }
+
+    .final-result-table th:nth-child(4),
+    .final-result-table td:nth-child(4) {
+        width: 14%;
+    }
+
+    .final-result-table th:nth-child(5),
+    .final-result-table td:nth-child(5) {
+        width: 14%;
+    }
+
+    /* =========================================================
+       SEMESTER RESULT BLOCK
+    ========================================================= */
+
+    .semester-results-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .semester-result-card {
+        padding: 18px;
+        border: 1px solid var(--result-line);
+        border-radius: 26px;
+        background: #f8fafc;
+    }
+
+    .semester-result-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        margin-bottom: 20px;
+    }
+
+    .semester-result-eyebrow {
+        color: var(--result-accent-dark);
+        font-size: 10.5px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+    }
+
+    .semester-result-title {
+        margin: 6px 0 0;
+        color: var(--result-ink);
+        font-size: 24px;
+        line-height: 1.15;
+        font-weight: 900;
+        letter-spacing: -0.045em;
+    }
+
+    .semester-result-actions {
+        display: flex;
+        align-items: stretch;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .semester-summary-box {
+        min-width: 90px;
+        padding: 12px 15px;
+        border-radius: 16px;
+        background: #ffffff;
+        border: 1px solid var(--result-line-soft);
+    }
+
+    .semester-summary-label {
+        color: var(--result-faint);
+        font-size: 9.5px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .semester-summary-value {
+        margin-top: 6px;
+        color: var(--result-ink);
+        font-size: 19px;
+        line-height: 1;
+        font-weight: 900;
+    }
+
+    .semester-download-btn {
+        min-height: 100%;
+        padding: 0 15px;
+        border-radius: 16px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        border: 1px solid var(--result-accent-line);
+        background: var(--result-accent-soft);
+        color: var(--result-accent-dark);
+
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+
+        transition:
+            background 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .semester-download-btn:hover {
+        background: #ffe4e6;
+        transform: translateY(-1px);
+    }
+
+    .semester-download-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* =========================================================
+       EMPTY STATE
+    ========================================================= */
+
+    .result-empty {
+        padding: 34px 24px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 24px;
+        background: #f8fafc;
+        text-align: center;
+    }
+
+    .result-empty-title {
+        color: #334155;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .result-empty-text {
+        margin-top: 6px;
+        color: var(--result-muted);
+        font-size: 14px;
+        line-height: 1.55;
+        font-weight: 650;
+    }
+
+    /* =========================================================
+       QUICK NOTES
+    ========================================================= */
+
+    .result-notes-head {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 20px;
+    }
+
+    .result-notes-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--result-blue-soft);
+        color: var(--result-blue);
+    }
+
+    .result-notes-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .result-notes-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .result-note {
+        padding: 16px;
+        border-radius: 20px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.6;
+        font-weight: 650;
+    }
+
+    /* =========================================================
+       TABLET
+    ========================================================= */
+
+    @media (max-width: 1100px) {
+        .result-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .semester-result-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .semester-result-actions {
+            width: 100%;
+        }
+    }
+
+    /* =========================================================
+       MOBILE
+    ========================================================= */
+
+    @media (max-width: 700px) {
+        .student-results-page {
+            gap: 14px;
+        }
+
+        .result-surface {
+            border-radius: 22px;
+        }
+
+        /* Header */
+        .result-page-header {
+            padding: 20px 18px;
+        }
+
+        .result-page-header-inner {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 18px;
+        }
+
+        .result-page-kicker {
+            min-height: 30px;
+            padding: 0 11px;
+            font-size: 9px;
+            letter-spacing: 0.14em;
+        }
+
+        .result-page-title {
+            margin-top: 12px;
+            font-size: 31px;
+        }
+
+        .result-page-subtitle {
+            font-size: 13px;
+        }
+
+        .result-header-actions {
+            display: grid;
+            grid-template-columns: 0.7fr 1.3fr;
+            gap: 9px;
+        }
+
+        .result-btn {
+            width: 100%;
+            min-height: 43px;
+            padding: 0 10px;
+            font-size: 11px;
+        }
+
+        /* Summary */
+        .result-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .result-summary-card {
+            min-height: 0;
+            padding: 14px;
+            grid-template-columns: 40px minmax(0, 1fr);
+            gap: 10px;
+            border-radius: 18px;
+        }
+
+        .result-summary-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+        }
+
+        .result-summary-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .result-summary-label {
+            font-size: 7.5px;
+            letter-spacing: 0.11em;
+        }
+
+        .result-summary-value,
+        .result-summary-value.status-text {
+            margin-top: 4px;
+            font-size: 19px;
+        }
+
+        /* Section */
+        .result-section {
+            padding: 18px 12px;
+        }
+
+        .result-section-head {
+            margin-bottom: 16px;
+            align-items: flex-start;
+        }
+
+        .result-section-title {
+            font-size: 23px;
+        }
+
+        .result-section-subtitle {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .result-status-pill {
+            min-height: 30px;
+            padding: 0 11px;
+            font-size: 10px;
+        }
+
+        /* =====================================================
+           MOBILE TABLES
+           Real tables, no horizontal scrolling
+        ===================================================== */
+
+        .result-table-wrap {
+            width: 100%;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .result-table {
+            width: 100%;
+            max-width: 100%;
+            table-layout: fixed;
+        }
+
+        .result-table th {
+            padding: 9px 2px;
+            font-size: 6.5px;
+            line-height: 1.25;
+            letter-spacing: 0.035em;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .result-table td {
+            padding: 11px 3px;
+            font-size: 8.5px;
+            line-height: 1.25;
+            text-align: center;
+            overflow-wrap: anywhere;
+            word-break: normal;
+        }
+
+        .result-course-code {
+            font-size: 8px !important;
+            line-height: 1.2 !important;
+        }
+
+        .result-course-title {
+            font-size: 8px !important;
+            line-height: 1.25 !important;
+        }
+
+        .result-grade,
+        .result-gpa,
+        .result-mid-total {
+            min-width: 0;
+            width: 100%;
+            min-height: 23px;
+            padding: 0 2px;
+            border-radius: 999px;
+            font-size: 7.5px;
+        }
+
+        /* Midterm mobile widths */
+        .midterm-result-table th:nth-child(1),
+        .midterm-result-table td:nth-child(1) {
+            width: 20%;
+        }
+
+        .midterm-result-table th:nth-child(2),
+        .midterm-result-table td:nth-child(2) {
+            width: 24%;
+        }
+
+        .midterm-result-table th:nth-child(3),
+        .midterm-result-table td:nth-child(3) {
+            width: 10%;
+        }
+
+        .midterm-result-table th:nth-child(4),
+        .midterm-result-table td:nth-child(4) {
+            width: 11%;
+        }
+
+        .midterm-result-table th:nth-child(5),
+        .midterm-result-table td:nth-child(5) {
+            width: 11%;
+        }
+
+        .midterm-result-table th:nth-child(6),
+        .midterm-result-table td:nth-child(6) {
+            width: 11%;
+        }
+
+        .midterm-result-table th:nth-child(7),
+        .midterm-result-table td:nth-child(7) {
+            width: 13%;
+        }
+
+        /* Final mobile widths */
+        .final-result-table th:nth-child(1),
+        .final-result-table td:nth-child(1) {
+            width: 23%;
+        }
+
+        .final-result-table th:nth-child(2),
+        .final-result-table td:nth-child(2) {
+            width: 34%;
+        }
+
+        .final-result-table th:nth-child(3),
+        .final-result-table td:nth-child(3) {
+            width: 13%;
+        }
+
+        .final-result-table th:nth-child(4),
+        .final-result-table td:nth-child(4) {
+            width: 14%;
+        }
+
+        .final-result-table th:nth-child(5),
+        .final-result-table td:nth-child(5) {
+            width: 16%;
+        }
+
+        /* Semester */
+        .semester-results-list {
+            gap: 14px;
+        }
+
+        .semester-result-card {
+            padding: 12px;
+            border-radius: 18px;
+        }
+
+        .semester-result-header {
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .semester-result-eyebrow {
+            font-size: 8.5px;
+            letter-spacing: 0.15em;
+        }
+
+        .semester-result-title {
+            font-size: 19px;
+            line-height: 1.2;
+        }
+
+        .semester-result-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            width: 100%;
+            gap: 8px;
+        }
+
+        .semester-summary-box {
+            min-width: 0;
+            padding: 10px 11px;
+            border-radius: 13px;
+        }
+
+        .semester-summary-label {
+            font-size: 7.5px;
+        }
+
+        .semester-summary-value {
+            font-size: 16px;
+        }
+
+        .semester-download-btn {
+            grid-column: 1 / -1;
+            width: 100%;
+            min-height: 40px;
+            padding: 0 12px;
+            border-radius: 12px;
+            font-size: 10.5px;
+        }
+
+        /* Notes */
+        .result-notes-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .result-note {
+            padding: 14px;
+            font-size: 12px;
+        }
+    }
+
+    /* =========================================================
+       VERY SMALL MOBILE
+    ========================================================= */
+
+    @media (max-width: 380px) {
+        .result-section {
+            padding-left: 9px;
+            padding-right: 9px;
+        }
+
+        .semester-result-card {
+            padding: 9px;
+        }
+
+        .result-table th {
+            padding-left: 1px;
+            padding-right: 1px;
+            font-size: 5.8px;
+        }
+
+        .result-table td {
+            padding-left: 2px;
+            padding-right: 2px;
+            font-size: 7.5px;
+        }
+
+        .result-course-code,
+        .result-course-title {
+            font-size: 7.2px !important;
+        }
+
+        .result-grade,
+        .result-gpa,
+        .result-mid-total {
+            font-size: 6.8px;
+        }
+    }
+</style>
+
+
+<div class="student-results-page">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+    <section class="result-surface result-page-header">
+
+        <div class="result-page-header-inner">
+
+            <div>
+                <div class="result-page-kicker">
+                    Academic Results
+                </div>
+
+                <h1 class="result-page-title">
+                    My Results
+                </h1>
+
+                <p class="result-page-subtitle">
+                    Published marks, CGPA, grades, and result copies.
+                </p>
+            </div>
+
+
+            <div class="result-header-actions">
+
+                <a
+                    href="{% url 'student_dashboard' %}"
+                    class="result-btn"
+                >
+                    ← Back
+                </a>
+
+
+                <a
+                    href="{% url 'download_student_result_pdf' %}"
+                    class="result-btn primary"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"
+                        />
+                    </svg>
+
+                    Download All Results
+                </a>
+                <a href="{% url 'student_mark_review_requests' %}"
+   style="
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       gap: 8px;
+       min-height: 48px;
+       padding: 0 20px;
+       border: 1px solid #fecaca;
+       border-radius: 14px;
+       background: #ffffff;
+       color: #b91c1c;
+       font-weight: 700;
+       text-decoration: none;
+   ">
+    Mark Review Requests
+</a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         TOP SUMMARY
+    ====================================================== -->
+    <section class="result-summary-grid">
+
+        <!-- CREDITS -->
+        <div class="result-summary-card">
+
+            <div class="result-summary-icon rose">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="result-summary-label">
+                    Credits
+                </div>
+
+                <div class="result-summary-value result-tabular">
+                    {{ total_result_credits|default:"0" }}
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- CGPA -->
+        <div class="result-summary-card">
+
+            <div class="result-summary-icon green">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4 19V5m4 14v-6m4 6V9m4 10v-3m4 3V7"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="result-summary-label">
+                    Overall CGPA
+                </div>
+
+                <div class="result-summary-value result-tabular">
+                    {{ overall_cgpa|default:"0.00" }}
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- FINAL RESULT -->
+        <div class="result-summary-card">
+
+            <div class="result-summary-icon blue">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12h6m-6 4h6M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="result-summary-label">
+                    Final Result
+                </div>
+
+                {% if final_results %}
+                    <div class="result-summary-value status-text">
+                        Published
+                    </div>
+                {% else %}
+                    <div class="result-summary-value status-text">
+                        Pending
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        <!-- RESULT COPY -->
+        <div class="result-summary-card">
+
+            <div class="result-summary-icon slate">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12l2 2 4-4M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="result-summary-label">
+                    Result Copy
+                </div>
+
+                <div class="result-summary-value status-text">
+                    Ready
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MIDTERM RESULTS
+    ====================================================== -->
+    <section class="result-surface result-section">
+
+        <div class="result-section-head">
+
+            <div>
+                <h2 class="result-section-title">
+                    Midterm Results
+                </h2>
+
+                <p class="result-section-subtitle">
+                    Detailed marks for quiz, assignment, attendance, and midterm.
+                </p>
+            </div>
+
+
+            {% if midterm_results %}
+                <span class="result-status-pill midterm">
+                    Published
+                </span>
+            {% else %}
+                <span class="result-status-pill pending">
+                    Pending
+                </span>
+            {% endif %}
+
+        </div>
+
+
+        {% if midterm_results %}
+
+            <div class="result-table-wrap">
+
+                <table class="result-table midterm-result-table">
+
+                    <thead>
+                        <tr>
+                            <th>
+                                Course
+                            </th>
+
+                            <th>
+                                Title
+                            </th>
+
+                            <th class="text-center">
+                                Quiz
+                            </th>
+
+                            <th class="text-center">
+                                Assign.
+                            </th>
+
+                            <th class="text-center">
+                                Attend.
+                            </th>
+
+                            <th class="text-center">
+                                Mid
+                            </th>
+
+                            <th class="text-center">
+                                Total
+                            </th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for mark in midterm_results %}
+
+                            <tr>
+
+                                <td class="result-course-code">
+                                    {{ mark.course_offering.course.code }}
+                                </td>
+
+
+                                <td class="result-course-title">
+                                    {{ mark.course_offering.course.title }}
+                                </td>
+
+
+                                <td class="text-center result-tabular">
+                                    {{ mark.class_test }}
+                                </td>
+
+
+                                <td class="text-center result-tabular">
+                                    {{ mark.assignment }}
+                                </td>
+
+
+                                <td class="text-center result-tabular">
+                                    {{ mark.attendance }}
+                                </td>
+
+
+                                <td class="text-center result-tabular">
+                                    {{ mark.midterm }}
+                                </td>
+
+
+                                <td class="text-center">
+                                    <span class="result-mid-total result-tabular">
+                                        {{ mark.class_test|add:mark.assignment|add:mark.attendance|add:mark.midterm }}
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="result-empty">
+
+                <div class="result-empty-title">
+                    No midterm result yet
+                </div>
+
+                <div class="result-empty-text">
+                    Published midterm marks will appear here.
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         FINAL RESULTS
+    ====================================================== -->
+    <section class="result-surface result-section">
+
+        <div class="result-section-head">
+
+            <div>
+                <h2 class="result-section-title">
+                    Final Results
+                </h2>
+
+                <p class="result-section-subtitle">
+                    Semester-wise final results with course credit, grade, GPA, and semester CGPA.
+                </p>
+            </div>
+
+
+            {% if final_results %}
+                <span class="result-status-pill published">
+                    Published
+                </span>
+            {% else %}
+                <span class="result-status-pill pending">
+                    Pending
+                </span>
+            {% endif %}
+
+        </div>
+
+
+        {% if final_results %}
+
+            <div class="semester-results-list">
+
+                {% for semester_item in semester_results %}
+
+                    <article class="semester-result-card">
+
+                        <!-- SEMESTER HEADER -->
+                        <div class="semester-result-header">
+
+                            <div>
+                                <div class="semester-result-eyebrow">
+                                    Semester Result
+                                </div>
+
+                                <h3 class="semester-result-title">
+                                    {{ semester_item.semester }} Final Result
+                                </h3>
+                            </div>
+
+
+                            <div class="semester-result-actions">
+
+                                <!-- CREDITS -->
+                                <div class="semester-summary-box">
+
+                                    <div class="semester-summary-label">
+                                        Credits
+                                    </div>
+
+                                    <div class="semester-summary-value result-tabular">
+                                        {{ semester_item.total_credits }}
+                                    </div>
+
+                                </div>
+
+
+                                <!-- CGPA -->
+                                <div class="semester-summary-box">
+
+                                    <div class="semester-summary-label">
+                                        CGPA
+                                    </div>
+
+                                    <div class="semester-summary-value result-tabular">
+                                        {{ semester_item.semester_cgpa }}
+                                    </div>
+
+                                </div>
+
+
+                                <!-- INDIVIDUAL SEMESTER DOWNLOAD -->
+                                <a
+                                    href="{% url 'download_student_semester_result_pdf' semester_item.semester.id %}"
+                                    class="semester-download-btn"
+                                >
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2.2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"
+                                        />
+                                    </svg>
+
+                                    Download Semester Result
+                                </a>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FINAL RESULT TABLE -->
+                        <div class="result-table-wrap">
+
+                            <table class="result-table final-result-table">
+
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Course
+                                        </th>
+
+                                        <th>
+                                            Title
+                                        </th>
+
+                                        <th class="text-center">
+                                            Credit
+                                        </th>
+
+                                        <th class="text-center">
+                                            Grade
+                                        </th>
+
+                                        <th class="text-center">
+                                            GPA
+                                        </th>
+                                    </tr>
+                                </thead>
+
+
+                                <tbody>
+
+                                    {% for mark in semester_item.courses %}
+
+                                        <tr>
+
+                                            <td class="result-course-code">
+                                                {{ mark.course_offering.course.code }}
+                                            </td>
+
+
+                                            <td class="result-course-title">
+                                                {{ mark.course_offering.course.title }}
+                                            </td>
+
+
+                                            <td class="text-center result-tabular">
+                                                {{ mark.course_offering.course.credit }}
+                                            </td>
+
+
+                                            <td class="text-center">
+                                                <span class="result-grade">
+                                                    {{ mark.grade }}
+                                                </span>
+                                            </td>
+
+
+                                            <td class="text-center">
+                                                <span class="result-gpa result-tabular">
+                                                    {{ mark.grade_point }}
+                                                </span>
+                                            </td>
+
+                                        </tr>
+
+                                    {% endfor %}
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="result-empty">
+
+                <div class="result-empty-title">
+                    No final result yet
+                </div>
+
+                <div class="result-empty-text">
+                    Published final results will appear here.
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         QUICK NOTES
+    ====================================================== -->
+    <section class="result-surface result-section">
+
+        <div class="result-notes-head">
+
+            <div class="result-notes-icon">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M13 16h-1v-4h-1m1-4h.01M12 21a9 9 0 100-18 9 9 0 000 18z"
+                    />
+                </svg>
+            </div>
+
+            <h2 class="result-section-title">
+                Quick Notes
+            </h2>
+
+        </div>
+
+
+        <div class="result-notes-grid">
+
+            <div class="result-note">
+                Midterm results show detailed marks for quiz or class test,
+                assignment, attendance, and midterm examination.
+            </div>
+
+
+            <div class="result-note">
+                Final results are grouped by semester and show course credit,
+                grade, GPA, semester CGPA, and overall CGPA.
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

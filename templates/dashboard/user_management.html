@@ -1,0 +1,1707 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .user-directory-page {
+        --um-ink: #0f172a;
+        --um-text: #334155;
+        --um-muted: #64748b;
+        --um-faint: #94a3b8;
+        --um-line: #e2e8f0;
+        --um-line-soft: #f1f5f9;
+        --um-surface: #ffffff;
+
+        --um-accent: #b21f1f;
+        --um-accent-dark: #8f1717;
+        --um-accent-soft: #fff1f2;
+        --um-accent-line: #fecaca;
+
+        --um-green: #047857;
+        --um-green-soft: #ecfdf5;
+        --um-green-line: #bbf7d0;
+
+        --um-red: #b91c1c;
+        --um-red-soft: #fef2f2;
+
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        display: grid;
+        gap: 18px;
+    }
+
+    .user-directory-page,
+    .user-directory-page * {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .user-directory-page a {
+        text-decoration: none;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .um-hero {
+        position: relative;
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+
+        padding: 30px;
+        border-radius: 28px;
+
+        background:
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.48),
+                transparent 35%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.74),
+                transparent 36%
+            ),
+            #ffffff;
+
+        border: 1px solid var(--um-line);
+    }
+
+    .um-eyebrow {
+        display: inline-flex;
+        align-items: center;
+
+        min-height: 30px;
+        padding: 0 12px;
+
+        border-radius: 999px;
+
+        background: var(--um-accent-soft);
+        border: 1px solid #ffe4e6;
+
+        color: var(--um-accent-dark);
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .um-title {
+        margin: 13px 0 0;
+
+        color: var(--um-ink);
+
+        font-size: clamp(32px, 4vw, 48px);
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+    }
+
+    .um-subtitle {
+        max-width: 760px;
+        margin: 11px 0 0;
+
+        color: var(--um-muted);
+
+        font-size: 14px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .um-hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    /* =========================================================
+       BUTTONS
+    ========================================================= */
+
+    .um-button {
+        min-height: 44px;
+        padding: 0 16px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        border-radius: 13px;
+        border: 1px solid var(--um-line);
+
+        background: #ffffff;
+        color: var(--um-text);
+
+        font-size: 12.5px;
+        font-weight: 850;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .um-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    .um-button.primary {
+        background: var(--um-accent);
+        border-color: var(--um-accent);
+        color: #ffffff;
+    }
+
+    .um-button.primary:hover {
+        background: var(--um-accent-dark);
+        border-color: var(--um-accent-dark);
+    }
+
+    .um-button.soft {
+        background: #ffffff;
+        color: var(--um-accent-dark);
+        border-color: var(--um-accent-line);
+    }
+
+    .um-button.soft:hover {
+        background: var(--um-accent-soft);
+    }
+
+    /* =========================================================
+       SUMMARY
+    ========================================================= */
+
+    .um-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .um-summary-card {
+        padding: 18px;
+
+        border-radius: 20px;
+        border: 1px solid var(--um-line);
+
+        background: #ffffff;
+    }
+
+    .um-summary-label {
+        color: var(--um-faint);
+
+        font-size: 9.5px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .um-summary-value {
+        margin-top: 6px;
+
+        color: var(--um-ink);
+
+        font-size: 26px;
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.045em;
+    }
+
+    /* =========================================================
+       MAIN DIRECTORY PANEL
+    ========================================================= */
+
+    .um-panel {
+        overflow: hidden;
+
+        border-radius: 26px;
+        border: 1px solid var(--um-line);
+
+        background: #ffffff;
+    }
+
+    .um-panel-header {
+        padding: 24px 26px;
+
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+
+        border-bottom: 1px solid var(--um-line-soft);
+    }
+
+    .um-panel-title {
+        margin: 0;
+
+        color: var(--um-ink);
+
+        font-size: 26px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.045em;
+    }
+
+    .um-panel-text {
+        max-width: 760px;
+        margin: 7px 0 0;
+
+        color: var(--um-muted);
+
+        font-size: 13.5px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    .um-count-chip {
+        min-height: 32px;
+        padding: 0 12px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px;
+
+        background: #f8fafc;
+        border: 1px solid var(--um-line);
+
+        color: #475569;
+
+        font-size: 11px;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+       ROLE SHORTCUTS
+    ========================================================= */
+
+    .um-role-tabs {
+        padding: 18px 22px 0;
+
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .um-role-tab {
+        min-height: 38px;
+        padding: 0 13px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px;
+        border: 1px solid var(--um-line);
+
+        background: #ffffff;
+        color: #475569;
+
+        font-size: 12px;
+        font-weight: 850;
+
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            color 0.15s ease;
+    }
+
+    .um-role-tab:hover {
+        border-color: var(--um-accent-line);
+        background: var(--um-accent-soft);
+        color: var(--um-accent-dark);
+    }
+
+    .um-role-tab.active {
+        border-color: var(--um-accent);
+        background: var(--um-accent);
+        color: #ffffff;
+    }
+
+    /* =========================================================
+       FILTER FORM
+    ========================================================= */
+
+    .um-filter-shell {
+        margin: 18px 22px;
+        padding: 18px;
+
+        border-radius: 20px;
+        border: 1px solid var(--um-accent-line);
+
+        background:
+            linear-gradient(
+                135deg,
+                #fffafa 0%,
+                #ffffff 100%
+            );
+    }
+
+    .um-filter-grid {
+        display: grid;
+        grid-template-columns:
+            minmax(220px, 1.4fr)
+            repeat(4, minmax(145px, 1fr));
+
+        gap: 12px;
+        align-items: end;
+    }
+
+    .um-field {
+        margin: 0;
+    }
+
+    .um-field label {
+        display: block;
+
+        margin-bottom: 7px;
+
+        color: var(--um-text);
+
+        font-size: 11.5px;
+        font-weight: 850;
+    }
+
+    .um-control {
+        width: 100%;
+        min-height: 44px;
+
+        padding: 10px 12px;
+
+        border-radius: 12px;
+        border: 1px solid #cbd5e1;
+
+        background: #ffffff;
+        color: var(--um-ink);
+
+        font-family: inherit;
+        font-size: 12.5px;
+        font-weight: 650;
+    }
+
+    .um-control:focus {
+        outline: none;
+        border-color: var(--um-accent);
+        box-shadow: 0 0 0 3px rgba(178, 31, 31, 0.09);
+    }
+
+    .um-search-wrap {
+        position: relative;
+    }
+
+    .um-search-wrap svg {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+
+        width: 17px;
+        height: 17px;
+
+        transform: translateY(-50%);
+
+        color: var(--um-faint);
+        pointer-events: none;
+    }
+
+    .um-search-wrap .um-control {
+        padding-left: 40px;
+    }
+
+    .um-filter-actions {
+        margin-top: 14px;
+
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+    }
+
+    /* =========================================================
+       USER LIST
+    ========================================================= */
+
+    .um-list {
+        padding: 0 22px 22px;
+
+        display: grid;
+        gap: 9px;
+    }
+
+    .um-user-row {
+        display: grid;
+        grid-template-columns:
+            52px
+            minmax(150px, 1.2fr)
+            minmax(130px, 0.9fr)
+            minmax(150px, 1fr)
+            minmax(150px, 1fr)
+            auto;
+
+        gap: 14px;
+        align-items: center;
+
+        padding: 14px 16px;
+
+        border-radius: 17px;
+        border: 1px solid var(--um-line);
+
+        background: #ffffff;
+
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .um-user-row:hover {
+        background: #fffafa;
+        border-color: var(--um-accent-line);
+        transform: translateY(-1px);
+    }
+
+    .um-avatar {
+        width: 52px;
+        height: 52px;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 16px;
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--um-accent),
+                #c62828
+            );
+
+        color: #ffffff;
+
+        font-size: 18px;
+        font-weight: 950;
+    }
+
+    .um-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .um-user-name {
+        color: var(--um-ink);
+
+        font-size: 15px;
+        line-height: 1.25;
+        font-weight: 900;
+
+        overflow-wrap: anywhere;
+    }
+
+    .um-user-role {
+        margin-top: 3px;
+
+        color: var(--um-muted);
+
+        font-size: 11.5px;
+        font-weight: 700;
+    }
+
+    .um-meta-label {
+        margin-bottom: 4px;
+
+        color: var(--um-faint);
+
+        font-size: 8.5px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .um-meta-value {
+        color: var(--um-ink);
+
+        font-size: 12.5px;
+        line-height: 1.4;
+        font-weight: 800;
+
+        overflow-wrap: anywhere;
+    }
+
+    .um-status {
+        min-height: 32px;
+        padding: 0 12px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px;
+
+        font-size: 11px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .um-status.active {
+        background: var(--um-green-soft);
+        border: 1px solid var(--um-green-line);
+        color: var(--um-green);
+    }
+
+    .um-status.inactive {
+        background: var(--um-red-soft);
+        border: 1px solid var(--um-accent-line);
+        color: var(--um-red);
+    }
+
+    /* =========================================================
+       EMPTY STATE
+    ========================================================= */
+
+    .um-empty {
+        padding: 34px 20px;
+
+        border-radius: 18px;
+        border: 1px dashed #cbd5e1;
+
+        background: #f8fafc;
+
+        text-align: center;
+    }
+
+    .um-empty-title {
+        color: var(--um-ink);
+
+        font-size: 16px;
+        font-weight: 900;
+    }
+
+    .um-empty-text {
+        margin-top: 5px;
+
+        color: var(--um-muted);
+
+        font-size: 12.5px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       PAGINATION
+    ========================================================= */
+
+    .um-pagination {
+        padding: 18px 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        border-top: 1px solid var(--um-line-soft);
+    }
+
+    .um-page-text {
+        color: var(--um-muted);
+
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .um-page-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* =========================================================
+       MOBILE USER CARDS
+    ========================================================= */
+
+    .um-mobile-list {
+        display: none;
+        gap: 10px;
+
+        padding: 0 16px 16px;
+    }
+
+    .um-mobile-card {
+        padding: 15px;
+
+        border-radius: 18px;
+        border: 1px solid var(--um-line);
+
+        background: #ffffff;
+    }
+
+    .um-mobile-top {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr) auto;
+        gap: 11px;
+        align-items: center;
+    }
+
+    .um-mobile-card .um-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .um-mobile-meta {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+
+        margin-top: 12px;
+    }
+
+    .um-mobile-meta-box {
+        padding: 10px;
+
+        border-radius: 13px;
+        border: 1px solid var(--um-line);
+
+        background: #f8fafc;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1250px) {
+        .um-summary-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .um-filter-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .um-search-field {
+            grid-column: 1 / -1;
+        }
+
+        .um-user-row {
+            grid-template-columns:
+                52px
+                minmax(160px, 1.3fr)
+                minmax(130px, 1fr)
+                minmax(150px, 1fr)
+                auto;
+        }
+
+        .um-hide-lg {
+            display: none;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .um-hero {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .um-hero-actions {
+            width: 100%;
+        }
+
+        .um-hero-actions .um-button {
+            width: 100%;
+        }
+
+        .um-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .um-user-row {
+            display: none;
+        }
+
+        .um-mobile-list {
+            display: grid;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .user-directory-page {
+            gap: 14px;
+        }
+
+        .um-hero {
+            padding: 22px 18px;
+            border-radius: 22px;
+        }
+
+        .um-title {
+            font-size: 32px;
+        }
+
+        .um-summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .um-panel {
+            border-radius: 22px;
+        }
+
+        .um-panel-header {
+            padding: 20px 16px;
+
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .um-filter-shell {
+            margin: 14px;
+            padding: 15px;
+        }
+
+        .um-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .um-search-field {
+            grid-column: auto;
+        }
+
+        .um-filter-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .um-filter-actions .um-button {
+            width: 100%;
+        }
+
+        .um-role-tabs {
+            padding: 14px 14px 0;
+
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+
+        .um-role-tab {
+            flex: 0 0 auto;
+        }
+
+        .um-pagination {
+            padding: 16px;
+
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .um-page-actions {
+            width: 100%;
+        }
+
+        .um-page-actions .um-button {
+            flex: 1 1 0;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .um-mobile-meta {
+            grid-template-columns: 1fr;
+        }
+
+        .um-mobile-top {
+            grid-template-columns: 46px minmax(0, 1fr);
+        }
+
+        .um-mobile-top .um-status {
+            grid-column: 1 / -1;
+            width: fit-content;
+        }
+    }
+
+
+    /* =========================================================
+       USER DIRECTORY PAGINATION
+    ========================================================= */
+
+    .um-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+
+        margin-top: 18px;
+        padding: 18px 20px;
+
+        border-top: 1px solid #e2e8f0;
+        background: #ffffff;
+    }
+
+    .um-page-summary {
+        color: #64748b;
+        font-size: 12.5px;
+        font-weight: 700;
+    }
+
+    .um-page-summary strong {
+        color: #0f172a;
+        font-weight: 900;
+    }
+
+    .um-page-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .um-button {
+        min-height: 42px;
+        padding: 0 15px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border: 1px solid #dbe3ee;
+        border-radius: 13px;
+
+        background: #ffffff;
+        color: #334155;
+
+        font-size: 12.5px;
+        font-weight: 850;
+        text-decoration: none;
+    }
+
+    .um-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .um-button-disabled {
+        color: #94a3b8;
+        background: #f8fafc;
+        cursor: not-allowed;
+    }
+
+    .um-page-number {
+        min-width: 58px;
+        text-align: center;
+
+        color: #475569;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    @media (max-width: 700px) {
+        .um-pagination {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .um-page-summary {
+            text-align: center;
+        }
+
+        .um-page-actions {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+        }
+
+        .um-button {
+            width: 100%;
+        }
+    }
+
+</style>
+
+
+<div class="user-directory-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="um-hero">
+
+        <div>
+            <div class="um-eyebrow">
+                Access Control
+            </div>
+
+            <h1 class="um-title">
+                User Management
+            </h1>
+
+            <p class="um-subtitle">
+                Search, filter, and manage university accounts from one organized directory.
+                Open any user to view full details, edit profile information, reset passwords,
+                or manage account access.
+            </p>
+        </div>
+
+
+        <div class="um-hero-actions">
+
+            <a
+                href="{% url 'create_user' %}"
+                class="um-button primary"
+            >
+                + Create User
+            </a>
+
+            {% if user.role == 'super_admin' %}
+                <a
+                    href="{% url 'super_admin_dashboard' %}"
+                    class="um-button soft"
+                >
+                    ← Back to Dashboard
+                </a>
+            {% else %}
+                <a
+                    href="{% url 'admin_dashboard' %}"
+                    class="um-button soft"
+                >
+                    ← Back to Dashboard
+                </a>
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SUMMARY
+    ====================================================== -->
+
+    <section class="um-summary-grid">
+
+        <div class="um-summary-card">
+            <div class="um-summary-label">
+                Students
+            </div>
+
+            <div class="um-summary-value">
+                {{ students_count }}
+            </div>
+        </div>
+
+
+        <div class="um-summary-card">
+            <div class="um-summary-label">
+                Faculty
+            </div>
+
+            <div class="um-summary-value">
+                {{ faculty_count }}
+            </div>
+        </div>
+
+
+        <div class="um-summary-card">
+            <div class="um-summary-label">
+                Staff / Admin
+            </div>
+
+            <div class="um-summary-value">
+                {{ staff_count }}
+            </div>
+        </div>
+
+
+        <div class="um-summary-card">
+            <div class="um-summary-label">
+                Active
+            </div>
+
+            <div class="um-summary-value">
+                {{ active_count }}
+            </div>
+        </div>
+
+
+        <div class="um-summary-card">
+            <div class="um-summary-label">
+                Inactive
+            </div>
+
+            <div class="um-summary-value">
+                {{ inactive_count }}
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DIRECTORY
+    ====================================================== -->
+
+    <section class="um-panel">
+
+        <div class="um-panel-header">
+
+            <div>
+                <h2 class="um-panel-title">
+                    User Directory
+                </h2>
+
+                <p class="um-panel-text">
+                    Use the filters below to find a specific account.
+                    Click any user to open the dedicated account management page.
+                </p>
+            </div>
+
+
+            <span class="um-count-chip">
+                {{ user_count }}
+                User{{ user_count|pluralize }}
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+             ROLE SHORTCUTS
+        ================================================== -->
+
+        <div class="um-role-tabs">
+
+            <a
+                href="{% url 'user_management' %}?user_type=all"
+                class="um-role-tab {% if user_type == 'all' %}active{% endif %}"
+            >
+                All
+            </a>
+
+
+            <a
+                href="{% url 'user_management' %}?user_type=students"
+                class="um-role-tab {% if user_type == 'students' %}active{% endif %}"
+            >
+                Students
+            </a>
+
+
+            <a
+                href="{% url 'user_management' %}?user_type=faculty"
+                class="um-role-tab {% if user_type == 'faculty' %}active{% endif %}"
+            >
+                Faculty
+            </a>
+
+
+            <a
+                href="{% url 'user_management' %}?user_type=accounts"
+                class="um-role-tab {% if user_type == 'accounts' %}active{% endif %}"
+            >
+                Accounts
+            </a>
+
+
+            <a
+                href="{% url 'user_management' %}?user_type=exam"
+                class="um-role-tab {% if user_type == 'exam' %}active{% endif %}"
+            >
+                Exam
+            </a>
+
+
+            <a
+                href="{% url 'user_management' %}?user_type=dept_head"
+                class="um-role-tab {% if user_type == 'dept_head' %}active{% endif %}"
+            >
+                Dept Head
+            </a>
+
+
+            <a
+                href="{% url 'user_management' %}?user_type=admin"
+                class="um-role-tab {% if user_type == 'admin' %}active{% endif %}"
+            >
+                Admin
+            </a>
+
+
+            {% if is_super_admin %}
+                <a
+                    href="{% url 'user_management' %}?user_type=super_admin"
+                    class="um-role-tab {% if user_type == 'super_admin' %}active{% endif %}"
+                >
+                    Super Admin
+                </a>
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             FILTER FORM
+        ================================================== -->
+
+        <form method="GET" class="um-filter-shell">
+
+            <input
+                type="hidden"
+                name="user_type"
+                value="{{ user_type }}"
+            >
+
+
+            <div class="um-filter-grid">
+
+                <div class="um-field um-search-field">
+
+                    <label>
+                        Search
+                    </label>
+
+                    <div class="um-search-wrap">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="M20 20l-3.5-3.5"></path>
+                        </svg>
+
+                        <input
+                            type="search"
+                            name="q"
+                            value="{{ search_query }}"
+                            class="um-control"
+                            placeholder="Username, name, email, student ID, employee ID..."
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="um-field">
+
+                    <label>
+                        Department
+                    </label>
+
+                    <select
+                        name="department"
+                        class="um-control"
+                    >
+                        <option value="">
+                            All Departments
+                        </option>
+
+                        {% for department in departments %}
+                            <option
+                                value="{{ department.id }}"
+                                {% if department_filter == department.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ department.code }} - {{ department.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+
+                <div class="um-field">
+
+                    <label>
+                        Batch
+                    </label>
+
+                    <select
+                        name="batch"
+                        class="um-control"
+                    >
+                        <option value="">
+                            All Batches
+                        </option>
+
+                        {% for batch in batches %}
+                            <option
+                                value="{{ batch.id }}"
+                                {% if batch_filter == batch.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ batch.department.code }} -
+                                {{ batch.batch_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+
+                <div class="um-field">
+
+                    <label>
+                        Semester
+                    </label>
+
+                    <select
+                        name="semester"
+                        class="um-control"
+                    >
+                        <option value="">
+                            All Semesters
+                        </option>
+
+                        {% for semester in semesters %}
+                            <option
+                                value="{{ semester.id }}"
+                                {% if semester_filter == semester.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ semester.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+
+                <div class="um-field">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <select
+                        name="status"
+                        class="um-control"
+                    >
+                        <option value="">
+                            All Statuses
+                        </option>
+
+                        <option
+                            value="active"
+                            {% if status_filter == 'active' %}
+                                selected
+                            {% endif %}
+                        >
+                            Active
+                        </option>
+
+                        <option
+                            value="inactive"
+                            {% if status_filter == 'inactive' %}
+                                selected
+                            {% endif %}
+                        >
+                            Inactive
+                        </option>
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="um-filter-actions">
+
+                <button
+                    type="submit"
+                    class="um-button primary"
+                >
+                    Apply Filters
+                </button>
+
+
+                <a
+                    href="{% url 'user_management' %}?user_type={{ user_type }}"
+                    class="um-button"
+                >
+                    Clear Filters
+                </a>
+
+            </div>
+
+        </form>
+
+
+        <!-- =================================================
+             DESKTOP USER LIST
+        ================================================== -->
+
+        <div class="um-list">
+
+            {% for row in user_rows %}
+
+                <a
+                    href="{% url 'user_detail' row.user.id %}"
+                    class="um-user-row"
+                >
+
+                    <div class="um-avatar">
+
+                        {% if row.user.profile_photo %}
+                            <img
+                                src="{{ row.user.profile_photo.url }}"
+                                alt="{{ row.user.username }}"
+                            >
+                        {% else %}
+                            {{ row.user.username|slice:":1"|upper }}
+                        {% endif %}
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="um-user-name">
+                            {% if row.user.get_full_name %}
+                                {{ row.user.get_full_name }}
+                            {% else %}
+                                {{ row.user.username }}
+                            {% endif %}
+                        </div>
+
+                        <div class="um-user-role">
+                            {{ row.user.get_role_display }}
+                            ·
+                            {{ row.user.username }}
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="um-meta-label">
+
+                            {% if row.user.role == 'student' %}
+                                Student ID
+                            {% else %}
+                                Employee ID
+                            {% endif %}
+
+                        </div>
+
+                        <div class="um-meta-value">
+                            {{ row.display_id }}
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="um-meta-label">
+                            Department
+                        </div>
+
+                        <div class="um-meta-value">
+                            {{ row.department_label }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="um-hide-lg">
+
+                        <div class="um-meta-label">
+
+                            {% if row.user.role == 'student' %}
+                                Batch / Semester
+                            {% else %}
+                                Email
+                            {% endif %}
+
+                        </div>
+
+                        <div class="um-meta-value">
+
+                            {% if row.user.role == 'student' %}
+                                {{ row.batch_label }}
+                                ·
+                                {{ row.semester_label }}
+                            {% else %}
+                                {{ row.user.email|default:"-" }}
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        {% if row.user.is_active %}
+                            <span class="um-status active">
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="um-status inactive">
+                                Inactive
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                </a>
+
+            {% empty %}
+
+                <div class="um-empty">
+
+                    <div class="um-empty-title">
+                        No users found
+                    </div>
+
+                    <div class="um-empty-text">
+                        Try changing the filters or search terms.
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =================================================
+             MOBILE USER LIST
+        ================================================== -->
+
+        <div class="um-mobile-list">
+
+            {% for row in user_rows %}
+
+                <a
+                    href="{% url 'user_detail' row.user.id %}"
+                    class="um-mobile-card"
+                >
+
+                    <div class="um-mobile-top">
+
+                        <div class="um-avatar">
+
+                            {% if row.user.profile_photo %}
+                                <img
+                                    src="{{ row.user.profile_photo.url }}"
+                                    alt="{{ row.user.username }}"
+                                >
+                            {% else %}
+                                {{ row.user.username|slice:":1"|upper }}
+                            {% endif %}
+
+                        </div>
+
+
+                        <div>
+
+                            <div class="um-user-name">
+                                {% if row.user.get_full_name %}
+                                    {{ row.user.get_full_name }}
+                                {% else %}
+                                    {{ row.user.username }}
+                                {% endif %}
+                            </div>
+
+                            <div class="um-user-role">
+                                {{ row.user.get_role_display }}
+                                ·
+                                {{ row.user.username }}
+                            </div>
+
+                        </div>
+
+
+                        {% if row.user.is_active %}
+                            <span class="um-status active">
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="um-status inactive">
+                                Inactive
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="um-mobile-meta">
+
+                        <div class="um-mobile-meta-box">
+
+                            <div class="um-meta-label">
+
+                                {% if row.user.role == 'student' %}
+                                    Student ID
+                                {% else %}
+                                    Employee ID
+                                {% endif %}
+
+                            </div>
+
+                            <div class="um-meta-value">
+                                {{ row.display_id }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="um-mobile-meta-box">
+
+                            <div class="um-meta-label">
+                                Department
+                            </div>
+
+                            <div class="um-meta-value">
+                                {{ row.department_label }}
+                            </div>
+
+                        </div>
+
+
+                        {% if row.user.role == 'student' %}
+
+                            <div class="um-mobile-meta-box">
+
+                                <div class="um-meta-label">
+                                    Batch
+                                </div>
+
+                                <div class="um-meta-value">
+                                    {{ row.batch_label }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="um-mobile-meta-box">
+
+                                <div class="um-meta-label">
+                                    Semester
+                                </div>
+
+                                <div class="um-meta-value">
+                                    {{ row.semester_label }}
+                                </div>
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="um-mobile-meta-box">
+
+                                <div class="um-meta-label">
+                                    Email
+                                </div>
+
+                                <div class="um-meta-value">
+                                    {{ row.user.email|default:"-" }}
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </a>
+
+            {% empty %}
+
+                <div class="um-empty">
+
+                    <div class="um-empty-title">
+                        No users found
+                    </div>
+
+                    <div class="um-empty-text">
+                        Try changing the filters or search terms.
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =================================================
+             PAGINATION
+        ================================================== -->
+
+        {% if user_page_obj %}
+    <div class="um-pagination">
+
+        <div class="um-page-summary">
+            Page
+            <strong>{{ user_page_obj.number }}</strong>
+            of
+            <strong>{{ user_page_obj.paginator.num_pages }}</strong>
+
+            <span>
+                · {{ user_count }} matching user{{ user_count|pluralize }}
+            </span>
+        </div>
+
+        <div class="um-page-actions">
+
+            {% if user_page_obj.has_previous %}
+                <a
+                    href="?{% if user_query_string %}{{ user_query_string }}&{% endif %}user_page={{ user_page_obj.previous_page_number }}"
+                    class="um-button"
+                >
+                    ← Previous
+                </a>
+            {% else %}
+                <span class="um-button um-button-disabled">
+                    ← Previous
+                </span>
+            {% endif %}
+
+            <span class="um-page-number">
+                {{ user_page_obj.number }} / {{ user_page_obj.paginator.num_pages }}
+            </span>
+
+            {% if user_page_obj.has_next %}
+                <a
+                    href="?{% if user_query_string %}{{ user_query_string }}&{% endif %}user_page={{ user_page_obj.next_page_number }}"
+                    class="um-button"
+                >
+                    Next →
+                </a>
+            {% else %}
+                <span class="um-button um-button-disabled">
+                    Next →
+                </span>
+            {% endif %}
+
+        </div>
+
+    </div>
+{% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

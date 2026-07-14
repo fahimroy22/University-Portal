@@ -1,0 +1,547 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .accounts-students-page {
+        width: min(100%, 1180px);
+        margin: 0 auto;
+        display: grid;
+        gap: 16px;
+    }
+
+    .as-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: none;
+    }
+
+    .as-hero {
+        padding: 24px;
+    }
+
+    .as-kicker {
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .as-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .as-text {
+        margin-top: 8px;
+        max-width: 780px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .as-panel {
+        padding: 20px 22px;
+    }
+
+    .as-panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .as-panel-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .as-panel-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .as-chip {
+        display: inline-flex;
+        align-items: center;
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .as-chip.success {
+        background: #ecfdf5;
+        border-color: #bbf7d0;
+        color: #047857;
+    }
+
+    .as-chip.warning {
+        background: #fffbeb;
+        border-color: #fde68a;
+        color: #b45309;
+    }
+
+    .as-chip.danger {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #dc2626;
+    }
+
+    .as-filter-form {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        align-items: end;
+    }
+
+    .as-filter-form .wide {
+        grid-column: span 2;
+    }
+
+    .as-field {
+        margin: 0;
+    }
+
+    .as-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 13px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: #9f1c1c;
+        box-shadow: 0 0 0 3px rgba(159, 28, 28, 0.10);
+    }
+
+    .as-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .as-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: 9px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 750;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .as-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .as-button.primary {
+        background: #9f1c1c;
+        border-color: #9f1c1c;
+        color: #ffffff;
+    }
+
+    .as-button.primary:hover {
+        background: #7f1717;
+        border-color: #7f1717;
+        color: #ffffff;
+    }
+
+    .as-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+    }
+
+    .as-table {
+        width: 100%;
+        min-width: 1120px;
+        border-collapse: collapse;
+        background: #ffffff;
+    }
+
+    .as-table th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        padding: 13px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .as-table td {
+        padding: 14px;
+        border-bottom: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .as-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .as-table tr:hover td {
+        background: #fffafa;
+    }
+
+    .student-id {
+        color: #9f1c1c;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .student-name {
+        color: #0f172a;
+        font-weight: 750;
+    }
+
+    .student-meta {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .amount {
+        color: #0f172a;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .amount.due {
+        color: #dc2626;
+    }
+
+    .amount.paid {
+        color: #047857;
+    }
+
+    .badge-paid,
+    .badge-partial,
+    .badge-unpaid {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .badge-paid {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #bbf7d0;
+    }
+
+    .badge-partial {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+
+    .badge-unpaid {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .empty-state {
+        padding: 30px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+        .as-filter-form {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .as-filter-form .wide {
+            grid-column: span 2;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .as-panel-head {
+            flex-direction: column;
+        }
+
+        .as-filter-form,
+        .as-filter-form .wide {
+            grid-template-columns: 1fr;
+            grid-column: span 1;
+        }
+
+        .as-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .as-button {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="accounts-students-page">
+
+    <section class="as-card as-hero">
+        <div class="as-kicker">Accounts</div>
+        <h1 class="as-title">Student Accounts</h1>
+        <p class="as-text">
+            Manage students by department, batch, semester, and payment status. Open a student account to receive payments, print receipts, apply waivers, and print admit cards.
+        </p>
+    </section>
+
+    <section class="as-card as-panel">
+        <div class="as-panel-head">
+            <div>
+                <h2 class="as-panel-title">Filter Students</h2>
+                <p class="as-panel-text">
+                    Use filters to find specific students or groups quickly.
+                </p>
+            </div>
+
+            <span class="as-chip">
+                {% if student_rows %}
+                    {{ student_rows|length }} Student{{ student_rows|length|pluralize }}
+                {% else %}
+                    No Student
+                {% endif %}
+            </span>
+        </div>
+
+        <form method="get" class="as-filter-form">
+            <p class="as-field wide">
+                <label>Search Student</label>
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="Search by student ID, username, name, or email"
+                    class="input-control"
+                >
+            </p>
+
+            <p class="as-field">
+                <label>Department</label>
+                <select name="department" class="input-control">
+                    <option value="">All departments</option>
+                    {% for department in departments %}
+                        <option value="{{ department.id }}"
+                            {% if selected_department_id|stringformat:"s" == department.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ department.code }} - {{ department.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p class="as-field">
+                <label>Batch</label>
+                <select name="batch" class="input-control">
+                    <option value="">All batches</option>
+                    {% for batch in batches %}
+                        <option value="{{ batch.id }}"
+                            {% if selected_batch_id|stringformat:"s" == batch.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ batch.department.code }} - {{ batch.batch_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p class="as-field">
+                <label>Semester</label>
+                <select name="semester" class="input-control">
+                    <option value="">All semesters</option>
+                    {% for semester in semesters %}
+                        <option value="{{ semester.id }}"
+                            {% if selected_semester_id|stringformat:"s" == semester.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ semester }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p class="as-field">
+                <label>Payment Status</label>
+                <select name="payment_status" class="input-control">
+                    <option value="all" {% if payment_status == 'all' %}selected{% endif %}>All students</option>
+                    <option value="paid" {% if payment_status == 'paid' %}selected{% endif %}>Clear / Paid</option>
+                    <option value="partial" {% if payment_status == 'partial' %}selected{% endif %}>Partial</option>
+                    <option value="due" {% if payment_status == 'due' %}selected{% endif %}>Due</option>
+                </select>
+            </p>
+
+            <div class="as-actions">
+                <button type="submit" class="as-button primary">
+                    Apply Filters
+                </button>
+
+                <a href="{% url 'accounts_students' %}" class="as-button">
+                    Reset
+                </a>
+
+                <a href="{% url 'accounts_dashboard' %}" class="as-button">
+                    Back to Overview
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="as-card as-panel">
+        <div class="as-panel-head">
+            <div>
+                <h2 class="as-panel-title">Student Finance List</h2>
+                <p class="as-panel-text">
+                    Open a student account to manage all payment actions and history.
+                </p>
+            </div>
+
+            {% if payment_status == 'paid' %}
+                <span class="as-chip success">Clear students</span>
+            {% elif payment_status == 'partial' %}
+                <span class="as-chip warning">Partial students</span>
+            {% elif payment_status == 'due' %}
+                <span class="as-chip danger">Due students</span>
+            {% else %}
+                <span class="as-chip">All students</span>
+            {% endif %}
+        </div>
+
+        {% if student_rows %}
+            <div class="as-table-wrap">
+                <table class="as-table">
+                    <tr>
+                        <th>Student</th>
+                        <th>Department</th>
+                        <th>Batch</th>
+                        <th>Semester</th>
+                        <th>Total Payable</th>
+                        <th>Total Paid</th>
+                        <th>Current Due</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+
+                    {% for row in student_rows %}
+                        <tr>
+                            <td>
+                                <div class="student-id">{{ row.student.student_id }}</div>
+                                <div class="student-name">
+                                    {{ row.student.user.get_full_name|default:row.student.user.username }}
+                                </div>
+                                <div class="student-meta">
+                                    {{ row.student.user.email|default:"No email" }}
+                                </div>
+                            </td>
+
+                            <td>{{ row.student.department|default:"-" }}</td>
+
+                            <td>{{ row.student.batch|default:"-" }}</td>
+
+                            <td>{{ row.student.current_semester|default:"-" }}</td>
+
+                            <td>
+                                <span class="amount">{{ row.summary.total_payable }} BDT</span>
+                            </td>
+
+                            <td>
+                                <span class="amount paid">{{ row.summary.total_paid }} BDT</span>
+                            </td>
+
+                            <td>
+                                <span class="amount due">{{ row.summary.current_due }} BDT</span>
+                            </td>
+
+                            <td>
+                                <span class="{{ row.status_class }}">
+                                    {{ row.status_label }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <a href="{% url 'accounts_student_detail' row.student.id %}" class="as-button primary">
+                                    Manage Account
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No students matched your filters.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="space-y-6 sm:space-y-8">
+
+    <!-- Page Header -->
+    <section class="glass-panel overflow-hidden rounded-[28px] sm:rounded-[34px]">
+        <div class="relative p-5 sm:p-7 lg:p-9">
+            <div class="absolute -right-20 -top-20 h-44 w-44 rounded-full bg-emerald-100 blur-3xl"></div>
+            <div class="absolute -left-12 bottom-0 h-36 w-36 rounded-full bg-green-100 blur-3xl"></div>
+
+            <div class="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-widest text-emerald-700">
+                        Faculty Analytics
+                    </span>
+
+                    <h1 class="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+                        Faculty Reports
+                    </h1>
+
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
+                        Course-wise summary of students, attendance, assignments, submissions, checked work, and marks progress.
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <a href="{% url 'faculty_dashboard' %}" class="btn btn-outline w-full justify-center sm:w-auto">
+                        ← Back to Faculty Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Cards -->
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#16a34a;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Courses</div>
+                <div class="stat-value">{{ report_rows|length }}</div>
+                <div class="stat-desc">Assigned course reports.</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#16a34a;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Students</div>
+                <div class="stat-value">Tracked</div>
+                <div class="stat-desc">Student count shown per course.</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#16a34a;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6m4 6V7m4 10v-3M5 21h14M5 3v18"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Attendance</div>
+                <div class="stat-value">Average</div>
+                <div class="stat-desc">Course attendance overview.</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#16a34a;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Assignments</div>
+                <div class="stat-value">Progress</div>
+                <div class="stat-desc">Submissions and checked work.</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Report Summary -->
+    <section class="glass-panel rounded-[28px] p-5 sm:p-7">
+
+        <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+                <h2 class="text-2xl font-black text-slate-950 sm:text-3xl">
+                    Course Report Summary
+                </h2>
+
+                <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">
+                    Review each assigned course with student count, class count, average attendance, assignment progress, submissions, checked work, and marks status.
+                </p>
+            </div>
+
+            {% if report_rows %}
+                <span class="badge badge-green">
+                    {{ report_rows|length }} Report{{ report_rows|length|pluralize }}
+                </span>
+            {% else %}
+                <span class="badge badge-slate">
+                    No Report
+                </span>
+            {% endif %}
+        </div>
+
+        {% if report_rows %}
+
+            <!-- Mobile / Tablet Cards -->
+            <div class="space-y-4 xl:hidden">
+                {% for row in report_rows %}
+                    <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] transition hover:border-emerald-200 hover:shadow-[0_20px_45px_rgba(22,163,74,0.08)]">
+
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div class="min-w-0">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Course
+                                </p>
+
+                                <h3 class="mt-1 text-xl font-black text-slate-950">
+                                    {{ row.course_offering.course.code }}
+                                </h3>
+
+                                <p class="mt-1 break-words text-sm leading-5 text-slate-500">
+                                    {{ row.course_offering.course.title }}
+                                </p>
+                            </div>
+
+                            {% if row.average_attendance >= 60 %}
+                                <span class="badge badge-green">
+                                    {{ row.average_attendance }}%
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background:#fef2f2; color:#dc2626;">
+                                    {{ row.average_attendance }}%
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <div class="rounded-2xl bg-emerald-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-emerald-600">
+                                    Batch
+                                </p>
+                                <p class="mt-1 font-black text-emerald-700">
+                                    {{ row.course_offering.batch }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl bg-blue-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-blue-500">
+                                    Semester
+                                </p>
+                                <p class="mt-1 font-black text-blue-700">
+                                    {{ row.course_offering.semester }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl bg-slate-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Section
+                                </p>
+                                <p class="mt-1 font-black text-slate-700">
+                                    {{ row.course_offering.section }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Students
+                                </p>
+                                <p class="mt-1 text-2xl font-black text-slate-950">
+                                    {{ row.total_students }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Classes
+                                </p>
+                                <p class="mt-1 text-2xl font-black text-slate-950">
+                                    {{ row.total_classes }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Assignments
+                                </p>
+                                <p class="mt-1 text-2xl font-black text-slate-950">
+                                    {{ row.total_assignments }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Published
+                                </p>
+                                <p class="mt-1 text-2xl font-black text-slate-950">
+                                    {{ row.published_assignments }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Submissions
+                                </p>
+                                <p class="mt-1 text-2xl font-black text-slate-950">
+                                    {{ row.total_assignment_submissions }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Checked
+                                </p>
+                                <p class="mt-1 text-2xl font-black text-slate-950">
+                                    {{ row.checked_submissions }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="mt-3 rounded-2xl bg-emerald-50 p-4">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-xs font-black uppercase tracking-widest text-emerald-600">
+                                        Marks Submitted
+                                    </p>
+                                    <p class="mt-1 text-xl font-black text-emerald-700">
+                                        {{ row.marks_submitted }}/{{ row.total_students }}
+                                    </p>
+                                </div>
+
+                                <a href="{% url 'faculty_course_students' row.course_offering.id %}" class="btn w-full justify-center sm:w-auto" style="background:#16a34a; box-shadow:0 12px 26px rgba(22,163,74,0.22);">
+                                    Manage Course
+                                </a>
+                            </div>
+                        </div>
+
+                    </article>
+                {% endfor %}
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="table-wrap hidden xl:block">
+                <table style="min-width:1250px;">
+                    <tr>
+                        <th>Course</th>
+                        <th style="text-align:center;">Batch</th>
+                        <th style="text-align:center;">Semester</th>
+                        <th style="text-align:center;">Section</th>
+                        <th style="text-align:center;">Students</th>
+                        <th style="text-align:center;">Classes</th>
+                        <th style="text-align:center;">Avg Attendance</th>
+                        <th style="text-align:center;">Assignments</th>
+                        <th style="text-align:center;">Published</th>
+                        <th style="text-align:center;">Submissions</th>
+                        <th style="text-align:center;">Checked</th>
+                        <th style="text-align:center;">Marks</th>
+                        <th style="text-align:center;">Action</th>
+                    </tr>
+
+                    {% for row in report_rows %}
+                    <tr>
+                        <td>
+                            <strong>{{ row.course_offering.course.code }}</strong>
+                            <br>
+                            <span class="text-sm text-slate-500">
+                                {{ row.course_offering.course.title }}
+                            </span>
+                        </td>
+
+                        <td style="text-align:center;">
+                            {{ row.course_offering.batch }}
+                        </td>
+
+                        <td style="text-align:center;">
+                            {{ row.course_offering.semester }}
+                        </td>
+
+                        <td style="text-align:center;">
+                            {{ row.course_offering.section }}
+                        </td>
+
+                        <td style="text-align:center;">
+                            <strong>{{ row.total_students }}</strong>
+                        </td>
+
+                        <td style="text-align:center;">
+                            {{ row.total_classes }}
+                        </td>
+
+                        <td style="text-align:center;">
+                            {% if row.average_attendance >= 60 %}
+                                <span class="badge badge-green">
+                                    {{ row.average_attendance }}%
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background:#fef2f2; color:#dc2626;">
+                                    {{ row.average_attendance }}%
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td style="text-align:center;">
+                            {{ row.total_assignments }}
+                        </td>
+
+                        <td style="text-align:center;">
+                            {{ row.published_assignments }}
+                        </td>
+
+                        <td style="text-align:center;">
+                            {{ row.total_assignment_submissions }}
+                        </td>
+
+                        <td style="text-align:center;">
+                            {{ row.checked_submissions }}
+                        </td>
+
+                        <td style="text-align:center;">
+                            <span class="badge badge-slate">
+                                {{ row.marks_submitted }}/{{ row.total_students }}
+                            </span>
+                        </td>
+
+                        <td style="text-align:center;">
+                            <a href="{% url 'faculty_course_students' row.course_offering.id %}" class="btn" style="background:#16a34a; padding:9px 14px; border-radius:12px; box-shadow:none;">
+                                Manage
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+        {% else %}
+
+            <div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+                    —
+                </div>
+
+                <h3 class="mt-4 text-lg font-black text-slate-700">
+                    No assigned courses found
+                </h3>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    Course reports will appear here after courses are assigned to you.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

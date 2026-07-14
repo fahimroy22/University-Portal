@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Assignment Submissions</h2>
+
+    <p><strong>Assignment:</strong> {{ assignment.title }}</p>
+    <p><strong>Course:</strong> {{ assignment.course_offering.course.code }} - {{ assignment.course_offering.course.title }}</p>
+    <p><strong>Total Marks:</strong> {{ assignment.total_marks }}</p>
+    <p><strong>Deadline:</strong> {{ assignment.deadline }}</p>
+
+    <p>
+        <a href="{% url 'faculty_assignments' assignment.course_offering.id %}"
+           style="background:#555; color:white; padding:8px 12px; text-decoration:none; border-radius:5px;">
+            Back to Assignments
+        </a>
+    </p>
+</div>
+
+<div class="card">
+    <h2>Student Submissions</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if student_rows %}
+        <table style="width:100%; border-collapse: collapse;">
+            <tr>
+                <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Student ID</th>
+                <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Name</th>
+                <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Answer</th>
+                <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">File</th>
+                <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Submitted At</th>
+                <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Marks</th>
+                <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Feedback</th>
+                <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Status</th>
+            </tr>
+
+            {% for row in student_rows %}
+            <tr>
+                <td style="padding:10px;">{{ row.student.student_id }}</td>
+                <td style="padding:10px;">{{ row.student.user.get_full_name|default:row.student.user.username }}</td>
+
+                {% if row.submission %}
+                    <td style="padding:10px;">
+                        {% if row.submission.answer_text %}
+                            {{ row.submission.answer_text }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td style="padding:10px;">
+                        {% if row.submission.submitted_file %}
+                            <a href="{{ row.submission.submitted_file.url }}" target="_blank">View File</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td style="padding:10px;">{{ row.submission.submitted_at }}</td>
+
+                    <td style="padding:10px;">
+                        <input type="number"
+                               name="obtained_marks_{% if row.submission %}{{ row.submission.id }}{% endif %}"
+                               step="0.01"
+                               value="{% if row.submission.obtained_marks %}{{ row.submission.obtained_marks }}{% endif %}"
+                               style="width:90px; padding:6px;">
+                    </td>
+
+                    <td style="padding:10px;">
+                        <textarea name="feedback_{{ row.submission.id }}" rows="2"
+                                  style="width:180px;">{% if row.submission.feedback %}{{ row.submission.feedback }}{% endif %}</textarea>
+                    </td>
+
+                    <td style="padding:10px;">{{ row.submission.get_status_display }}</td>
+                {% else %}
+                    <td style="padding:10px;" colspan="6">
+                        <span style="color:red; font-weight:bold;">Not submitted yet</span>
+                    </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+
+        <br>
+
+        <button type="submit"
+                style="background:#0b3d91; color:white; padding:10px 16px; border:none; border-radius:6px;">
+            Save Marks & Feedback
+        </button>
+        {% else %}
+            <p>No students found.</p>
+        {% endif %}
+    </form>
+</div>
+
+{% endblock %}

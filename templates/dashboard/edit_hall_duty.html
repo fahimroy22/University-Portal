@@ -1,0 +1,750 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .hall-duty-page {
+        display: grid;
+        gap: 24px;
+    }
+
+    .hall-duty-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #fffafa 0%, #fff1f2 50%, #ffffff 100%);
+        border: 1px solid rgba(254, 202, 202, 0.85);
+        box-shadow: 0 10px 28px rgba(127, 29, 29, 0.07);
+    }
+
+    .hall-duty-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .hall-duty-hero h2 {
+        font-size: clamp(32px, 4vw, 50px);
+        line-height: 1.02;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+        color: var(--navy);
+        margin: 0 0 10px;
+    }
+
+    .hall-duty-hero p {
+        max-width: 720px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .soft-back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 15px;
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        font-weight: 900;
+        box-shadow: 0 6px 16px rgba(127, 29, 29, 0.06);
+        transition: background 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .soft-back-button:hover {
+        background: var(--accent-soft);
+    }
+
+    .current-info-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .info-card,
+    .panel-card {
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .info-card {
+        padding: 18px;
+        border-radius: 22px;
+    }
+
+    .info-label {
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        color: var(--soft-muted);
+        margin-bottom: 7px;
+    }
+
+    .info-value {
+        color: var(--navy);
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1.35;
+        word-break: break-word;
+    }
+
+    .panel-card {
+        border-radius: 28px;
+        padding: 28px;
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .panel-card h3 {
+        margin: 0 0 8px;
+        color: var(--navy);
+        font-size: 27px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .panel-card p {
+        color: var(--muted);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .hall-duty-form {
+        display: grid;
+        gap: 20px;
+    }
+
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-field {
+        margin: 0;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid #cbd5e1;
+        background: white;
+        color: var(--navy);
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    textarea.input-control {
+        min-height: 130px;
+        resize: vertical;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(127, 29, 29, 0.10);
+    }
+
+    .highlight-box {
+        padding: 20px;
+        border-radius: 24px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+    }
+
+    .faculty-picker-box {
+        padding: 20px;
+        border-radius: 24px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+    }
+
+    .faculty-tools {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 14px;
+        align-items: end;
+    }
+
+    .faculty-search-wrap {
+        position: relative;
+    }
+
+    .faculty-search-input {
+        padding-right: 44px;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 14px;
+        bottom: 13px;
+        width: 20px;
+        height: 20px;
+        color: var(--soft-muted);
+        pointer-events: none;
+    }
+
+    .faculty-dropdown {
+        margin-top: 14px;
+        max-height: 310px;
+        overflow-y: auto;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: white;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .faculty-dropdown::-webkit-scrollbar {
+        width: 7px;
+    }
+
+    .faculty-dropdown::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .faculty-dropdown::-webkit-scrollbar-thumb {
+        background: rgba(127, 29, 29, 0.35);
+        border-radius: 999px;
+    }
+
+    .faculty-option {
+        width: 100%;
+        padding: 14px 16px;
+        border: none;
+        border-bottom: 1px solid #f1f5f9;
+        background: white;
+        color: var(--navy);
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        cursor: pointer;
+        box-shadow: none;
+        border-radius: 0;
+        min-height: auto;
+    }
+
+    .faculty-option:last-child {
+        border-bottom: none;
+    }
+
+    .faculty-option:hover {
+        background: #fffafa;
+    }
+
+    .faculty-option.is-selected {
+        background: var(--accent-soft);
+    }
+
+    .faculty-name {
+        color: var(--navy);
+        font-size: 14px;
+        font-weight: 950;
+        line-height: 1.35;
+    }
+
+    .faculty-meta {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.35;
+    }
+
+    .faculty-dept-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        font-size: 11px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .selected-faculty-box {
+        margin-top: 14px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .faculty-empty {
+        display: none;
+        padding: 22px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 14px;
+        font-weight: 850;
+    }
+
+    .form-action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        padding-top: 4px;
+    }
+
+    .primary-button {
+        min-height: 48px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 16px;
+        background: var(--accent);
+        color: white;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: none;
+        transition: background 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .primary-button:hover {
+        background: var(--accent-dark);
+    }
+
+    .outline-button {
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 18px;
+        border-radius: 16px;
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        font-weight: 900;
+        transition: background 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .outline-button:hover {
+        background: var(--accent-soft);
+    }
+
+    @media (max-width: 1100px) {
+        .current-info-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .form-grid-2,
+        .faculty-tools {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .hall-duty-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 26px;
+        }
+
+        .soft-back-button,
+        .primary-button,
+        .outline-button {
+            width: 100%;
+        }
+
+        .current-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .panel-card {
+            padding: 20px;
+            border-radius: 22px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+        }
+
+        .panel-header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-action-row {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .faculty-option {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hall-duty-hero {
+            padding: 20px;
+            border-radius: 24px;
+        }
+
+        .hall-duty-hero h2 {
+            font-size: 32px;
+        }
+
+        .highlight-box,
+        .faculty-picker-box {
+            padding: 18px;
+            border-radius: 20px;
+        }
+    }
+</style>
+
+<div class="hall-duty-page">
+
+    <section class="hall-duty-hero">
+        <div>
+            <div class="hall-duty-pill">Exam Office</div>
+            <h2>Edit Hall Duty</h2>
+            <p>
+                Update the assigned faculty, exam routine, duty room, and duty note for this hall duty.
+            </p>
+        </div>
+
+        <a href="{% url 'exam_controller_dashboard' %}" class="soft-back-button">
+            ← Back to Exam Controller Dashboard
+        </a>
+    </section>
+
+    <section class="current-info-grid">
+        <div class="info-card">
+            <div class="info-label">Current Faculty</div>
+            <div class="info-value">
+                {{ hall_duty.faculty.get_full_name|default:hall_duty.faculty.username }}
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Course</div>
+            <div class="info-value">
+                {{ hall_duty.exam_routine.course_offering.course.code }}
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Exam Date</div>
+            <div class="info-value">
+                {{ hall_duty.exam_routine.exam_date }}
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Duty Room</div>
+            <div class="info-value">
+                {{ hall_duty.duty_room }}
+            </div>
+        </div>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-header">
+            <div>
+                <h3>Hall Duty Information</h3>
+                <p>Filter faculty by department, search by name or ID, then select the faculty member.</p>
+            </div>
+            <span class="section-chip">Edit Duty</span>
+        </div>
+
+        <form method="POST" class="hall-duty-form">
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="faculty"
+                id="selectedFacultyInput"
+                value="{{ hall_duty.faculty.id }}"
+                required
+            >
+
+            <div class="faculty-picker-box">
+                <div class="faculty-tools">
+                    <p class="form-field">
+                        <label>Department</label>
+                        <select id="facultyDepartmentFilter" class="input-control">
+                            <option value="">All Departments</option>
+                        </select>
+                    </p>
+
+                    <p class="form-field faculty-search-wrap">
+                        <label>Search Faculty</label>
+                        <input
+                            type="text"
+                            id="facultySearchInput"
+                            class="input-control faculty-search-input"
+                            placeholder="Search by name, username, faculty ID, email, or department..."
+                            autocomplete="off"
+                        >
+
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 110-15 7.5 7.5 0 010 15z"/>
+                        </svg>
+                    </p>
+                </div>
+
+                <div class="selected-faculty-box" id="selectedFacultyBox">
+                    Selected Faculty:
+                    {{ hall_duty.faculty.get_full_name|default:hall_duty.faculty.username }}
+                </div>
+
+                <div class="faculty-dropdown" id="facultyDropdown">
+                    {% for faculty in faculty_picker_rows %}
+                        <button
+                            type="button"
+                            class="faculty-option {% if faculty.id == hall_duty.faculty.id %}is-selected{% endif %}"
+                            data-faculty-id="{{ faculty.id }}"
+                            data-faculty-name="{{ faculty.name }}"
+                            data-faculty-username="{{ faculty.username }}"
+                            data-faculty-email="{{ faculty.email }}"
+                            data-faculty-phone="{{ faculty.phone }}"
+                            data-faculty-department-id="{{ faculty.department_id }}"
+                            data-faculty-department-name="{{ faculty.department_name }}"
+                            data-search-text="{{ faculty.name }} {{ faculty.username }} {{ faculty.email }} {{ faculty.phone }} {{ faculty.id }} {{ faculty.department_name }}"
+                        >
+                            <span>
+                                <span class="faculty-name">
+                                    {{ faculty.name }}
+                                </span>
+
+                                <span class="faculty-meta">
+                                    Username: {{ faculty.username }}
+                                    {% if faculty.email %}
+                                        | Email: {{ faculty.email }}
+                                    {% endif %}
+                                    | ID: {{ faculty.id }}
+                                </span>
+                            </span>
+
+                            <span class="faculty-dept-badge">
+                                {{ faculty.department_name }}
+                            </span>
+                        </button>
+                    {% endfor %}
+
+                    <div class="faculty-empty" id="facultyEmptyState">
+                        No matching faculty found.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <p class="form-field">
+                    <label>Duty Room</label>
+                    <input
+                        type="text"
+                        name="duty_room"
+                        value="{{ hall_duty.duty_room }}"
+                        required
+                        class="input-control"
+                    >
+                </p>
+            </div>
+
+            <div class="highlight-box">
+                <p class="form-field">
+                    <label>Exam Routine</label>
+                    <select name="exam_routine" required class="input-control">
+                        {% for routine in routines %}
+                            <option value="{{ routine.id }}"
+                                {% if routine.id == hall_duty.exam_routine.id %}selected{% endif %}>
+                                {{ routine.course_offering.course.code }}
+                                | {{ routine.get_exam_type_display }}
+                                | {{ routine.exam_date }}
+                                | {{ routine.start_time }} - {{ routine.end_time }}
+                                | Room {{ routine.room }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </p>
+            </div>
+
+            <p class="form-field">
+                <label>Duty Note</label>
+                <textarea
+                    name="duty_note"
+                    rows="4"
+                    class="input-control"
+                    placeholder="Optional note for this hall duty"
+                >{{ hall_duty.duty_note }}</textarea>
+            </p>
+
+            <div class="form-action-row">
+                <button type="submit" class="primary-button">
+                    Update Hall Duty
+                </button>
+
+                <a href="{% url 'exam_controller_dashboard' %}" class="outline-button">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </section>
+
+</div>
+
+<script>
+    (function () {
+        const facultyInput = document.getElementById("selectedFacultyInput");
+        const selectedBox = document.getElementById("selectedFacultyBox");
+        const searchInput = document.getElementById("facultySearchInput");
+        const departmentFilter = document.getElementById("facultyDepartmentFilter");
+        const options = Array.from(document.querySelectorAll(".faculty-option"));
+        const emptyState = document.getElementById("facultyEmptyState");
+
+        function cleanText(value) {
+            return String(value || "").trim();
+        }
+
+        function normalize(value) {
+            return cleanText(value).toLowerCase();
+        }
+
+        function buildDepartmentFilter() {
+            const departments = new Map();
+
+            options.forEach(function (option) {
+                const departmentId = cleanText(option.dataset.facultyDepartmentId);
+                const departmentName = cleanText(option.dataset.facultyDepartmentName) || "No Department";
+                const key = departmentId || departmentName;
+
+                if (!departments.has(key)) {
+                    departments.set(key, {
+                        id: departmentId,
+                        name: departmentName
+                    });
+                }
+            });
+
+            Array.from(departments.values())
+                .sort(function (a, b) {
+                    return a.name.localeCompare(b.name);
+                })
+                .forEach(function (department) {
+                    const option = document.createElement("option");
+                    option.value = department.id || department.name;
+                    option.textContent = department.name;
+                    departmentFilter.appendChild(option);
+                });
+        }
+
+        function updateSelectedFaculty(option) {
+            const facultyId = cleanText(option.dataset.facultyId);
+            const facultyName = cleanText(option.dataset.facultyName);
+            const username = cleanText(option.dataset.facultyUsername);
+            const departmentName = cleanText(option.dataset.facultyDepartmentName) || "No Department";
+
+            facultyInput.value = facultyId;
+
+            selectedBox.textContent = "Selected Faculty: " + facultyName + " | Username: " + username + " | Department: " + departmentName;
+
+            options.forEach(function (item) {
+                item.classList.remove("is-selected");
+            });
+
+            option.classList.add("is-selected");
+        }
+
+        function filterFaculty() {
+            const query = normalize(searchInput.value);
+            const selectedDepartment = cleanText(departmentFilter.value);
+            let visibleCount = 0;
+
+            options.forEach(function (option) {
+                const searchText = normalize(option.dataset.searchText);
+                const departmentId = cleanText(option.dataset.facultyDepartmentId);
+                const departmentName = cleanText(option.dataset.facultyDepartmentName);
+
+                const matchesSearch = !query || searchText.includes(query);
+                const matchesDepartment =
+                    !selectedDepartment ||
+                    departmentId === selectedDepartment ||
+                    departmentName === selectedDepartment;
+
+                if (matchesSearch && matchesDepartment) {
+                    option.style.display = "flex";
+                    visibleCount += 1;
+                } else {
+                    option.style.display = "none";
+                }
+            });
+
+            if (emptyState) {
+                emptyState.style.display = visibleCount === 0 ? "block" : "none";
+            }
+        }
+
+        options.forEach(function (option) {
+            option.addEventListener("click", function () {
+                updateSelectedFaculty(option);
+            });
+        });
+
+        if (searchInput) {
+            searchInput.addEventListener("input", filterFaculty);
+        }
+
+        if (departmentFilter) {
+            departmentFilter.addEventListener("change", filterFaculty);
+        }
+
+        buildDepartmentFilter();
+        filterFaculty();
+    })();
+</script>
+
+{% endblock %}

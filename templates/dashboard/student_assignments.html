@@ -1,0 +1,628 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .assignment-icon {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+    }
+
+    .assignment-icon-sm {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+    .assignment-action-hover {
+        transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+    }
+
+    .assignment-action-hover:hover {
+        transform: translateY(-2px);
+    }
+
+    .assignment-back-btn {
+        min-height: 48px;
+        padding: 0 22px;
+        border-radius: 16px;
+        font-size: 14px;
+        font-weight: 950;
+        border: 1px solid #fecaca;
+        background: #ffffff;
+        color: var(--accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        box-shadow: 0 8px 18px rgba(127, 29, 29, 0.08);
+        transition: all 0.16s ease;
+    }
+
+    .assignment-back-btn:hover {
+        background: var(--accent-soft);
+        color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 14px 26px rgba(127, 29, 29, 0.14);
+    }
+
+    .assignment-table-action-btn {
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: 14px;
+        background: var(--accent);
+        color: #ffffff;
+        font-size: 12.5px;
+        font-weight: 950;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        box-shadow: 0 8px 18px rgba(127, 29, 29, 0.14);
+        transition: all 0.16s ease;
+    }
+
+    .assignment-table-action-btn:hover {
+        background: var(--accent-dark);
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(127, 29, 29, 0.2);
+    }
+
+    .assignment-file-btn {
+        min-height: 34px;
+        padding: 0 13px;
+        border-radius: 12px;
+        background: #fff1f2;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        transition: all 0.16s ease;
+    }
+
+    .assignment-file-btn:hover {
+        background: var(--accent);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 760px) {
+        .assignment-back-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="space-y-5">
+
+    <!-- Header -->
+    <section class="rounded-[30px] border border-slate-200 bg-white p-6 shadow-[0_14px_36px_rgba(15,23,42,0.045)] sm:p-7 lg:p-8">
+        <div class="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+            <div class="min-w-0">
+                <div class="mb-4 inline-flex items-center gap-2 rounded-full bg-rose-50 px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-rose-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v14l-4-2-3 2-3-2-4 2V6a2 2 0 012-2z"/>
+                    </svg>
+                    Coursework Tasks
+                </div>
+
+                <h1 class="text-4xl font-black tracking-[-0.06em] text-slate-950 sm:text-5xl">
+                    My Assignments
+                </h1>
+
+                <p class="mt-3 max-w-3xl text-sm font-bold leading-6 text-slate-500 sm:text-base">
+                    View tasks, deadlines, submission status, marks, feedback, and files in one clean place.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-3 sm:items-start xl:items-end">
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+                    <div class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                        Total Assignments
+                    </div>
+
+                    <div class="mt-1 text-3xl font-black leading-none tracking-[-0.05em] text-slate-950">
+                        {{ assignment_rows|length }}
+                    </div>
+                </div>
+
+                <a href="{% url 'student_dashboard' %}" class="assignment-back-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7 7-7M3 12h18"/>
+                    </svg>
+                    Back to Overview
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Cards -->
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <div class="assignment-action-hover rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)] hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-[0_18px_38px_rgba(37,99,235,0.08)]">
+            <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <div class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                        Available
+                    </div>
+
+                    <div class="mt-1 text-3xl font-black leading-none tracking-[-0.05em] text-slate-950">
+                        {{ assignment_rows|length }}
+                    </div>
+
+                    <div class="mt-2 text-sm font-bold text-slate-500">
+                        Assignments
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="assignment-action-hover rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)] hover:border-emerald-200 hover:bg-emerald-50/30 hover:shadow-[0_18px_38px_rgba(16,185,129,0.08)]">
+            <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <div class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                        Submission
+                    </div>
+
+                    <div class="mt-1 text-2xl font-black tracking-[-0.04em] text-slate-950">
+                        Tracked
+                    </div>
+
+                    <div class="mt-2 text-sm font-bold text-slate-500">
+                        Status shown
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="assignment-action-hover rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)] hover:border-purple-200 hover:bg-purple-50/30 hover:shadow-[0_18px_38px_rgba(124,58,237,0.08)]">
+            <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 text-purple-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3M12 22a10 10 0 110-20 10 10 0 010 20z"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <div class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                        Deadline
+                    </div>
+
+                    <div class="mt-1 text-2xl font-black tracking-[-0.04em] text-slate-950">
+                        Visible
+                    </div>
+
+                    <div class="mt-2 text-sm font-bold text-slate-500">
+                        Before submit
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="assignment-action-hover rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)] hover:border-slate-300 hover:bg-slate-50 hover:shadow-[0_18px_38px_rgba(15,23,42,0.08)]">
+            <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h10M7 11h10M7 15h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <div class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                        Feedback
+                    </div>
+
+                    <div class="mt-1 text-2xl font-black tracking-[-0.04em] text-slate-950">
+                        Updated
+                    </div>
+
+                    <div class="mt-2 text-sm font-bold text-slate-500">
+                        Marks appear here
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Assignment List -->
+    <section class="rounded-[30px] border border-slate-200 bg-white p-5 shadow-[0_14px_36px_rgba(15,23,42,0.045)] sm:p-6 lg:p-7">
+
+        <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-black tracking-[-0.045em] text-slate-950 sm:text-3xl">
+                        Assignment List
+                    </h2>
+
+                    <p class="mt-1 text-sm font-bold text-slate-500">
+                        Clean table view without horizontal scrolling.
+                    </p>
+                </div>
+            </div>
+
+            {% if assignment_rows %}
+                <span class="inline-flex w-fit rounded-full bg-rose-50 px-4 py-2 text-xs font-black text-rose-900">
+                    {{ assignment_rows|length }} Assignment{{ assignment_rows|length|pluralize }}
+                </span>
+            {% else %}
+                <span class="inline-flex w-fit rounded-full bg-slate-100 px-4 py-2 text-xs font-black text-slate-600">
+                    No Assignment
+                </span>
+            {% endif %}
+        </div>
+
+        {% if assignment_rows %}
+
+            <!-- Mobile Cards -->
+            <div class="space-y-4 xl:hidden">
+                {% for row in assignment_rows %}
+                    <article class="assignment-action-hover rounded-[24px] border border-slate-200 bg-slate-50 p-4 shadow-sm hover:border-rose-200 hover:bg-white hover:shadow-[0_18px_34px_rgba(127,29,29,0.08)]">
+
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="text-xs font-black uppercase tracking-[0.16em] text-slate-400">
+                                    {{ row.assignment.course_offering.course.code }}
+                                </div>
+
+                                <h3 class="mt-1 text-lg font-black leading-6 text-slate-950">
+                                    {{ row.assignment.title }}
+                                </h3>
+
+                                <p class="mt-1 text-sm font-bold text-slate-500">
+                                    {{ row.assignment.course_offering.course.title }}
+                                </p>
+                            </div>
+
+                            {% if row.submission %}
+                                {% if row.submission.status == 'checked' %}
+                                    <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
+                                        Checked
+                                    </span>
+                                {% else %}
+                                    <span class="rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-900">
+                                        Submitted
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-600">
+                                    Not Submitted
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-2 gap-3">
+                            <div class="rounded-2xl bg-white p-3">
+                                <div class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
+                                    Deadline
+                                </div>
+
+                                <div class="mt-1 text-sm font-black text-slate-800">
+                                    {{ row.assignment.deadline }}
+                                </div>
+
+                                <div class="mt-2 text-xs font-black text-slate-500">
+                                    {% if row.submission_open %}
+                                        Open
+                                    {% elif row.is_deadline_over %}
+                                        Deadline Over
+                                    {% else %}
+                                        Paused
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl bg-white p-3">
+                                <div class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
+                                    Marks
+                                </div>
+
+                                <div class="mt-1 text-xl font-black text-slate-950">
+                                    {% if row.submission.obtained_marks %}
+                                        {{ row.submission.obtained_marks }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </div>
+
+                                <div class="mt-1 text-xs font-black uppercase text-slate-400">
+                                    of {{ row.assignment.total_marks }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 rounded-2xl bg-white p-3">
+                            <div class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
+                                Feedback
+                            </div>
+
+                            {% if row.submission.feedback %}
+                                <p class="mt-1 text-sm font-semibold leading-6 text-slate-700">
+                                    {{ row.submission.feedback }}
+                                </p>
+                            {% else %}
+                                <p class="mt-1 text-sm font-bold text-slate-500">
+                                    No feedback
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-4 flex flex-col gap-3 sm:flex-row">
+                            {% if row.assignment.attachment %}
+                                <a href="{{ row.assignment.attachment.url }}" target="_blank" class="assignment-file-btn w-full sm:w-auto">
+                                    View File
+                                </a>
+                            {% endif %}
+
+                            <a href="{% url 'submit_assignment' row.assignment.id %}" class="assignment-table-action-btn w-full sm:w-auto">
+                                Submit / View
+                            </a>
+                        </div>
+
+                    </article>
+                {% endfor %}
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="hidden overflow-hidden rounded-[26px] border border-slate-200 xl:block">
+                <table class="w-full border-collapse bg-white">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="w-[34%] px-5 py-4 text-left text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                                Task
+                            </th>
+                            <th class="w-[20%] px-5 py-4 text-left text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                                Deadline
+                            </th>
+                            <th class="w-[12%] px-5 py-4 text-center text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                                Marks
+                            </th>
+                            <th class="w-[15%] px-5 py-4 text-center text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                                Status
+                            </th>
+                            <th class="w-[12%] px-5 py-4 text-center text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                                Feedback
+                            </th>
+                            <th class="w-[7%] px-5 py-4 text-center text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in assignment_rows %}
+                        <tr class="border-t border-slate-100 transition hover:bg-rose-50/25">
+                            <td class="px-5 py-5">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v14l-4-2-3 2-3-2-4 2V6a2 2 0 012-2z"/>
+                                        </svg>
+                                    </div>
+
+                                    <div class="min-w-0">
+                                        <div class="text-xs font-black uppercase tracking-[0.08em] text-slate-400">
+                                            {{ row.assignment.course_offering.course.code }}
+                                        </div>
+
+                                        <div class="mt-1 break-words text-sm font-black leading-5 text-slate-950">
+                                            {{ row.assignment.title }}
+                                        </div>
+
+                                        <div class="mt-1 text-sm font-bold text-slate-500">
+                                            {{ row.assignment.course_offering.course.title }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="px-5 py-5">
+                                <div class="text-sm font-black leading-5 text-slate-800">
+                                    {{ row.assignment.deadline }}
+                                </div>
+
+                                <div class="mt-2">
+                                    {% if row.submission_open %}
+                                        <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
+                                            Open
+                                        </span>
+                                    {% elif row.is_deadline_over %}
+                                        <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-600">
+                                            Deadline Over
+                                        </span>
+                                    {% else %}
+                                        <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">
+                                            Paused
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <td class="px-5 py-5 text-center">
+                                <div class="mx-auto inline-flex min-w-[68px] flex-col items-center justify-center rounded-2xl bg-slate-50 px-3 py-3">
+                                    <div class="text-xl font-black tracking-[-0.04em] text-slate-950">
+                                        {% if row.submission.obtained_marks %}
+                                            {{ row.submission.obtained_marks }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mt-1 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">
+                                        of {{ row.assignment.total_marks }}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="px-5 py-5 text-center">
+                                {% if row.submission %}
+                                    {% if row.submission.status == 'checked' %}
+                                        <span class="inline-flex rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700">
+                                            Checked
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex rounded-full bg-rose-50 px-4 py-2 text-xs font-black text-rose-900">
+                                            Submitted
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="inline-flex rounded-full bg-red-50 px-4 py-2 text-xs font-black text-red-600">
+                                        Not Submitted
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="px-5 py-5 text-center">
+                                {% if row.submission.feedback %}
+                                    <div class="max-w-[180px] text-left text-sm font-semibold leading-5 text-slate-600">
+                                        {{ row.submission.feedback }}
+                                    </div>
+                                {% else %}
+                                    <span class="inline-flex rounded-full bg-slate-100 px-4 py-2 text-xs font-black text-slate-500">
+                                        No feedback
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="px-5 py-5 text-center">
+                                <div class="flex flex-col items-center gap-2">
+                                    {% if row.assignment.attachment %}
+                                        <a href="{{ row.assignment.attachment.url }}" target="_blank" class="assignment-file-btn">
+                                            File
+                                        </a>
+                                    {% endif %}
+
+                                    <a href="{% url 'submit_assignment' row.assignment.id %}" class="assignment-table-action-btn">
+                                        Submit / View
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+
+            <div class="rounded-[26px] border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+                    —
+                </div>
+
+                <h3 class="mt-4 text-lg font-black text-slate-700">
+                    No published assignments yet
+                </h3>
+
+                <p class="mt-2 text-sm font-semibold text-slate-500">
+                    Assignments will appear here after your course faculty publishes them.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- Quick Links -->
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+        <a href="{% url 'student_courses_page' %}" class="assignment-action-hover rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] hover:border-blue-200 hover:bg-blue-50/40 hover:shadow-[0_18px_38px_rgba(37,99,235,0.08)]">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
+                            Courses
+                        </p>
+
+                        <h3 class="mt-1 text-lg font-black text-slate-950">
+                            My Courses
+                        </h3>
+                    </div>
+                </div>
+
+                <span class="text-2xl font-black text-blue-600">→</span>
+            </div>
+        </a>
+
+        <a href="{% url 'student_materials_page' %}" class="assignment-action-hover rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] hover:border-emerald-200 hover:bg-emerald-50/40 hover:shadow-[0_18px_38px_rgba(16,185,129,0.08)]">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5V5a2 2 0 012-2h12v18H6a2 2 0 01-2-1.5z"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
+                            Resources
+                        </p>
+
+                        <h3 class="mt-1 text-lg font-black text-slate-950">
+                            Materials
+                        </h3>
+                    </div>
+                </div>
+
+                <span class="text-2xl font-black text-emerald-600">→</span>
+            </div>
+        </a>
+
+        <a href="{% url 'student_dashboard' %}" class="assignment-action-hover rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] hover:border-rose-200 hover:bg-rose-50/40 hover:shadow-[0_18px_38px_rgba(127,29,29,0.08)]">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-900">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="assignment-icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 13a8 8 0 1116 0M6 17h12M12 13l4-4"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
+                            Portal
+                        </p>
+
+                        <h3 class="mt-1 text-lg font-black text-slate-950">
+                            Overview
+                        </h3>
+                    </div>
+                </div>
+
+                <span class="text-2xl font-black text-rose-900">→</span>
+            </div>
+        </a>
+
+    </section>
+
+</div>
+
+{% endblock %}

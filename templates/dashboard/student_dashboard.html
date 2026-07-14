@@ -1,0 +1,2475 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if profile %}
+
+<style>
+    .student-dashboard {
+        --sd-ink: #0f172a;
+        --sd-text: #334155;
+        --sd-muted: #64748b;
+        --sd-faint: #94a3b8;
+
+        --sd-line: #e2e8f0;
+        --sd-line-soft: #eef2f7;
+        --sd-canvas: #f8fafc;
+        --sd-surface: #ffffff;
+
+        --sd-accent: #9f1c1c;
+        --sd-accent-dark: #7f1717;
+        --sd-accent-soft: #fff1f2;
+        --sd-accent-line: #fecaca;
+
+        --sd-success: #047857;
+        --sd-success-soft: #ecfdf5;
+        --sd-success-line: #bbf7d0;
+
+        --sd-warning: #b45309;
+        --sd-warning-soft: #fffbeb;
+        --sd-warning-line: #fde68a;
+
+        --sd-danger: #dc2626;
+        --sd-danger-soft: #fef2f2;
+        --sd-danger-line: #fecaca;
+
+        --sd-blue: #2563eb;
+        --sd-blue-soft: #eff6ff;
+        --sd-blue-line: #bfdbfe;
+
+        --sd-purple: #7c3aed;
+        --sd-purple-soft: #faf5ff;
+        --sd-purple-line: #e9d5ff;
+
+        --sd-cyan: #0891b2;
+        --sd-cyan-soft: #ecfeff;
+        --sd-cyan-line: #a5f3fc;
+
+        width: 100%;
+        display: grid;
+        gap: 28px;
+    }
+
+    .student-dashboard,
+    .student-dashboard * {
+        box-sizing: border-box;
+    }
+
+    .student-dashboard a {
+        text-decoration: none;
+    }
+
+    .student-dashboard svg {
+        flex-shrink: 0;
+    }
+
+    .sd-surface {
+        background: var(--sd-surface);
+        border: 1px solid var(--sd-line);
+        border-radius: 28px;
+        overflow: hidden;
+    }
+
+    .sd-tabular {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* =========================================================
+       SHARED
+    ========================================================= */
+
+    .sd-kicker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: var(--sd-accent-soft);
+        color: var(--sd-accent-dark);
+        border: 1px solid #ffe4e6;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .sd-kicker svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .sd-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 32px;
+        padding: 0 11px;
+        border-radius: 999px;
+        border: 1px solid var(--sd-line);
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .sd-pill.brand {
+        background: var(--sd-accent-soft);
+        border-color: var(--sd-accent-line);
+        color: var(--sd-accent-dark);
+    }
+
+    .sd-pill.success {
+        background: var(--sd-success-soft);
+        border-color: var(--sd-success-line);
+        color: var(--sd-success);
+    }
+
+    .sd-pill.warning {
+        background: var(--sd-warning-soft);
+        border-color: var(--sd-warning-line);
+        color: var(--sd-warning);
+    }
+
+    .sd-pill.danger {
+        background: var(--sd-danger-soft);
+        border-color: var(--sd-danger-line);
+        color: var(--sd-danger);
+    }
+
+    .sd-pill.blue {
+        background: var(--sd-blue-soft);
+        border-color: var(--sd-blue-line);
+        color: var(--sd-blue);
+    }
+
+    .sd-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: currentColor;
+        opacity: 0.55;
+    }
+
+    .sd-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+        background: #f8fafc;
+        border: 1px solid var(--sd-line);
+        color: #64748b;
+    }
+
+    .sd-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .sd-icon.success {
+        background: var(--sd-success-soft);
+        border-color: var(--sd-success-line);
+        color: var(--sd-success);
+    }
+
+    .sd-icon.warning {
+        background: var(--sd-warning-soft);
+        border-color: var(--sd-warning-line);
+        color: var(--sd-warning);
+    }
+
+    .sd-icon.danger {
+        background: var(--sd-danger-soft);
+        border-color: var(--sd-danger-line);
+        color: var(--sd-danger);
+    }
+
+    .sd-icon.blue {
+        background: var(--sd-blue-soft);
+        border-color: var(--sd-blue-line);
+        color: var(--sd-blue);
+    }
+
+    .sd-icon.purple {
+        background: var(--sd-purple-soft);
+        border-color: var(--sd-purple-line);
+        color: var(--sd-purple);
+    }
+
+    .sd-icon.cyan {
+        background: var(--sd-cyan-soft);
+        border-color: var(--sd-cyan-line);
+        color: var(--sd-cyan);
+    }
+
+    .sd-section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+    }
+
+    .sd-section-eyebrow {
+        color: var(--sd-accent);
+        font-size: 10.5px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+    }
+
+    .sd-section-title {
+        margin: 7px 0 0;
+        color: var(--sd-ink);
+        font-size: 28px;
+        line-height: 1.1;
+        font-weight: 850;
+        letter-spacing: -0.045em;
+    }
+
+    .sd-section-subtitle {
+        margin: 8px 0 0;
+        color: var(--sd-muted);
+        font-size: 14px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    .sd-arrow {
+        color: var(--sd-faint);
+        font-size: 22px;
+        line-height: 1;
+        font-weight: 800;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .sd-hero {
+        position: relative;
+        min-height: 360px;
+        padding: 38px 40px;
+        background:
+            radial-gradient(circle at 8% 100%, rgba(219, 234, 254, 0.65), transparent 29%),
+            radial-gradient(circle at 96% 4%, rgba(255, 228, 230, 0.72), transparent 31%),
+            linear-gradient(135deg, #ffffff 0%, #ffffff 45%, #fffafb 100%);
+    }
+
+    .sd-hero-inner {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 250px;
+        gap: 40px;
+        align-items: center;
+    }
+
+    .sd-profile-line {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .sd-avatar {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        flex: none;
+    }
+
+    .sd-avatar-frame {
+        width: 72px;
+        height: 72px;
+        border-radius: 999px;
+        overflow: hidden;
+        border: 3px solid #ffffff;
+        box-shadow: 0 0 0 1px var(--sd-line);
+        background: #f1f5f9;
+    }
+
+    .sd-avatar-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .sd-avatar-fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--sd-accent);
+        color: #ffffff;
+        font-size: 26px;
+        font-weight: 850;
+    }
+
+    .sd-avatar-status {
+        position: absolute;
+        right: -1px;
+        bottom: 1px;
+        width: 23px;
+        height: 23px;
+        border-radius: 999px;
+        border: 3px solid #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--sd-success);
+        color: #ffffff;
+    }
+
+    .sd-avatar-status.inactive {
+        background: var(--sd-danger);
+    }
+
+    .sd-avatar-status svg {
+        width: 10px;
+        height: 10px;
+    }
+
+    .sd-profile-small-label {
+        color: var(--sd-faint);
+        font-size: 10px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+    }
+
+    .sd-profile-small-value {
+        margin-top: 4px;
+        color: var(--sd-ink);
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .sd-hero-title {
+    margin: 18px 0 0;
+    color: #020617;
+    font-size: clamp(34px, 4vw, 52px);
+    line-height: 1.02;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    max-width: 760px;
+}
+
+    .sd-hero-subtitle {
+        margin: 18px 0 0;
+        max-width: 760px;
+        color: var(--sd-muted);
+        font-size: 17px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .sd-hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 22px;
+    }
+
+    .sd-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .sd-hero-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 44px;
+        padding: 0 15px;
+        border-radius: 12px;
+        border: 1px solid var(--sd-line);
+        background: #ffffff;
+        color: var(--sd-ink);
+        font-size: 13px;
+        font-weight: 800;
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .sd-hero-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    .sd-hero-button.primary {
+        background: var(--sd-accent);
+        color: #ffffff;
+        border-color: var(--sd-accent);
+    }
+
+    .sd-hero-button.primary:hover {
+        background: var(--sd-accent-dark);
+        border-color: var(--sd-accent-dark);
+    }
+
+    .sd-hero-button svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Hero ring */
+
+    .sd-ring-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sd-ring {
+        --ring-percent: 0;
+
+        position: relative;
+        width: 190px;
+        height: 190px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background:
+            conic-gradient(
+                var(--sd-accent) calc(var(--ring-percent) * 1%),
+                #e2e8f0 0
+            );
+    }
+
+    .sd-ring::before {
+        content: "";
+        position: absolute;
+        inset: 13px;
+        border-radius: 999px;
+        background: #ffffff;
+    }
+
+    .sd-ring-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .sd-ring-value {
+        color: var(--sd-ink);
+        font-size: 38px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+    }
+
+    .sd-ring-label {
+        margin-top: 10px;
+        color: var(--sd-faint);
+        font-size: 10px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+    }
+
+    .sd-ring-status {
+        margin-top: 6px;
+        color: var(--sd-text);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    /* =========================================================
+       PRIMARY METRICS
+    ========================================================= */
+
+    .sd-metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .sd-metric-card {
+        min-height: 158px;
+        padding: 22px;
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+        background: #ffffff;
+        border: 1px solid var(--sd-line);
+        border-radius: 22px;
+        transition:
+            border-color 0.15s ease,
+            transform 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .sd-metric-card:hover {
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+    }
+
+    .sd-metric-label {
+        color: var(--sd-faint);
+        font-size: 10.5px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.13em;
+    }
+
+    .sd-metric-value {
+        margin-top: 7px;
+        color: var(--sd-ink);
+        font-size: 28px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.045em;
+    }
+
+    .sd-metric-value.success {
+        color: var(--sd-success);
+    }
+
+    .sd-metric-value.warning {
+        color: var(--sd-warning);
+    }
+
+    .sd-metric-value.danger {
+        color: var(--sd-danger);
+    }
+
+    .sd-metric-desc {
+        margin-top: 8px;
+        color: var(--sd-muted);
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       DASHBOARD GRID
+    ========================================================= */
+
+    .sd-main-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.85fr);
+        gap: 22px;
+        align-items: stretch;
+    }
+
+    .sd-panel {
+        padding: 28px;
+    }
+
+    /* =========================================================
+       ACTION REQUIRED
+    ========================================================= */
+
+    .sd-action-list {
+        margin-top: 24px;
+        border: 1px solid var(--sd-line);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .sd-action-row {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        padding: 18px;
+        border-bottom: 1px solid var(--sd-line-soft);
+        background: #ffffff;
+        transition: background 0.15s ease;
+    }
+
+    .sd-action-row:last-child {
+        border-bottom: none;
+    }
+
+    .sd-action-row:hover {
+        background: #fafafa;
+    }
+
+    .sd-action-title {
+        color: var(--sd-ink);
+        font-size: 15px;
+        font-weight: 850;
+    }
+
+    .sd-action-text {
+        margin-top: 4px;
+        color: var(--sd-muted);
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       TODAY PANEL
+    ========================================================= */
+
+    .sd-today-list {
+        margin-top: 24px;
+        display: grid;
+        gap: 12px;
+    }
+
+    .sd-today-card {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 14px;
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid var(--sd-line);
+        background: #ffffff;
+        transition:
+            border-color 0.15s ease,
+            background 0.15s ease;
+    }
+
+    .sd-today-card:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .sd-today-label {
+        color: var(--sd-faint);
+        font-size: 10px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.13em;
+    }
+
+    .sd-today-title {
+        margin-top: 5px;
+        color: var(--sd-ink);
+        font-size: 15px;
+        line-height: 1.4;
+        font-weight: 850;
+    }
+
+    .sd-today-text {
+        margin-top: 5px;
+        color: var(--sd-muted);
+        font-size: 12.5px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       COMMAND CENTER
+    ========================================================= */
+
+    .sd-command {
+        padding: 28px;
+    }
+
+    .sd-command-grid {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border: 1px solid var(--sd-line);
+        border-radius: 22px;
+        overflow: hidden;
+    }
+
+    .sd-command-group {
+        padding: 24px;
+        border-right: 1px solid var(--sd-line-soft);
+    }
+
+    .sd-command-group:last-child {
+        border-right: none;
+    }
+
+    .sd-command-head {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+        padding-bottom: 18px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--sd-line-soft);
+    }
+
+    .sd-command-title {
+        color: var(--sd-ink);
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.11em;
+    }
+
+    .sd-command-desc {
+        margin-top: 3px;
+        color: var(--sd-muted);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .sd-service-list {
+        display: grid;
+        gap: 4px;
+    }
+
+    .sd-service-link {
+        min-height: 44px;
+        padding: 0 11px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--sd-text);
+        font-size: 13.5px;
+        font-weight: 750;
+        transition:
+            background 0.15s ease,
+            color 0.15s ease;
+    }
+
+    .sd-service-link:hover {
+        background: #f8fafc;
+        color: var(--sd-ink);
+    }
+
+    .sd-service-arrow {
+        color: var(--sd-faint);
+        font-size: 17px;
+        font-weight: 850;
+    }
+
+    /* =========================================================
+       FINANCE SNAPSHOT
+    ========================================================= */
+
+    .sd-finance-grid {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        border: 1px solid var(--sd-line);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .sd-finance-item {
+        min-height: 132px;
+        padding: 20px;
+        border-right: 1px solid var(--sd-line-soft);
+        border-bottom: 1px solid var(--sd-line-soft);
+        transition: background 0.15s ease;
+    }
+
+    .sd-finance-item:nth-child(2n) {
+        border-right: none;
+    }
+
+    .sd-finance-item:nth-last-child(1),
+    .sd-finance-item:nth-last-child(2) {
+        border-bottom: none;
+    }
+
+    .sd-finance-item:hover {
+        background: #f8fafc;
+    }
+
+    .sd-finance-label {
+        color: var(--sd-faint);
+        font-size: 10.5px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.13em;
+    }
+
+    .sd-finance-value {
+        margin-top: 10px;
+        color: var(--sd-ink);
+        font-size: 24px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    .sd-finance-value.success {
+        color: var(--sd-success);
+    }
+
+    .sd-finance-value.danger {
+        color: var(--sd-danger);
+    }
+
+    .sd-finance-desc {
+        margin-top: 8px;
+        color: var(--sd-muted);
+        font-size: 12.5px;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       NOTICES
+    ========================================================= */
+
+    .sd-notice-list {
+        margin-top: 24px;
+        display: grid;
+        gap: 12px;
+    }
+
+    .sd-notice-card {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 14px;
+        padding: 17px;
+        border: 1px solid var(--sd-line);
+        border-radius: 18px;
+        background: #ffffff;
+    }
+
+    .sd-notice-card:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .sd-notice-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .sd-notice-title {
+        margin-top: 10px;
+        color: var(--sd-ink);
+        font-size: 15px;
+        font-weight: 850;
+        line-height: 1.4;
+    }
+
+    .sd-notice-text {
+        margin-top: 5px;
+        color: var(--sd-muted);
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .sd-notice-date {
+        margin-top: 8px;
+        color: var(--sd-faint);
+        font-size: 11.5px;
+        font-weight: 650;
+    }
+
+    .sd-attachment {
+        margin-top: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 11px;
+        border-radius: 10px;
+        border: 1px solid var(--sd-line);
+        background: #ffffff;
+        color: var(--sd-text);
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .sd-attachment:hover {
+        background: #f8fafc;
+    }
+
+    /* =========================================================
+       EMPTY
+    ========================================================= */
+
+    .sd-empty {
+        margin-top: 24px;
+        padding: 34px 24px;
+        border-radius: 20px;
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        text-align: center;
+    }
+
+    .sd-empty-icon {
+        width: 54px;
+        height: 54px;
+        margin: 0 auto;
+        border-radius: 17px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--sd-line);
+        background: #ffffff;
+        color: var(--sd-faint);
+    }
+
+    .sd-empty-icon svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    .sd-empty-title {
+        margin-top: 14px;
+        color: var(--sd-ink);
+        font-size: 17px;
+        font-weight: 850;
+    }
+
+    .sd-empty-text {
+        margin-top: 6px;
+        color: var(--sd-muted);
+        font-size: 13px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    .sd-error-box {
+        border: 1px solid var(--sd-danger-line);
+        border-radius: 24px;
+        background: var(--sd-danger-soft);
+        padding: 32px;
+        color: var(--sd-danger);
+    }
+
+    .sd-error-box h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 850;
+    }
+
+    .sd-error-box p {
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1180px) {
+    .sd-hero-inner {
+        grid-template-columns: minmax(0, 1fr) 190px;
+    }
+
+    .sd-ring {
+        width: 165px;
+        height: 165px;
+    }
+
+    .sd-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sd-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sd-command-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sd-command-group {
+        border-right: none;
+        border-bottom: 1px solid var(--sd-line-soft);
+    }
+
+    .sd-command-group:last-child {
+        border-bottom: none;
+    }
+}
+
+@media (max-width: 820px) {
+    .sd-hero {
+        padding: 30px 26px;
+    }
+
+    .sd-hero-inner {
+        grid-template-columns: 1fr;
+    }
+
+    .sd-ring-wrap {
+        justify-content: flex-start;
+    }
+
+    .sd-ring {
+        width: 150px;
+        height: 150px;
+    }
+
+    .sd-hero-title {
+        font-size: 44px;
+    }
+}
+
+@media (max-width: 700px) {
+    .student-dashboard {
+        gap: 18px;
+    }
+
+    .sd-surface {
+        border-radius: 22px;
+    }
+
+    /* =========================
+       MOBILE HERO
+    ========================= */
+
+    .sd-hero {
+        min-height: 0;
+        padding: 22px 18px;
+
+        background:
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.72),
+                transparent 34%
+            ),
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.60),
+                transparent 38%
+            ),
+            #ffffff;
+    }
+
+    .sd-hero-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 18px;
+    }
+
+    /* Compact student identity row */
+    .sd-profile-line {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .sd-avatar,
+    .sd-avatar-frame {
+        width: 58px;
+        height: 58px;
+    }
+
+    .sd-avatar {
+        flex: 0 0 58px;
+    }
+
+    .sd-avatar-status {
+        width: 20px;
+        height: 20px;
+        right: -1px;
+        bottom: 0;
+        border-width: 3px;
+    }
+
+    .sd-profile-small-label {
+        font-size: 9px;
+        letter-spacing: 0.13em;
+    }
+
+    .sd-profile-small-value {
+        margin-top: 3px;
+        font-size: 14px;
+    }
+
+    /* Kicker */
+    .sd-kicker {
+        min-height: 29px;
+        padding: 0 10px;
+        font-size: 9.5px;
+        letter-spacing: 0.12em;
+    }
+
+    .sd-kicker svg {
+        width: 13px;
+        height: 13px;
+    }
+
+    /* Main title */
+    .sd-hero-title {
+        margin-top: 15px;
+        max-width: 100%;
+        font-size: clamp(32px, 9vw, 39px);
+        line-height: 1.01;
+        letter-spacing: -0.055em;
+    }
+
+    .sd-hero-title br {
+        display: none;
+    }
+
+    .sd-hero-subtitle {
+        margin-top: 14px;
+        max-width: 100%;
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    /* Metadata pills */
+    .sd-hero-meta {
+        gap: 7px;
+        margin-top: 18px;
+    }
+
+    .sd-pill {
+        min-height: 29px;
+        padding: 0 10px;
+        font-size: 11px;
+    }
+
+    /* Buttons */
+    .sd-hero-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 17px;
+    }
+
+    .sd-hero-button {
+        width: 100%;
+        min-height: 44px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+
+    /* Attendance summary card */
+    .sd-ring-wrap {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .sd-ring {
+        width: 100%;
+        height: auto;
+        min-height: 124px;
+        padding: 12px 16px;
+        border-radius: 18px;
+
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        background: #ffffff;
+        border: 1px solid var(--sd-line);
+    }
+
+    .sd-ring::before {
+        display: none;
+    }
+
+    .sd-ring-content {
+        position: relative;
+        width: 100%;
+        min-height: 96px;
+        padding-left: 118px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+    }
+
+    .sd-ring-content::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 94px;
+        height: 94px;
+        border-radius: 999px;
+        transform: translateY(-50%);
+
+        background:
+            radial-gradient(
+                circle,
+                #ffffff 0 62%,
+                transparent 63%
+            ),
+            conic-gradient(
+                var(--sd-accent) calc(var(--ring-percent) * 1%),
+                #e2e8f0 0
+            );
+    }
+
+    .sd-ring-content::after {
+        content: "Overall";
+        position: absolute;
+        left: 0;
+        top: calc(50% + 17px);
+        width: 94px;
+        transform: translateY(-50%);
+        text-align: center;
+
+        color: var(--sd-faint);
+        font-size: 7px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+    }
+
+    .sd-ring-value {
+        position: relative;
+        z-index: 2;
+        font-size: 27px;
+    }
+
+    .sd-ring-label {
+        margin-top: 6px;
+        font-size: 8px;
+        letter-spacing: 0.15em;
+    }
+
+    .sd-ring-status {
+        margin-top: 5px;
+        font-size: 11px;
+    }
+
+    /* =========================
+       OTHER MOBILE SECTIONS
+    ========================= */
+
+    .sd-metrics {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .sd-metric-card {
+        min-height: 0;
+        padding: 18px;
+        grid-template-columns: 44px minmax(0, 1fr);
+        border-radius: 18px;
+    }
+
+    .sd-metric-value {
+        font-size: 25px;
+    }
+
+    .sd-panel,
+    .sd-command {
+        padding: 22px 18px;
+    }
+
+    .sd-section-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .sd-section-title {
+        font-size: 25px;
+    }
+
+    .sd-action-row {
+        grid-template-columns: 42px minmax(0, 1fr);
+        gap: 13px;
+        padding: 16px;
+    }
+
+    .sd-action-row .sd-arrow {
+        display: none;
+    }
+
+    .sd-today-card {
+        grid-template-columns: 42px minmax(0, 1fr);
+        padding: 15px;
+    }
+
+    .sd-command-group {
+        padding: 20px 18px;
+    }
+
+    .sd-finance-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sd-finance-item {
+        border-right: none;
+        border-bottom: 1px solid var(--sd-line-soft);
+    }
+
+    .sd-finance-item:last-child {
+        border-bottom: none;
+    }
+}
+
+@media (max-width: 380px) {
+    .sd-hero {
+        padding: 20px 15px;
+    }
+
+    .sd-hero-title {
+        font-size: 31px;
+    }
+
+    .sd-hero-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .sd-ring {
+        min-height: 116px;
+        padding: 10px 14px;
+    }
+
+    .sd-ring-content {
+        min-height: 88px;
+        padding-left: 105px;
+    }
+
+    .sd-ring-content::before {
+        width: 84px;
+        height: 84px;
+    }
+
+    .sd-ring-content::after {
+        width: 84px;
+        top: calc(50% + 15px);
+        font-size: 6.5px;
+    }
+
+    .sd-ring-value {
+        font-size: 24px;
+    }
+
+    .sd-ring-status {
+        font-size: 10.5px;
+    }
+
+    .sd-profile-line {
+        margin-bottom: 16px;
+    }
+
+    .sd-pill {
+        font-size: 10px;
+        padding: 0 9px;
+    }
+}
+</style>
+
+<div class="student-dashboard">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+    <section class="sd-surface sd-hero">
+        <div class="sd-hero-inner">
+
+            <div>
+                <div class="sd-profile-line">
+
+                    <a href="{% url 'student_profile_page' %}" class="sd-avatar">
+                        <div class="sd-avatar-frame">
+                            {% if profile.user.profile_photo %}
+                                <img
+                                    src="{{ profile.user.profile_photo.url }}"
+                                    alt="{{ profile.user.get_full_name|default:profile.user.username }}"
+                                >
+                            {% else %}
+                                <div class="sd-avatar-fallback">
+                                    {{ profile.user.get_full_name|default:profile.user.username|slice:":1"|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if profile.is_active %}
+                            <span class="sd-avatar-status">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </span>
+                        {% else %}
+                            <span class="sd-avatar-status inactive">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5m0 4h.01"/>
+                                </svg>
+                            </span>
+                        {% endif %}
+                    </a>
+
+                    <div>
+                        <div class="sd-profile-small-label">
+                            Student Portal
+                        </div>
+
+                        <div class="sd-profile-small-value">
+                            {{ profile.student_id }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="sd-kicker">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.42A12.08 12.08 0 0112 21a12.08 12.08 0 01-6.16-10.42L12 14z"/>
+                    </svg>
+                    Student Overview
+                </div>
+
+                <h1 class="sd-hero-title">
+    Welcome back,
+    {{ profile.user.get_full_name|default:profile.user.username }}
+</h1>
+                <p class="sd-hero-subtitle">
+                    Your central academic dashboard for courses, attendance, exams,
+                    payments, assignments, applications, and university updates.
+                </p>
+
+                <div class="sd-hero-meta">
+                    <span class="sd-pill brand">
+                        Student
+                    </span>
+
+                    <span class="sd-pill">
+                        {{ profile.student_id }}
+                    </span>
+
+                    {% if profile.department %}
+                        <span class="sd-pill">
+                            {{ profile.department }}
+                        </span>
+                    {% endif %}
+
+                    {% if profile.current_semester %}
+                        <span class="sd-pill success">
+                            {{ profile.current_semester }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="sd-hero-actions">
+                    <a href="{% url 'student_courses_page' %}" class="sd-hero-button primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"/>
+                        </svg>
+                        My Courses
+                    </a>
+
+                    <a href="{% url 'student_profile_page' %}" class="sd-hero-button">
+                        View Profile
+                    </a>
+                </div>
+            </div>
+
+            <div class="sd-ring-wrap">
+
+                {% if average_attendance > 0 %}
+                    <div
+                        class="sd-ring"
+                        style="--ring-percent: {{ average_attendance }};"
+                    >
+                        <div class="sd-ring-content">
+                            <div class="sd-ring-value sd-tabular">
+                                {{ average_attendance }}%
+                            </div>
+
+                            <div class="sd-ring-label">
+                                Attendance
+                            </div>
+
+                            <div class="sd-ring-status">
+                                {% if average_attendance >= 60 %}
+                                    Eligible
+                                {% else %}
+                                    Needs Attention
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                {% else %}
+
+                    <div
+                        class="sd-ring"
+                        style="--ring-percent: 0;"
+                    >
+                        <div class="sd-ring-content">
+                            <div class="sd-ring-value">
+                                —
+                            </div>
+
+                            <div class="sd-ring-label">
+                                Attendance
+                            </div>
+
+                            <div class="sd-ring-status">
+                                Pending
+                            </div>
+                        </div>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         PRIMARY METRICS
+    ====================================================== -->
+    <section class="sd-metrics">
+
+        <!-- PAYMENT -->
+        <a href="{% url 'student_payments_page' %}" class="sd-metric-card">
+
+            {% if current_due <= 0 %}
+                <div class="sd-icon success">
+            {% else %}
+                <div class="sd-icon danger">
+            {% endif %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a4 4 0 00-8 0v2M5 9h14l-1 11H6L5 9z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="sd-metric-label">
+                    Payment Status
+                </div>
+
+                {% if current_due <= 0 %}
+                    <div class="sd-metric-value success">
+                        Clear
+                    </div>
+
+                    <div class="sd-metric-desc">
+                        You currently have no outstanding payment due.
+                    </div>
+                {% else %}
+                    <div class="sd-metric-value danger">
+                        {{ current_due }} BDT
+                    </div>
+
+                    <div class="sd-metric-desc">
+                        Outstanding amount currently requires attention.
+                    </div>
+                {% endif %}
+            </div>
+        </a>
+
+
+        <!-- ATTENDANCE -->
+        <a href="{% url 'student_attendance_page' %}" class="sd-metric-card">
+
+            {% if average_attendance >= 60 %}
+                <div class="sd-icon success">
+            {% elif average_attendance > 0 %}
+                <div class="sd-icon danger">
+            {% else %}
+                <div class="sd-icon blue">
+            {% endif %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="sd-metric-label">
+                    Attendance
+                </div>
+
+                {% if average_attendance > 0 %}
+                    <div class="sd-metric-value">
+                        {{ average_attendance }}%
+                    </div>
+
+                    <div class="sd-metric-desc">
+                        {% if average_attendance >= 60 %}
+                            Your current average attendance is within the eligibility requirement.
+                        {% else %}
+                            Your attendance is currently below the required threshold.
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="sd-metric-value">
+                        Pending
+                    </div>
+
+                    <div class="sd-metric-desc">
+                        Attendance records have not been added yet.
+                    </div>
+                {% endif %}
+            </div>
+        </a>
+
+
+        <!-- ADMIT CARD -->
+        <a href="{% url 'student_admit_card_page' %}" class="sd-metric-card">
+
+            {% if admit_final_eligible %}
+                <div class="sd-icon success">
+            {% else %}
+                <div class="sd-icon warning">
+            {% endif %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="sd-metric-label">
+                    Admit Card
+                </div>
+
+                {% if admit_final_eligible %}
+                    <div class="sd-metric-value success">
+                        Eligible
+                    </div>
+
+                    <div class="sd-metric-desc">
+                        Current payment and attendance requirements are satisfied.
+                    </div>
+                {% else %}
+                    <div class="sd-metric-value warning">
+                        Check
+                    </div>
+
+                    <div class="sd-metric-desc">
+                        One or more eligibility requirements are still pending.
+                    </div>
+                {% endif %}
+            </div>
+        </a>
+
+
+        <!-- NOTICES -->
+        <a href="{% url 'my_notices' %}" class="sd-metric-card">
+
+            <div class="sd-icon cyan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="sd-metric-label">
+                    Recent Notices
+                </div>
+
+                <div class="sd-metric-value">
+                    {{ latest_notices|length }}
+                </div>
+
+                <div class="sd-metric-desc">
+                    Latest announcements and university updates available to you.
+                </div>
+            </div>
+
+        </a>
+
+    </section>
+
+
+    <!-- =====================================================
+         ACTION REQUIRED + TODAY
+    ====================================================== -->
+    <section class="sd-main-grid">
+
+        <!-- ACTION REQUIRED -->
+        <section class="sd-surface sd-panel">
+
+            <div class="sd-section-header">
+                <div>
+                    <div class="sd-section-eyebrow">
+                        Priority Center
+                    </div>
+
+                    <h2 class="sd-section-title">
+                        Action Required
+                    </h2>
+
+                    <p class="sd-section-subtitle">
+                        Important academic and administrative checks that may need your attention.
+                    </p>
+                </div>
+
+                <span class="sd-pill brand">
+                    Live Status
+                </span>
+            </div>
+
+            <div class="sd-action-list">
+
+                <!-- PAYMENT -->
+                <a href="{% url 'student_payments_page' %}" class="sd-action-row">
+
+                    {% if today_panel.payment_status == 'Clear' %}
+                        <div class="sd-icon success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="sd-action-title">
+                                Payment is clear
+                            </div>
+
+                            <div class="sd-action-text">
+                                {{ today_panel.payment_message }}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="sd-icon warning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5m0 4h.01"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="sd-action-title">
+                                Payment needs attention
+                            </div>
+
+                            <div class="sd-action-text">
+                                {{ today_panel.payment_message }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <span class="sd-arrow">→</span>
+                </a>
+
+
+                <!-- ATTENDANCE -->
+                <a href="{% url 'student_attendance_page' %}" class="sd-action-row">
+
+                    {% if today_panel.attendance_status == 'Safe' %}
+                        <div class="sd-icon success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="sd-action-title">
+                                Attendance is safe
+                            </div>
+
+                            <div class="sd-action-text">
+                                {{ today_panel.attendance_message }}
+                            </div>
+                        </div>
+
+                    {% elif today_panel.attendance_status == 'Warning' %}
+
+                        <div class="sd-icon warning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5m0 4h.01"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="sd-action-title">
+                                Attendance needs attention
+                            </div>
+
+                            <div class="sd-action-text">
+                                {{ today_panel.attendance_message }}
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <div class="sd-icon blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m8-4a4 4 0 10-8 0 4 4 0 008 0z"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="sd-action-title">
+                                Attendance not started
+                            </div>
+
+                            <div class="sd-action-text">
+                                {{ today_panel.attendance_message }}
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                    <span class="sd-arrow">→</span>
+                </a>
+
+
+                <!-- ASSIGNMENTS -->
+                <a href="{% url 'student_assignments_page' %}" class="sd-action-row">
+
+                    {% if today_panel.pending_assignments_count > 0 %}
+                        <div class="sd-icon warning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v14l-4-2-3 2-3-2-4 2V6a2 2 0 012-2z"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="sd-action-title">
+                                {{ today_panel.pending_assignments_count }}
+                                pending assignment{{ today_panel.pending_assignments_count|pluralize }}
+                            </div>
+
+                            <div class="sd-action-text">
+                                Review upcoming deadlines and submit your remaining work.
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <div class="sd-icon success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="sd-action-title">
+                                No pending assignment
+                            </div>
+
+                            <div class="sd-action-text">
+                                You are currently clear of pending assignment submissions.
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                    <span class="sd-arrow">→</span>
+                </a>
+
+
+                <!-- ADMIT CARD -->
+                <a href="{% url 'student_admit_card_page' %}" class="sd-action-row">
+
+                    {% if today_panel.admit_status == 'Eligible' %}
+                        <div class="sd-icon success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="sd-action-title">
+                                Admit card eligible
+                            </div>
+
+                            <div class="sd-action-text">
+                                {{ today_panel.admit_message }}
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <div class="sd-icon warning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5m0 4h.01"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="sd-action-title">
+                                Admit card requirement pending
+                            </div>
+
+                            <div class="sd-action-text">
+                                {{ today_panel.admit_message }}
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                    <span class="sd-arrow">→</span>
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- TODAY PANEL -->
+        <section class="sd-surface sd-panel">
+
+            <div class="sd-section-header">
+                <div>
+                    <div class="sd-section-eyebrow">
+                        Today Panel
+                    </div>
+
+                    <h2 class="sd-section-title">
+                        What’s coming up
+                    </h2>
+
+                    <p class="sd-section-subtitle">
+                        Important academic updates at a glance.
+                    </p>
+                </div>
+            </div>
+
+            <div class="sd-today-list">
+
+                <!-- NEXT EXAM -->
+                <a href="{% url 'student_exam_routine_page' %}" class="sd-today-card">
+
+                    <div class="sd-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M5 11h14M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <div class="sd-today-label">
+                            Next Exam
+                        </div>
+
+                        {% if today_panel.next_exam %}
+                            <div class="sd-today-title">
+                                {{ today_panel.next_exam.course_offering.course.code }}
+                                ·
+                                {{ today_panel.next_exam.get_exam_type_display }}
+                            </div>
+
+                            <div class="sd-today-text">
+                                {{ today_panel.next_exam.exam_date }}
+                                ·
+                                {{ today_panel.next_exam.start_time }}
+
+                                {% if today_panel.next_exam.room %}
+                                    · Room {{ today_panel.next_exam.room }}
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="sd-today-title">
+                                No upcoming exam
+                            </div>
+
+                            <div class="sd-today-text">
+                                Published examination schedules will appear here.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </a>
+
+
+                <!-- ASSIGNMENTS -->
+                <a href="{% url 'student_assignments_page' %}" class="sd-today-card">
+
+                    {% if today_panel.pending_assignments_count > 0 %}
+                        <div class="sd-icon warning">
+                    {% else %}
+                        <div class="sd-icon success">
+                    {% endif %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v14l-4-2-3 2-3-2-4 2V6a2 2 0 012-2z"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <div class="sd-today-label">
+                            Assignments
+                        </div>
+
+                        {% if today_panel.pending_assignments_count > 0 %}
+                            <div class="sd-today-title">
+                                {{ today_panel.pending_assignments_count }}
+                                pending
+                            </div>
+
+                            <div class="sd-today-text">
+                                Review submission deadlines.
+                            </div>
+                        {% else %}
+                            <div class="sd-today-title">
+                                All clear
+                            </div>
+
+                            <div class="sd-today-text">
+                                No pending assignment currently.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </a>
+
+
+                <!-- NOTICE -->
+                <a href="{% url 'my_notices' %}" class="sd-today-card">
+
+                    <div class="sd-icon cyan">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <div class="sd-today-label">
+                            Latest Notice
+                        </div>
+
+                        {% if today_panel.latest_notice %}
+                            <div class="sd-today-title">
+                                {{ today_panel.latest_notice.title }}
+                            </div>
+
+                            <div class="sd-today-text">
+                                {{ today_panel.latest_notice.published_at }}
+                            </div>
+                        {% else %}
+                            <div class="sd-today-title">
+                                No recent notice
+                            </div>
+
+                            <div class="sd-today-text">
+                                New announcements will appear here.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </a>
+
+            </div>
+
+        </section>
+
+    </section>
+
+
+    <!-- =====================================================
+         PORTAL COMMAND CENTER
+    ====================================================== -->
+    <section class="sd-surface sd-command">
+
+        <div class="sd-section-header">
+
+            <div>
+                <div class="sd-section-eyebrow">
+                    Student Services
+                </div>
+
+                <h2 class="sd-section-title">
+                    Portal Command Center
+                </h2>
+
+                <p class="sd-section-subtitle">
+                    All important university services organized into clear categories.
+                </p>
+            </div>
+
+            <span class="sd-pill">
+                Services
+            </span>
+
+        </div>
+
+
+        <div class="sd-command-grid">
+
+            <!-- ACADEMICS -->
+            <div class="sd-command-group">
+
+                <div class="sd-command-head">
+
+                    <div class="sd-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <div class="sd-command-title">
+                            Academics
+                        </div>
+
+                        <div class="sd-command-desc">
+                            Courses and learning records
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="sd-service-list">
+                    <a href="{% url 'student_courses_page' %}" class="sd-service-link">
+                        My Courses
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_materials_page' %}" class="sd-service-link">
+                        Course Materials
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_assignments_page' %}" class="sd-service-link">
+                        Assignments
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_attendance_page' %}" class="sd-service-link">
+                        Attendance
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_results_page' %}" class="sd-service-link">
+                        Results
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_course_summary_page' %}" class="sd-service-link">
+                        Course Summary
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+                </div>
+
+            </div>
+
+
+            <!-- EXAM -->
+            <div class="sd-command-group">
+
+                <div class="sd-command-head">
+
+                    <div class="sd-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M5 11h14M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <div class="sd-command-title">
+                            Examination
+                        </div>
+
+                        <div class="sd-command-desc">
+                            Schedules and exam services
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="sd-service-list">
+
+                    <a href="{% url 'student_exam_routine_page' %}" class="sd-service-link">
+                        Exam Routine
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_seat_plan_page' %}" class="sd-service-link">
+                        Seat Plan
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_admit_card_page' %}" class="sd-service-link">
+                        Admit Card
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_results_page' %}" class="sd-service-link">
+                        Published Results
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- FINANCE & REQUESTS -->
+            <div class="sd-command-group">
+
+                <div class="sd-command-head">
+
+                    <div class="sd-icon cyan">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h.01M11 15h2M5 7h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <div class="sd-command-title">
+                            Finance & Requests
+                        </div>
+
+                        <div class="sd-command-desc">
+                            Payments and student services
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="sd-service-list">
+
+                    <a href="{% url 'student_payments_page' %}" class="sd-service-link">
+                        Payments
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_applications_page' %}" class="sd-service-link">
+                        Applications
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'my_notices' %}" class="sd-service-link">
+                        Notices
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                    <a href="{% url 'student_profile_page' %}" class="sd-service-link">
+                        Profile
+                        <span class="sd-service-arrow">→</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FINANCE + NOTICES
+    ====================================================== -->
+    <section class="sd-main-grid">
+
+        <!-- FINANCE -->
+        <section class="sd-surface sd-panel">
+
+            <div class="sd-section-header">
+
+                <div>
+                    <div class="sd-section-eyebrow">
+                        Finance Snapshot
+                    </div>
+
+                    <h2 class="sd-section-title">
+                        Account Overview
+                    </h2>
+
+                    <p class="sd-section-subtitle">
+                        A live summary of your assigned fees, payments, outstanding balance, and account credit.
+                    </p>
+                </div>
+
+                <a href="{% url 'student_payments_page' %}" class="sd-pill">
+                    View Payments
+                </a>
+
+            </div>
+
+
+            <div class="sd-finance-grid">
+
+                <a href="{% url 'student_payments_page' %}" class="sd-finance-item">
+                    <div class="sd-finance-label">
+                        Total Payable
+                    </div>
+
+                    <div class="sd-finance-value sd-tabular">
+                        {{ total_payable }} BDT
+                    </div>
+
+                    <div class="sd-finance-desc">
+                        Total fees currently assigned to your account.
+                    </div>
+                </a>
+
+
+                <a href="{% url 'student_payments_page' %}" class="sd-finance-item">
+                    <div class="sd-finance-label">
+                        Total Paid
+                    </div>
+
+                    <div class="sd-finance-value success sd-tabular">
+                        {{ total_paid }} BDT
+                    </div>
+
+                    <div class="sd-finance-desc">
+                        Total payment amount received.
+                    </div>
+                </a>
+
+
+                <a href="{% url 'student_payments_page' %}" class="sd-finance-item">
+                    <div class="sd-finance-label">
+                        Current Due
+                    </div>
+
+                    {% if current_due > 0 %}
+                        <div class="sd-finance-value danger sd-tabular">
+                            {{ current_due }} BDT
+                        </div>
+                    {% else %}
+                        <div class="sd-finance-value success sd-tabular">
+                            0.00 BDT
+                        </div>
+                    {% endif %}
+
+                    <div class="sd-finance-desc">
+                        Outstanding balance remaining.
+                    </div>
+                </a>
+
+
+                <a href="{% url 'student_payments_page' %}" class="sd-finance-item">
+                    <div class="sd-finance-label">
+                        Credit Balance
+                    </div>
+
+                    <div class="sd-finance-value sd-tabular">
+                        {{ credit_balance }} BDT
+                    </div>
+
+                    <div class="sd-finance-desc">
+                        Extra amount currently available as credit.
+                    </div>
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- NOTICES -->
+        <section class="sd-surface sd-panel">
+
+            <div class="sd-section-header">
+
+                <div>
+                    <div class="sd-section-eyebrow">
+                        University Updates
+                    </div>
+
+                    <h2 class="sd-section-title">
+                        Latest Notices
+                    </h2>
+
+                    <p class="sd-section-subtitle">
+                        Recent announcements published for students.
+                    </p>
+                </div>
+
+                <a href="{% url 'my_notices' %}" class="sd-pill">
+                    View All
+                </a>
+
+            </div>
+
+
+            {% if latest_notices %}
+
+                <div class="sd-notice-list">
+
+                    {% for notice in latest_notices %}
+
+                        <article class="sd-notice-card">
+
+                            <div class="sd-icon cyan">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                                </svg>
+                            </div>
+
+                            <div>
+
+                                <div class="sd-notice-badges">
+                                    <span class="sd-pill brand">
+                                        {{ notice.get_notice_type_display }}
+                                    </span>
+
+                                    <span class="sd-pill">
+                                        {{ notice.get_target_audience_display }}
+                                    </span>
+                                </div>
+
+                                <div class="sd-notice-title">
+                                    {{ notice.title }}
+                                </div>
+
+                                <div class="sd-notice-text">
+                                    {{ notice.message|truncatewords:18 }}
+                                </div>
+
+                                <div class="sd-notice-date">
+                                    Published: {{ notice.published_at }}
+                                </div>
+
+                                {% if notice.attachment %}
+                                    <a
+                                        href="{{ notice.attachment.url }}"
+                                        target="_blank"
+                                        class="sd-attachment"
+                                    >
+                                        Open Attachment
+                                    </a>
+                                {% endif %}
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="sd-empty">
+
+                    <div class="sd-empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                        </svg>
+                    </div>
+
+                    <div class="sd-empty-title">
+                        No recent notice
+                    </div>
+
+                    <div class="sd-empty-text">
+                        New university announcements will appear here.
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </section>
+
+</div>
+
+
+{% else %}
+
+<div class="sd-error-box">
+    <h2>
+        Profile Not Created
+    </h2>
+
+    <p>
+        Your student profile has not been created yet. Please contact the admin office.
+    </p>
+</div>
+
+{% endif %}
+
+{% endblock %}

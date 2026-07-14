@@ -1,0 +1,4407 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    /* =========================================================
+       ACADEMIC SETUP
+    ========================================================= */
+
+    .academic-page {
+        --ac-ink: #0f172a;
+        --ac-text: #334155;
+        --ac-muted: #64748b;
+        --ac-faint: #94a3b8;
+
+        --ac-line: #e2e8f0;
+        --ac-line-soft: #eef2f7;
+        --ac-canvas: #f8fafc;
+        --ac-surface: #ffffff;
+
+        --ac-accent: #9f1c1c;
+        --ac-accent-dark: #7f1717;
+        --ac-accent-soft: #fff1f2;
+        --ac-accent-line: #fecaca;
+
+        --ac-success: #047857;
+        --ac-success-soft: #ecfdf5;
+        --ac-success-line: #bbf7d0;
+
+        --ac-warning: #b45309;
+        --ac-warning-soft: #fffbeb;
+
+        --ac-danger: #b91c1c;
+        --ac-danger-soft: #fef2f2;
+        --ac-danger-line: #fecaca;
+
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        display: grid;
+        gap: 18px;
+    }
+
+    .academic-page,
+    .academic-page * {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .academic-page a {
+        text-decoration: none;
+    }
+
+    /* =========================================================
+       SHARED
+    ========================================================= */
+
+    .ac-surface {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        background: var(--ac-surface);
+        border: 1px solid var(--ac-line);
+        border-radius: 24px;
+    }
+
+    .ac-button {
+        min-height: 42px;
+        padding: 0 15px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        border: 1px solid var(--ac-line);
+        border-radius: 12px;
+
+        background: #ffffff;
+        color: var(--ac-text);
+
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 800;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            color 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .ac-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    .ac-button.primary {
+        background: var(--ac-accent);
+        color: #ffffff;
+        border-color: var(--ac-accent);
+    }
+
+    .ac-button.primary:hover {
+        background: var(--ac-accent-dark);
+        border-color: var(--ac-accent-dark);
+    }
+
+    .ac-button.danger {
+        background: #ffffff;
+        color: var(--ac-danger);
+        border-color: var(--ac-danger-line);
+    }
+
+    .ac-button.danger:hover {
+        background: var(--ac-danger-soft);
+    }
+
+    .ac-button.soft {
+        background: var(--ac-accent-soft);
+        color: var(--ac-accent-dark);
+        border-color: var(--ac-accent-line);
+    }
+
+    .ac-button.soft:hover {
+        background: #ffe4e6;
+    }
+
+    .ac-button svg {
+        width: 16px;
+        height: 16px;
+        flex: none;
+    }
+
+    .ac-chip {
+        min-height: 30px;
+        padding: 0 11px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+
+        border-radius: 999px;
+
+        background: #f8fafc;
+        border: 1px solid var(--ac-line);
+
+        color: #475569;
+
+        font-size: 11px;
+        font-weight: 800;
+
+        white-space: nowrap;
+    }
+
+    .ac-chip.brand {
+        background: var(--ac-accent-soft);
+        border-color: var(--ac-accent-line);
+        color: var(--ac-accent-dark);
+    }
+
+    .ac-chip.success {
+        background: var(--ac-success-soft);
+        border-color: var(--ac-success-line);
+        color: var(--ac-success);
+    }
+
+    .ac-chip.inactive {
+        background: #f1f5f9;
+        border-color: var(--ac-line);
+        color: var(--ac-muted);
+    }
+
+    /* =========================================================
+       COMPACT HEADER
+    ========================================================= */
+
+    .academic-header {
+        position: relative;
+        overflow: hidden;
+
+        padding: 26px 28px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+
+        background:
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.48),
+                transparent 35%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.72),
+                transparent 36%
+            ),
+            #ffffff;
+    }
+
+    .academic-header-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .academic-kicker {
+        margin-bottom: 9px;
+
+        color: var(--ac-accent);
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+
+    .academic-title {
+        margin: 0;
+
+        color: var(--ac-ink);
+
+        font-size: clamp(30px, 4vw, 42px);
+        line-height: 1.04;
+        font-weight: 900;
+        letter-spacing: -0.055em;
+    }
+
+    .academic-subtitle {
+        max-width: 720px;
+        margin: 9px 0 0;
+
+        color: var(--ac-muted);
+
+        font-size: 14px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       COMPACT STAT STRIP
+    ========================================================= */
+
+    .academic-stats {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+
+        overflow: hidden;
+    }
+
+    .academic-stat {
+        min-height: 86px;
+        padding: 16px 18px;
+
+        display: flex;
+        align-items: center;
+        gap: 13px;
+
+        border-right: 1px solid var(--ac-line-soft);
+    }
+
+    .academic-stat:last-child {
+        border-right: none;
+    }
+
+    .academic-stat-icon {
+        width: 40px;
+        height: 40px;
+        flex: none;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 12px;
+
+        background: var(--ac-accent-soft);
+        border: 1px solid var(--ac-accent-line);
+
+        color: var(--ac-accent);
+    }
+
+    .academic-stat-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .academic-stat-label {
+        color: var(--ac-faint);
+
+        font-size: 9.5px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .academic-stat-value {
+        margin-top: 4px;
+
+        color: var(--ac-ink);
+
+        font-size: 22px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    /* =========================================================
+       NAVIGATION
+    ========================================================= */
+
+    .academic-nav {
+        position: sticky;
+        top: 92px;
+        z-index: 20;
+
+        padding: 8px;
+
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(18px);
+    }
+
+    .academic-tabs {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .academic-tab {
+        min-height: 46px;
+        padding: 8px 12px;
+
+        border: 1px solid transparent;
+        border-radius: 12px;
+
+        background: transparent;
+        color: #475569;
+
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 800;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            color 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .academic-tab:hover {
+        background: #f8fafc;
+        color: var(--ac-ink);
+    }
+
+    .academic-tab.active {
+        background: var(--ac-accent);
+        border-color: var(--ac-accent);
+
+        color: #ffffff;
+    }
+
+    /* =========================================================
+       TAB PANEL
+    ========================================================= */
+
+    .academic-panel {
+        display: none;
+    }
+
+    .academic-panel.active {
+        display: block;
+    }
+
+    /* =========================================================
+       WORKSPACE
+    ========================================================= */
+
+    .academic-workspace {
+        overflow: hidden;
+    }
+
+    .workspace-header {
+        padding: 24px 26px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+
+        border-bottom: 1px solid var(--ac-line-soft);
+    }
+
+    .workspace-title {
+        margin: 0;
+
+        color: var(--ac-ink);
+
+        font-size: 25px;
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    .workspace-description {
+        margin: 6px 0 0;
+
+        color: var(--ac-muted);
+
+        font-size: 13.5px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .workspace-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+    }
+
+    /* =========================================================
+       CREATE PANEL
+    ========================================================= */
+
+    .create-panel {
+        display: none;
+
+        margin: 18px 22px 0;
+        padding: 20px;
+
+        border: 1px solid var(--ac-accent-line);
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #fffafa 0%,
+                #ffffff 100%
+            );
+    }
+
+    .create-panel.open {
+        display: block;
+    }
+
+    .create-panel-header {
+        margin-bottom: 18px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .create-panel-title {
+        margin: 0;
+
+        color: var(--ac-ink);
+
+        font-size: 18px;
+        font-weight: 850;
+        letter-spacing: -0.025em;
+    }
+
+    .create-panel-text {
+        margin: 4px 0 0;
+
+        color: var(--ac-muted);
+
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       FORMS
+    ========================================================= */
+
+    .form-grid {
+        display: grid;
+        gap: 14px;
+    }
+
+    .form-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form-grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .form-field {
+        margin: 0;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 7px;
+
+        color: var(--ac-text);
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 12px;
+
+        border: 1px solid #cbd5e1;
+        border-radius: 11px;
+
+        background: #ffffff;
+        color: var(--ac-ink);
+
+        font-family: inherit;
+        font-size: 13px;
+
+        outline: none;
+
+        transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .input-control:focus {
+        border-color: var(--ac-accent);
+        box-shadow: 0 0 0 3px rgba(159, 28, 28, 0.1);
+    }
+
+    .form-actions {
+        margin-top: 16px;
+
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+    }
+
+    .active-field {
+        min-height: 44px;
+        padding: 0 12px;
+
+        display: flex;
+        align-items: center;
+        gap: 9px;
+
+        border: 1px solid #cbd5e1;
+        border-radius: 11px;
+
+        background: #ffffff;
+
+        color: var(--ac-text);
+
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .active-field input {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--ac-accent);
+    }
+
+    /* =========================================================
+       TOOLBAR
+    ========================================================= */
+
+    .workspace-toolbar {
+        padding: 18px 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+
+        border-bottom: 1px solid var(--ac-line-soft);
+    }
+
+    .search-wrap {
+        position: relative;
+        width: min(100%, 440px);
+    }
+
+    .search-wrap svg {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+
+        width: 17px;
+        height: 17px;
+
+        transform: translateY(-50%);
+
+        color: var(--ac-faint);
+
+        pointer-events: none;
+    }
+
+    .workspace-search {
+        width: 100%;
+        min-height: 42px;
+        padding: 0 14px 0 40px;
+
+        border: 1px solid var(--ac-line);
+        border-radius: 12px;
+
+        background: #f8fafc;
+        color: var(--ac-ink);
+
+        font-family: inherit;
+        font-size: 13px;
+
+        outline: none;
+    }
+
+    .workspace-search:focus {
+        background: #ffffff;
+        border-color: var(--ac-accent);
+        box-shadow: 0 0 0 3px rgba(159, 28, 28, 0.08);
+    }
+
+    /* =========================================================
+       SERVER-SIDE FILTERS + PAGINATION
+    ========================================================= */
+
+    .ac-server-filter-grid {
+        width: 100%;
+
+        display: grid;
+        grid-template-columns:
+            minmax(220px, 2fr)
+            minmax(170px, 1fr)
+            minmax(150px, 0.8fr)
+            auto
+            auto;
+
+        gap: 10px;
+        align-items: center;
+    }
+
+    .ac-server-filter-grid.offerings {
+        grid-template-columns:
+            minmax(230px, 2fr)
+            repeat(5, minmax(140px, 1fr))
+            auto
+            auto;
+    }
+
+    .ac-server-filter-grid .search-wrap {
+        width: 100%;
+        max-width: none;
+    }
+
+    .ac-pagination {
+        padding: 18px 22px 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+
+        border-top: 1px solid var(--ac-line-soft);
+    }
+
+    .ac-pagination-info {
+        color: var(--ac-muted);
+
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .ac-pagination-links {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    @media (max-width: 1280px) {
+        .ac-server-filter-grid,
+        .ac-server-filter-grid.offerings {
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+        }
+
+        .ac-server-filter-grid .search-wrap,
+        .ac-server-filter-grid.offerings .search-wrap {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .ac-server-filter-grid,
+        .ac-server-filter-grid.offerings {
+            grid-template-columns: 1fr;
+        }
+
+        .ac-server-filter-grid .search-wrap,
+        .ac-server-filter-grid.offerings .search-wrap {
+            grid-column: auto;
+        }
+
+        .ac-server-filter-grid .ac-button,
+        .ac-server-filter-grid.offerings .ac-button {
+            width: 100%;
+        }
+
+        .ac-pagination {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .ac-pagination-links {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+        .ac-pagination-links .ac-button {
+            width: 100%;
+        }
+    }
+
+    /* =========================================================
+       RECORD LIST
+    ========================================================= */
+
+    .record-list {
+        padding: 0 22px 22px;
+
+        display: grid;
+        gap: 10px;
+    }
+
+    .record-row {
+        overflow: hidden;
+
+        border: 1px solid var(--ac-line);
+        border-radius: 16px;
+
+        background: #ffffff;
+
+        transition:
+            border-color 0.15s ease,
+            background 0.15s ease;
+    }
+
+    .record-row:hover {
+        border-color: #cbd5e1;
+    }
+
+    .record-display {
+        min-height: 70px;
+        padding: 14px 16px;
+
+        display: grid;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .record-display.department {
+        grid-template-columns:
+            110px
+            minmax(0, 1fr)
+            auto;
+    }
+
+    .record-display.batch {
+        grid-template-columns:
+            minmax(150px, 1.1fr)
+            minmax(140px, 1fr)
+            110px
+            auto;
+    }
+
+    .record-display.semester {
+        grid-template-columns:
+            110px
+            minmax(0, 1fr)
+            auto;
+    }
+
+    .record-display.course {
+        grid-template-columns:
+            minmax(100px, 0.7fr)
+            minmax(130px, 0.8fr)
+            minmax(220px, 1.8fr)
+            80px
+            minmax(120px, 0.8fr)
+            auto;
+    }
+
+    .record-display.offering {
+        grid-template-columns:
+            minmax(220px, 1.8fr)
+            minmax(150px, 1.1fr)
+            minmax(150px, 1fr)
+            minmax(120px, 0.8fr)
+            70px
+            90px
+            auto;
+    }
+
+    .record-label {
+        margin-bottom: 4px;
+
+        color: var(--ac-faint);
+
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .record-value {
+        color: var(--ac-ink);
+
+        font-size: 13px;
+        line-height: 1.4;
+        font-weight: 750;
+
+        overflow-wrap: anywhere;
+    }
+
+    .record-value.primary {
+        font-weight: 900;
+    }
+
+    .record-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 7px;
+    }
+
+    /* =========================================================
+       EDIT MODE
+    ========================================================= */
+
+    .record-edit {
+        display: none;
+
+        padding: 16px;
+
+        border-top: 1px solid var(--ac-line-soft);
+        background: #f8fafc;
+    }
+
+    .record-row.editing .record-display {
+        display: none;
+    }
+
+    .record-row.editing .record-edit {
+        display: block;
+    }
+
+    .edit-form-grid {
+        display: grid;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .edit-form-grid.department {
+        grid-template-columns: 160px minmax(0, 1fr);
+    }
+
+    .edit-form-grid.batch {
+        grid-template-columns:
+            minmax(180px, 1.2fr)
+            minmax(160px, 1fr)
+            140px;
+    }
+
+    .edit-form-grid.semester {
+        grid-template-columns: 150px minmax(0, 1fr);
+    }
+
+    .edit-form-grid.course {
+        grid-template-columns:
+            minmax(150px, 1fr)
+            minmax(130px, 0.8fr)
+            minmax(220px, 1.6fr)
+            110px
+            minmax(150px, 1fr);
+    }
+
+    .edit-form-grid.offering {
+        grid-template-columns:
+            repeat(3, minmax(160px, 1fr));
+    }
+
+    .edit-form-actions {
+        margin-top: 14px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .edit-primary-actions,
+    .edit-danger-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* =========================================================
+       EMPTY / SEARCH EMPTY
+    ========================================================= */
+
+    .empty-state {
+        padding: 34px 20px;
+
+        border: 1px dashed #cbd5e1;
+        border-radius: 16px;
+
+        background: #f8fafc;
+
+        text-align: center;
+    }
+
+    .empty-state-title {
+        color: var(--ac-ink);
+
+        font-size: 16px;
+        font-weight: 850;
+    }
+
+    .empty-state-text {
+        margin-top: 5px;
+
+        color: var(--ac-muted);
+
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .search-empty {
+        display: none;
+    }
+
+    .search-empty.visible {
+        display: block;
+    }
+
+    /* =========================================================
+       OFFERING SERVER-SIDE FILTERS
+    ========================================================= */
+
+    .offering-filter-form {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .offering-filter-grid {
+        display: grid;
+        grid-template-columns:
+            minmax(240px, 1.7fr)
+            repeat(5, minmax(145px, 1fr));
+        gap: 12px;
+        align-items: end;
+    }
+
+    .offering-filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+    }
+
+    .offering-filter-actions .ac-button {
+        flex: 0 0 auto;
+        min-width: 110px;
+        white-space: nowrap;
+    }
+
+    .pagination-bar {
+        padding: 16px 22px;
+        border-top: 1px solid var(--ac-line-soft);
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .pagination-info {
+        color: var(--ac-muted);
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .pagination-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    @media (max-width: 1450px) {
+        .offering-filter-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .offering-search-field {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .offering-filter-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .offering-search-field {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .offering-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .offering-search-field {
+            grid-column: auto;
+        }
+
+        .offering-filter-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .offering-filter-actions .ac-button {
+            width: 100%;
+        }
+
+        .pagination-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .pagination-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .pagination-actions .ac-button {
+            width: 100%;
+        }
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1280px) {
+        .academic-stats {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .academic-stat:nth-child(3) {
+            border-right: none;
+        }
+
+        .academic-stat:nth-child(-n+3) {
+            border-bottom: 1px solid var(--ac-line-soft);
+        }
+
+        .record-display.course,
+        .record-display.offering {
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+        }
+
+        .record-display.course .record-actions,
+        .record-display.offering .record-actions {
+            grid-column: 1 / -1;
+            justify-content: flex-start;
+        }
+
+        .edit-form-grid.course,
+        .edit-form-grid.offering {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .academic-nav {
+            top: 78px;
+        }
+
+        .academic-tabs {
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+        }
+
+        .record-display.batch {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+        .record-display.batch .record-actions {
+            grid-column: 1 / -1;
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .academic-page {
+            gap: 14px;
+        }
+
+        .academic-header {
+            padding: 20px 18px;
+
+            flex-direction: column;
+            align-items: stretch;
+
+            border-radius: 20px;
+        }
+
+        .academic-header .ac-button {
+            width: 100%;
+        }
+
+        .academic-title {
+            font-size: 30px;
+        }
+
+        .academic-subtitle {
+            font-size: 13px;
+        }
+
+        /* compact 2-column stat strip */
+        .academic-stats {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            border-radius: 20px;
+        }
+
+        .academic-stat {
+            min-height: 76px;
+            padding: 13px;
+            gap: 10px;
+
+            border-right: 1px solid var(--ac-line-soft);
+            border-bottom: 1px solid var(--ac-line-soft);
+        }
+
+        .academic-stat:nth-child(2n) {
+            border-right: none;
+        }
+
+        .academic-stat:last-child {
+            grid-column: 1 / -1;
+            border-bottom: none;
+            border-right: none;
+        }
+
+        .academic-stat-icon {
+            width: 36px;
+            height: 36px;
+
+            border-radius: 10px;
+        }
+
+        .academic-stat-value {
+            font-size: 19px;
+        }
+
+        .academic-nav {
+            position: static;
+
+            padding: 7px;
+
+            border-radius: 18px;
+
+            overflow-x: auto;
+        }
+
+        .academic-tabs {
+            width: max-content;
+            min-width: 100%;
+
+            display: flex;
+            gap: 6px;
+        }
+
+        .academic-tab {
+            width: auto;
+            min-width: max-content;
+            min-height: 42px;
+
+            padding: 0 14px;
+
+            white-space: nowrap;
+        }
+
+        .academic-workspace {
+            border-radius: 20px;
+        }
+
+        .workspace-header {
+            padding: 18px;
+
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .workspace-title {
+            font-size: 22px;
+        }
+
+        .workspace-actions {
+            width: 100%;
+        }
+
+        .workspace-actions .ac-button {
+            width: 100%;
+        }
+
+        .create-panel {
+            margin: 14px 14px 0;
+            padding: 16px;
+
+            border-radius: 15px;
+        }
+
+        .create-panel-header {
+            flex-direction: column;
+        }
+
+        .form-grid.two,
+        .form-grid.three,
+        .edit-form-grid.department,
+        .edit-form-grid.batch,
+        .edit-form-grid.semester,
+        .edit-form-grid.course,
+        .edit-form-grid.offering {
+            grid-template-columns: 1fr;
+        }
+
+        .workspace-toolbar {
+            padding: 14px;
+
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-wrap {
+            width: 100%;
+        }
+
+        .record-list {
+            padding: 0 14px 14px;
+        }
+
+        /*
+         * Mobile record layout:
+         * still structured, but no horizontal scrolling.
+         */
+        .record-display.department,
+        .record-display.semester,
+        .record-display.batch,
+        .record-display.course,
+        .record-display.offering {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 12px;
+
+            padding: 14px;
+        }
+
+        .record-display .record-actions {
+            grid-column: 1 / -1;
+
+            justify-content: stretch;
+        }
+
+        .record-actions .ac-button {
+            flex: 1 1 0;
+        }
+
+        .edit-form-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .edit-primary-actions,
+        .edit-danger-actions {
+            width: 100%;
+        }
+
+        .edit-primary-actions .ac-button,
+        .edit-danger-actions .ac-button {
+            flex: 1 1 0;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .academic-header {
+            padding: 18px 15px;
+        }
+
+        .academic-title {
+            font-size: 28px;
+        }
+
+        .academic-stat {
+            padding: 11px;
+        }
+
+        .academic-stat-label {
+            font-size: 8.5px;
+        }
+
+        .academic-stat-value {
+            font-size: 18px;
+        }
+
+        .record-display.department,
+        .record-display.semester,
+        .record-display.batch,
+        .record-display.course,
+        .record-display.offering {
+            grid-template-columns: 1fr;
+        }
+
+        .record-display .record-actions {
+            grid-column: auto;
+        }
+
+        .record-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .edit-primary-actions,
+        .edit-danger-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+<div class="academic-page">
+
+    <!-- =====================================================
+         COMPACT HEADER
+    ====================================================== -->
+
+    <section class="ac-surface academic-header">
+
+        <div class="academic-header-content">
+            <div class="academic-kicker">
+                Academic Control
+            </div>
+
+            <h1 class="academic-title">
+                Academic Setup
+            </h1>
+
+            <p class="academic-subtitle">
+                Manage the university's departments, batches, semesters,
+                courses, and active course offerings from one organized workspace.
+            </p>
+        </div>
+
+
+        {% if user.role == 'super_admin' %}
+            <a href="{% url 'super_admin_dashboard' %}" class="ac-button soft">
+                ← Back to Dashboard
+            </a>
+
+        {% elif user.role == 'admin' %}
+            <a href="{% url 'admin_dashboard' %}" class="ac-button soft">
+                ← Back to Dashboard
+            </a>
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         COMPACT STAT STRIP
+    ====================================================== -->
+
+    <section class="ac-surface academic-stats">
+
+        <div class="academic-stat">
+            <div class="academic-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="academic-stat-label">
+                    Departments
+                </div>
+
+                <div class="academic-stat-value">
+                    {{ total_department_count }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="academic-stat">
+            <div class="academic-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="academic-stat-label">
+                    Batches
+                </div>
+
+                <div class="academic-stat-value">
+                    {{ total_batch_count }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="academic-stat">
+            <div class="academic-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M5 11h14M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="academic-stat-label">
+                    Semesters
+                </div>
+
+                <div class="academic-stat-value">
+                    {{ total_semester_count }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="academic-stat">
+            <div class="academic-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="academic-stat-label">
+                    Courses
+                </div>
+
+                <div class="academic-stat-value">
+                    {{ total_course_count }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="academic-stat">
+            <div class="academic-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7 4h10a2 2 0 012 2v14H5V6a2 2 0 012-2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="academic-stat-label">
+                    Offerings
+                </div>
+
+                <div class="academic-stat-value">
+                    {{ total_course_offering_count }}
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MODULE NAVIGATION
+    ====================================================== -->
+
+    <nav class="ac-surface academic-nav">
+        <div class="academic-tabs">
+
+            <button
+                type="button"
+                class="academic-tab {% if active_tab == 'departments' %}active{% endif %}"
+                data-tab="departments"
+            >
+                Departments
+            </button>
+
+            <button
+                type="button"
+                class="academic-tab {% if active_tab == 'batches' %}active{% endif %}"
+                data-tab="batches"
+            >
+                Batches
+            </button>
+
+            <button
+                type="button"
+                class="academic-tab {% if active_tab == 'semesters' %}active{% endif %}"
+                data-tab="semesters"
+            >
+                Semesters
+            </button>
+
+            <button
+                type="button"
+                class="academic-tab {% if active_tab == 'courses' %}active{% endif %}"
+                data-tab="courses"
+            >
+                Courses
+            </button>
+
+            <button
+                type="button"
+                class="academic-tab {% if active_tab == 'offerings' %}active{% endif %}"
+                data-tab="offerings"
+            >
+                Course Offerings
+            </button>
+
+        </div>
+    </nav>
+
+
+    <!-- =====================================================
+         DEPARTMENTS
+    ====================================================== -->
+
+    <section
+        id="departments"
+        class="academic-panel {% if active_tab == 'departments' %}active{% endif %}"
+    >
+
+        <div class="ac-surface academic-workspace">
+
+            <div class="workspace-header">
+                <div>
+                    <h2 class="workspace-title">
+                        Departments
+                    </h2>
+
+                    <p class="workspace-description">
+                        Manage the university's academic departments and official department codes.
+                    </p>
+                </div>
+
+                <div class="workspace-actions">
+                    <span class="ac-chip">
+                        {{ total_department_count }}
+                        Record{{ departments|length|pluralize }}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="ac-button primary toggle-create"
+                        data-target="create-department-panel"
+                    >
+                        + Add Department
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- CREATE DEPARTMENT -->
+
+            <div
+                id="create-department-panel"
+                class="create-panel"
+            >
+
+                <div class="create-panel-header">
+                    <div>
+                        <h3 class="create-panel-title">
+                            Add Department
+                        </h3>
+
+                        <p class="create-panel-text">
+                            Create a new academic department and assign its official code.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="ac-button close-create"
+                        data-target="create-department-panel"
+                    >
+                        Close
+                    </button>
+                </div>
+
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="create_department"
+                    >
+
+
+                    <div class="form-grid two">
+
+                        <div class="form-field">
+                            <label>
+                                Department Code
+                            </label>
+
+                            <input
+                                type="text"
+                                name="code"
+                                placeholder="CSE"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Department Name
+                            </label>
+
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Computer Science and Engineering"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button
+                            type="submit"
+                            class="ac-button primary"
+                        >
+                            Create Department
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- TOOLBAR -->
+
+            <div class="workspace-toolbar">
+
+                <div class="search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+
+                    <input
+                        type="search"
+                        class="workspace-search"
+                        data-search-target="department-record-list"
+                        placeholder="Search departments..."
+                    >
+                </div>
+
+                <span class="ac-chip brand">
+                    Department Records
+                </span>
+
+            </div>
+
+
+            <!-- RECORDS -->
+
+            <div
+                id="department-record-list"
+                class="record-list"
+            >
+
+                {% for department in department_records %}
+
+                    <article
+                        class="record-row searchable-record"
+                        data-search-text="{{ department.code }} {{ department.name }}"
+                    >
+
+                        <div class="record-display department">
+
+                            <div>
+                                <div class="record-label">
+                                    Code
+                                </div>
+
+                                <div class="record-value primary">
+                                    {{ department.code }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Department
+                                </div>
+
+                                <div class="record-value">
+                                    {{ department.name }}
+                                </div>
+                            </div>
+
+
+                            <div class="record-actions">
+
+                                <button
+                                    type="button"
+                                    class="ac-button edit-record"
+                                >
+                                    Edit
+                                </button>
+
+
+                                <form
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this department?');"
+                                >
+                                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="delete_department"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="department_id"
+                                        value="{{ department.id }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="ac-button danger"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="record-edit">
+
+                            <form method="POST">
+                                {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="update_department"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="department_id"
+                                    value="{{ department.id }}"
+                                >
+
+
+                                <div class="edit-form-grid department">
+
+                                    <div class="form-field">
+                                        <label>
+                                            Code
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="code"
+                                            value="{{ department.code }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Department Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value="{{ department.name }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+                                </div>
+
+
+                                <div class="edit-form-actions">
+
+                                    <div class="edit-primary-actions">
+                                        <button
+                                            type="submit"
+                                            class="ac-button primary"
+                                        >
+                                            Save Changes
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="ac-button cancel-edit"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+
+                {% empty %}
+
+                    <div class="empty-state">
+                        <div class="empty-state-title">
+                            No departments found
+                        </div>
+
+                        <div class="empty-state-text">
+                            Add your first academic department to begin.
+                        </div>
+                    </div>
+
+                {% endfor %}
+
+
+                <div class="empty-state search-empty">
+                    <div class="empty-state-title">
+                        No matching department
+                    </div>
+
+                    <div class="empty-state-text">
+                        Try another search term.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         BATCHES
+    ====================================================== -->
+
+    <section
+        id="batches"
+        class="academic-panel {% if active_tab == 'batches' %}active{% endif %}"
+    >
+
+        <div class="ac-surface academic-workspace">
+
+            <div class="workspace-header">
+                <div>
+                    <h2 class="workspace-title">
+                        Batches
+                    </h2>
+
+                    <p class="workspace-description">
+                        Organize student batches by department and admission year.
+                    </p>
+                </div>
+
+                <div class="workspace-actions">
+                    <span class="ac-chip">
+                        {{ total_batch_count }}
+                        Record{{ batches|length|pluralize }}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="ac-button primary toggle-create"
+                        data-target="create-batch-panel"
+                    >
+                        + Add Batch
+                    </button>
+                </div>
+            </div>
+
+
+            <div
+                id="create-batch-panel"
+                class="create-panel"
+            >
+
+                <div class="create-panel-header">
+                    <div>
+                        <h3 class="create-panel-title">
+                            Add Batch
+                        </h3>
+
+                        <p class="create-panel-text">
+                            Create a new batch under an academic department.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="ac-button close-create"
+                        data-target="create-batch-panel"
+                    >
+                        Close
+                    </button>
+                </div>
+
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="create_batch"
+                    >
+
+
+                    <div class="form-grid three">
+
+                        <div class="form-field">
+                            <label>
+                                Department
+                            </label>
+
+                            <select
+                                name="department"
+                                required
+                                class="input-control"
+                            >
+                                <option value="">
+                                    Select Department
+                                </option>
+
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">
+                                        {{ department.code }} - {{ department.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Batch Name
+                            </label>
+
+                            <input
+                                type="text"
+                                name="batch_name"
+                                placeholder="Winter 2026"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Admission Year
+                            </label>
+
+                            <input
+                                type="number"
+                                name="admission_year"
+                                placeholder="2026"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button
+                            type="submit"
+                            class="ac-button primary"
+                        >
+                            Create Batch
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <div class="workspace-toolbar">
+
+                <form method="GET" style="width: 100%;">
+                    <input type="hidden" name="tab" value="batches">
+
+                    <div class="ac-server-filter-grid">
+
+                        <div class="search-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="M21 21l-4.35-4.35"/>
+                            </svg>
+
+                            <input
+                                type="search"
+                                name="batch_search"
+                                value="{{ batch_search }}"
+                                class="workspace-search"
+                                placeholder="Search batch, department, or year..."
+                            >
+                        </div>
+
+                        <select
+                            name="batch_department"
+                            class="input-control"
+                        >
+                            <option value="">All Departments</option>
+
+                            {% for department in departments %}
+                                <option
+                                    value="{{ department.id }}"
+                                    {% if batch_department_id == department.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ department.code }} - {{ department.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <input
+                            type="number"
+                            name="batch_year"
+                            value="{{ batch_year }}"
+                            class="input-control"
+                            placeholder="Admission year"
+                        >
+
+                        <button
+                            type="submit"
+                            class="ac-button primary"
+                        >
+                            Apply Filters
+                        </button>
+
+                        <a
+                            href="{% url 'academic_setup' %}?tab=batches"
+                            class="ac-button"
+                        >
+                            Clear
+                        </a>
+
+                    </div>
+                </form>
+
+            </div>
+
+
+            <div
+                id="batch-record-list"
+                class="record-list"
+            >
+
+                {% for batch in batches %}
+
+                    <article
+                        class="record-row searchable-record"
+                        data-search-text="{{ batch.department.code }} {{ batch.department.name }} {{ batch.batch_name }} {{ batch.admission_year }}"
+                    >
+
+                        <div class="record-display batch">
+
+                            <div>
+                                <div class="record-label">
+                                    Department
+                                </div>
+
+                                <div class="record-value primary">
+                                    {{ batch.department }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Batch
+                                </div>
+
+                                <div class="record-value">
+                                    {{ batch.batch_name }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Admission Year
+                                </div>
+
+                                <div class="record-value">
+                                    {{ batch.admission_year }}
+                                </div>
+                            </div>
+
+
+                            <div class="record-actions">
+
+                                <button
+                                    type="button"
+                                    class="ac-button edit-record"
+                                >
+                                    Edit
+                                </button>
+
+
+                                <form
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this batch?');"
+                                >
+                                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="delete_batch"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="batch_id"
+                                        value="{{ batch.id }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="ac-button danger"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="record-edit">
+
+                            <form method="POST">
+                                {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="update_batch"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="batch_id"
+                                    value="{{ batch.id }}"
+                                >
+
+
+                                <div class="edit-form-grid batch">
+
+                                    <div class="form-field">
+                                        <label>
+                                            Department
+                                        </label>
+
+                                        <select
+                                            name="department"
+                                            required
+                                            class="input-control"
+                                        >
+                                            {% for department in departments %}
+                                                <option
+                                                    value="{{ department.id }}"
+                                                    {% if batch.department.id == department.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ department.code }} - {{ department.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Batch Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="batch_name"
+                                            value="{{ batch.batch_name }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Admission Year
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="admission_year"
+                                            value="{{ batch.admission_year }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+                                </div>
+
+
+                                <div class="edit-form-actions">
+                                    <div class="edit-primary-actions">
+                                        <button
+                                            type="submit"
+                                            class="ac-button primary"
+                                        >
+                                            Save Changes
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="ac-button cancel-edit"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+
+                {% empty %}
+
+                    <div class="empty-state">
+                        <div class="empty-state-title">
+                            No batches found
+                        </div>
+
+                        <div class="empty-state-text">
+                            Create a batch after setting up departments.
+                        </div>
+                    </div>
+
+                {% endfor %}
+
+
+                <div class="empty-state search-empty">
+                    <div class="empty-state-title">
+                        No matching batch
+                    </div>
+
+                    <div class="empty-state-text">
+                        Try another search term.
+                    </div>
+                </div>
+
+            </div>
+
+            {% if batch_page_obj.has_other_pages %}
+                <div class="ac-pagination">
+
+                    <div class="ac-pagination-info">
+                        Page {{ batch_page_obj.number }}
+                        of {{ batch_page_obj.paginator.num_pages }}
+                    </div>
+
+                    <div class="ac-pagination-links">
+
+                        {% if batch_page_obj.has_previous %}
+                            <a
+                                href="?{% if batch_query_string %}{{ batch_query_string }}&{% endif %}batch_page={{ batch_page_obj.previous_page_number }}"
+                                class="ac-button"
+                            >
+                                ← Previous
+                            </a>
+                        {% endif %}
+
+                        {% if batch_page_obj.has_next %}
+                            <a
+                                href="?{% if batch_query_string %}{{ batch_query_string }}&{% endif %}batch_page={{ batch_page_obj.next_page_number }}"
+                                class="ac-button"
+                            >
+                                Next →
+                            </a>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SEMESTERS
+    ====================================================== -->
+
+    <section
+        id="semesters"
+        class="academic-panel {% if active_tab == 'semesters' %}active{% endif %}"
+    >
+
+        <div class="ac-surface academic-workspace">
+
+            <div class="workspace-header">
+                <div>
+                    <h2 class="workspace-title">
+                        Semesters
+                    </h2>
+
+                    <p class="workspace-description">
+                        Define semester names and their academic order.
+                    </p>
+                </div>
+
+                <div class="workspace-actions">
+                    <span class="ac-chip">
+                        {{ total_semester_count }}
+                        Record{{ semesters|length|pluralize }}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="ac-button primary toggle-create"
+                        data-target="create-semester-panel"
+                    >
+                        + Add Semester
+                    </button>
+                </div>
+            </div>
+
+
+            <div
+                id="create-semester-panel"
+                class="create-panel"
+            >
+
+                <div class="create-panel-header">
+                    <div>
+                        <h3 class="create-panel-title">
+                            Add Semester
+                        </h3>
+
+                        <p class="create-panel-text">
+                            Create a semester and assign its numerical order.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="ac-button close-create"
+                        data-target="create-semester-panel"
+                    >
+                        Close
+                    </button>
+                </div>
+
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="create_semester"
+                    >
+
+
+                    <div class="form-grid two">
+
+                        <div class="form-field">
+                            <label>
+                                Semester Number
+                            </label>
+
+                            <input
+                                type="number"
+                                name="number"
+                                placeholder="1"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Semester Name
+                            </label>
+
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="1st Semester"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button
+                            type="submit"
+                            class="ac-button primary"
+                        >
+                            Create Semester
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <div class="workspace-toolbar">
+
+                <div class="search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+
+                    <input
+                        type="search"
+                        class="workspace-search"
+                        data-search-target="semester-record-list"
+                        placeholder="Search semesters..."
+                    >
+                </div>
+
+                <span class="ac-chip brand">
+                    Semester Records
+                </span>
+
+            </div>
+
+
+            <div
+                id="semester-record-list"
+                class="record-list"
+            >
+
+                {% for semester in semesters %}
+
+                    <article
+                        class="record-row searchable-record"
+                        data-search-text="{{ semester.number }} {{ semester.name }}"
+                    >
+
+                        <div class="record-display semester">
+
+                            <div>
+                                <div class="record-label">
+                                    Order
+                                </div>
+
+                                <div class="record-value primary">
+                                    {{ semester.number }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Semester
+                                </div>
+
+                                <div class="record-value">
+                                    {{ semester.name }}
+                                </div>
+                            </div>
+
+
+                            <div class="record-actions">
+
+                                <button
+                                    type="button"
+                                    class="ac-button edit-record"
+                                >
+                                    Edit
+                                </button>
+
+
+                                <form
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this semester?');"
+                                >
+                                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="delete_semester"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="semester_id"
+                                        value="{{ semester.id }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="ac-button danger"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="record-edit">
+
+                            <form method="POST">
+                                {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="update_semester"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="semester_id"
+                                    value="{{ semester.id }}"
+                                >
+
+
+                                <div class="edit-form-grid semester">
+
+                                    <div class="form-field">
+                                        <label>
+                                            Semester Number
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="number"
+                                            value="{{ semester.number }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Semester Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value="{{ semester.name }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+                                </div>
+
+
+                                <div class="edit-form-actions">
+                                    <div class="edit-primary-actions">
+                                        <button
+                                            type="submit"
+                                            class="ac-button primary"
+                                        >
+                                            Save Changes
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="ac-button cancel-edit"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+
+                {% empty %}
+
+                    <div class="empty-state">
+                        <div class="empty-state-title">
+                            No semesters found
+                        </div>
+                    </div>
+
+                {% endfor %}
+
+
+                <div class="empty-state search-empty">
+                    <div class="empty-state-title">
+                        No matching semester
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         COURSES
+    ====================================================== -->
+
+    <section
+        id="courses"
+        class="academic-panel {% if active_tab == 'courses' %}active{% endif %}"
+    >
+
+        <div class="ac-surface academic-workspace">
+
+            <div class="workspace-header">
+                <div>
+                    <h2 class="workspace-title">
+                        Courses
+                    </h2>
+
+                    <p class="workspace-description">
+                        Manage course codes, titles, credits, departments, and assigned semesters.
+                    </p>
+                </div>
+
+                <div class="workspace-actions">
+                    <span class="ac-chip">
+                        {{ total_course_count }}
+                        Record{{ courses|length|pluralize }}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="ac-button primary toggle-create"
+                        data-target="create-course-panel"
+                    >
+                        + Add Course
+                    </button>
+                </div>
+            </div>
+
+
+            <div
+                id="create-course-panel"
+                class="create-panel"
+            >
+
+                <div class="create-panel-header">
+                    <div>
+                        <h3 class="create-panel-title">
+                            Add Course
+                        </h3>
+
+                        <p class="create-panel-text">
+                            Create a new academic course and assign its department and semester.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="ac-button close-create"
+                        data-target="create-course-panel"
+                    >
+                        Close
+                    </button>
+                </div>
+
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="create_course"
+                    >
+
+
+                    <div class="form-grid three">
+
+                        <div class="form-field">
+                            <label>
+                                Department
+                            </label>
+
+                            <select
+                                name="department"
+                                required
+                                class="input-control"
+                            >
+                                <option value="">
+                                    Select Department
+                                </option>
+
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">
+                                        {{ department.code }} - {{ department.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Course Code
+                            </label>
+
+                            <input
+                                type="text"
+                                name="code"
+                                placeholder="CSE 0613-1101"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Course Title
+                            </label>
+
+                            <input
+                                type="text"
+                                name="title"
+                                placeholder="Structured Programming"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Credit
+                            </label>
+
+                            <input
+                                type="number"
+                                step="0.01"
+                                name="credit"
+                                placeholder="3.00"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Semester
+                            </label>
+
+                            <select
+                                name="semester"
+                                required
+                                class="input-control"
+                            >
+                                <option value="">
+                                    Select Semester
+                                </option>
+
+                                {% for semester in semesters %}
+                                    <option value="{{ semester.id }}">
+                                        {{ semester.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button
+                            type="submit"
+                            class="ac-button primary"
+                        >
+                            Create Course
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <div class="workspace-toolbar">
+
+                <form method="GET" style="width: 100%;">
+                    <input type="hidden" name="tab" value="courses">
+
+                    <div class="ac-server-filter-grid">
+
+                        <div class="search-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="M21 21l-4.35-4.35"/>
+                            </svg>
+
+                            <input
+                                type="search"
+                                name="course_search"
+                                value="{{ course_search }}"
+                                class="workspace-search"
+                                placeholder="Search code, title, department, or semester..."
+                            >
+                        </div>
+
+                        <select
+                            name="course_department"
+                            class="input-control"
+                        >
+                            <option value="">All Departments</option>
+
+                            {% for department in departments %}
+                                <option
+                                    value="{{ department.id }}"
+                                    {% if course_department_id == department.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ department.code }} - {{ department.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <select
+                            name="course_semester"
+                            class="input-control"
+                        >
+                            <option value="">All Semesters</option>
+
+                            {% for semester in semesters %}
+                                <option
+                                    value="{{ semester.id }}"
+                                    {% if course_semester_id == semester.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ semester.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <button
+                            type="submit"
+                            class="ac-button primary"
+                        >
+                            Apply Filters
+                        </button>
+
+                        <a
+                            href="{% url 'academic_setup' %}?tab=courses"
+                            class="ac-button"
+                        >
+                            Clear
+                        </a>
+
+                    </div>
+                </form>
+
+            </div>
+
+
+            <div
+                id="course-record-list"
+                class="record-list"
+            >
+
+                {% for course in courses %}
+
+                    <article
+                        class="record-row searchable-record"
+                        data-search-text="{{ course.code }} {{ course.title }} {{ course.department.code }} {{ course.department.name }} {{ course.semester.name }}"
+                    >
+
+                        <div class="record-display course">
+
+                            <div>
+                                <div class="record-label">
+                                    Department
+                                </div>
+
+                                <div class="record-value">
+                                    {{ course.department.code }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Course Code
+                                </div>
+
+                                <div class="record-value primary">
+                                    {{ course.code }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Course Title
+                                </div>
+
+                                <div class="record-value">
+                                    {{ course.title }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Credit
+                                </div>
+
+                                <div class="record-value">
+                                    {{ course.credit }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Semester
+                                </div>
+
+                                <div class="record-value">
+                                    {{ course.semester }}
+                                </div>
+                            </div>
+
+
+                            <div class="record-actions">
+
+                                <button
+                                    type="button"
+                                    class="ac-button edit-record"
+                                >
+                                    Edit
+                                </button>
+
+
+                                <form
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this course?');"
+                                >
+                                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="delete_course"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="course_id"
+                                        value="{{ course.id }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="ac-button danger"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="record-edit">
+
+                            <form method="POST">
+                                {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="update_course"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="course_id"
+                                    value="{{ course.id }}"
+                                >
+
+
+                                <div class="edit-form-grid course">
+
+                                    <div class="form-field">
+                                        <label>
+                                            Department
+                                        </label>
+
+                                        <select
+                                            name="department"
+                                            required
+                                            class="input-control"
+                                        >
+                                            {% for department in departments %}
+                                                <option
+                                                    value="{{ department.id }}"
+                                                    {% if course.department.id == department.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ department.code }} - {{ department.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Course Code
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="code"
+                                            value="{{ course.code }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Course Title
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="title"
+                                            value="{{ course.title }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Credit
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            name="credit"
+                                            value="{{ course.credit }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Semester
+                                        </label>
+
+                                        <select
+                                            name="semester"
+                                            required
+                                            class="input-control"
+                                        >
+                                            {% for semester in semesters %}
+                                                <option
+                                                    value="{{ semester.id }}"
+                                                    {% if course.semester.id == semester.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ semester.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="edit-form-actions">
+                                    <div class="edit-primary-actions">
+                                        <button
+                                            type="submit"
+                                            class="ac-button primary"
+                                        >
+                                            Save Changes
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="ac-button cancel-edit"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+
+                {% empty %}
+
+                    <div class="empty-state">
+                        <div class="empty-state-title">
+                            No courses found
+                        </div>
+                    </div>
+
+                {% endfor %}
+
+
+                <div class="empty-state search-empty">
+                    <div class="empty-state-title">
+                        No matching course
+                    </div>
+
+                    <div class="empty-state-text">
+                        Try searching by course code, title, department, or semester.
+                    </div>
+                </div>
+
+            </div>
+
+            {% if course_page_obj.has_other_pages %}
+                <div class="ac-pagination">
+
+                    <div class="ac-pagination-info">
+                        Page {{ course_page_obj.number }}
+                        of {{ course_page_obj.paginator.num_pages }}
+                    </div>
+
+                    <div class="ac-pagination-links">
+
+                        {% if course_page_obj.has_previous %}
+                            <a
+                                href="?{% if course_query_string %}{{ course_query_string }}&{% endif %}course_page={{ course_page_obj.previous_page_number }}"
+                                class="ac-button"
+                            >
+                                ← Previous
+                            </a>
+                        {% endif %}
+
+                        {% if course_page_obj.has_next %}
+                            <a
+                                href="?{% if course_query_string %}{{ course_query_string }}&{% endif %}course_page={{ course_page_obj.next_page_number }}"
+                                class="ac-button"
+                            >
+                                Next →
+                            </a>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         COURSE OFFERINGS
+    ====================================================== -->
+
+    <section
+        id="offerings"
+        class="academic-panel {% if active_tab == 'offerings' %}active{% endif %}"
+    >
+
+        <div class="ac-surface academic-workspace">
+
+            <div class="workspace-header">
+                <div>
+                    <h2 class="workspace-title">
+                        Course Offerings
+                    </h2>
+
+                    <p class="workspace-description">
+                        Connect courses with faculty, batches, semesters, sections, and active status.
+                    </p>
+                </div>
+
+                <div class="workspace-actions">
+                    <span class="ac-chip">
+                        {{ total_course_offering_count }}
+                        Record{{ course_offerings|length|pluralize }}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="ac-button primary toggle-create"
+                        data-target="create-offering-panel"
+                    >
+                        + Add Offering
+                    </button>
+                </div>
+            </div>
+
+
+            <div
+                id="create-offering-panel"
+                class="create-panel"
+            >
+
+                <div class="create-panel-header">
+                    <div>
+                        <h3 class="create-panel-title">
+                            Add Course Offering
+                        </h3>
+
+                        <p class="create-panel-text">
+                            Assign a course to a faculty member, batch, semester, and section.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="ac-button close-create"
+                        data-target="create-offering-panel"
+                    >
+                        Close
+                    </button>
+                </div>
+
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="create_course_offering"
+                    >
+
+
+                    <div class="form-grid three">
+
+                        <div class="form-field">
+                            <label>
+                                Course
+                            </label>
+
+                            <select
+                                name="course"
+                                required
+                                class="input-control"
+                            >
+                                <option value="">
+                                    Select Course
+                                </option>
+
+                                {% for course in all_courses %}
+                                    <option value="{{ course.id }}">
+                                        {{ course.code }} - {{ course.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Faculty
+                            </label>
+
+                            <select
+                                name="faculty"
+                                class="input-control"
+                            >
+                                <option value="">
+                                    Not assigned
+                                </option>
+
+                                {% for faculty in faculty_users %}
+                                    <option value="{{ faculty.id }}">
+                                        {{ faculty.get_full_name|default:faculty.username }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Batch
+                            </label>
+
+                            <select
+                                name="batch"
+                                required
+                                class="input-control"
+                            >
+                                <option value="">
+                                    Select Batch
+                                </option>
+
+                                {% for batch in all_batches %}
+                                    <option value="{{ batch.id }}">
+                                        {{ batch.department.code }} - {{ batch.batch_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Semester
+                            </label>
+
+                            <select
+                                name="semester"
+                                required
+                                class="input-control"
+                            >
+                                <option value="">
+                                    Select Semester
+                                </option>
+
+                                {% for semester in semesters %}
+                                    <option value="{{ semester.id }}">
+                                        {{ semester.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Section
+                            </label>
+
+                            <input
+                                type="text"
+                                name="section"
+                                value="A"
+                                required
+                                class="input-control"
+                            >
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Status
+                            </label>
+
+                            <label class="active-field">
+                                <input
+                                    type="checkbox"
+                                    name="is_active"
+                                    checked
+                                >
+                                Active Offering
+                            </label>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button
+                            type="submit"
+                            class="ac-button primary"
+                        >
+                            Create Course Offering
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            
+            <div class="workspace-toolbar" style="display: block;">
+
+                <form
+                    method="GET"
+                    class="offering-filter-form"
+                >
+
+                    <input
+                        type="hidden"
+                        name="tab"
+                        value="offerings"
+                    >
+
+
+                    <div class="offering-filter-grid">
+
+                        <div class="form-field offering-search-field">
+                            <label>
+                                Search
+                            </label>
+
+                            <input
+                                type="search"
+                                name="offering_search"
+                                value="{{ offering_search }}"
+                                class="input-control"
+                                placeholder="Search course, faculty, batch, semester, or section..."
+                            >
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Department
+                            </label>
+
+                            <select
+                                name="offering_department"
+                                class="input-control"
+                            >
+                                <option value="">
+                                    All Departments
+                                </option>
+
+                                {% for department in departments %}
+                                    <option
+                                        value="{{ department.id }}"
+                                        {% if offering_department_id == department.id|stringformat:"s" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ department.code }} - {{ department.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Batch
+                            </label>
+
+                            <select
+                                name="offering_batch"
+                                class="input-control"
+                            >
+                                <option value="">
+                                    All Batches
+                                </option>
+
+                                {% for batch in batches %}
+                                    <option
+                                        value="{{ batch.id }}"
+                                        {% if offering_batch_id == batch.id|stringformat:"s" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ batch.department.code }} - {{ batch.batch_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Semester
+                            </label>
+
+                            <select
+                                name="offering_semester"
+                                class="input-control"
+                            >
+                                <option value="">
+                                    All Semesters
+                                </option>
+
+                                {% for semester in semesters %}
+                                    <option
+                                        value="{{ semester.id }}"
+                                        {% if offering_semester_id == semester.id|stringformat:"s" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ semester.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Faculty
+                            </label>
+
+                            <select
+                                name="offering_faculty"
+                                class="input-control"
+                            >
+                                <option value="">
+                                    All Faculty
+                                </option>
+
+                                {% for faculty in faculty_users %}
+                                    <option
+                                        value="{{ faculty.id }}"
+                                        {% if offering_faculty_id == faculty.id|stringformat:"s" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ faculty.get_full_name|default:faculty.username }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="form-field">
+                            <label>
+                                Status
+                            </label>
+
+                            <select
+                                name="offering_status"
+                                class="input-control"
+                            >
+                                <option value="">
+                                    All Statuses
+                                </option>
+
+                                <option
+                                    value="active"
+                                    {% if offering_status == "active" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Active
+                                </option>
+
+                                <option
+                                    value="inactive"
+                                    {% if offering_status == "inactive" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Inactive
+                                </option>
+                            </select>
+                        </div>
+
+                    </div>
+
+
+                    <div class="offering-filter-actions">
+
+                        <button
+                            type="submit"
+                            class="ac-button primary"
+                        >
+                            Apply Filters
+                        </button>
+
+                        <a
+                            href="{% url 'academic_setup' %}?tab=offerings"
+                            class="ac-button"
+                        >
+                            Clear
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+<div
+                id="offering-record-list"
+                class="record-list"
+            >
+
+                {% for offering in course_offerings %}
+
+                    <article
+                        class="record-row searchable-record"
+                        data-search-text="{{ offering.course.code }} {{ offering.course.title }} {{ offering.faculty.get_full_name }} {{ offering.faculty.username }} {{ offering.batch }} {{ offering.semester }} {{ offering.section }}"
+                    >
+
+                        <div class="record-display offering">
+
+                            <div>
+                                <div class="record-label">
+                                    Course
+                                </div>
+
+                                <div class="record-value primary">
+                                    {{ offering.course.code }}
+                                </div>
+
+                                <div class="record-value">
+                                    {{ offering.course.title }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Faculty
+                                </div>
+
+                                <div class="record-value">
+                                    {% if offering.faculty %}
+                                        {{ offering.faculty.get_full_name|default:offering.faculty.username }}
+                                    {% else %}
+                                        Not assigned
+                                    {% endif %}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Batch
+                                </div>
+
+                                <div class="record-value">
+                                    {{ offering.batch }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Semester
+                                </div>
+
+                                <div class="record-value">
+                                    {{ offering.semester }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Section
+                                </div>
+
+                                <div class="record-value">
+                                    {{ offering.section }}
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <div class="record-label">
+                                    Status
+                                </div>
+
+                                {% if offering.is_active %}
+                                    <span class="ac-chip success">
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="ac-chip inactive">
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </div>
+
+
+                            <div class="record-actions">
+
+                                <button
+                                    type="button"
+                                    class="ac-button edit-record"
+                                >
+                                    Edit
+                                </button>
+
+
+                                <form
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this course offering?');"
+                                >
+                                    {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="delete_course_offering"
+                                    >
+
+                                    <input
+                                        type="hidden"
+                                        name="offering_id"
+                                        value="{{ offering.id }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="ac-button danger"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="record-edit">
+
+                            <form method="POST">
+                                {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="return_query"
+                        value="{{ request.GET.urlencode }}"
+                    >
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="update_course_offering"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="offering_id"
+                                    value="{{ offering.id }}"
+                                >
+
+
+                                <div class="edit-form-grid offering">
+
+                                    <div class="form-field">
+                                        <label>
+                                            Course
+                                        </label>
+
+                                        <select
+                                            name="course"
+                                            required
+                                            class="input-control"
+                                        >
+                                            {% for course in all_courses %}
+                                                <option
+                                                    value="{{ course.id }}"
+                                                    {% if offering.course.id == course.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ course.code }} - {{ course.title }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Faculty
+                                        </label>
+
+                                        <select
+                                            name="faculty"
+                                            class="input-control"
+                                        >
+                                            <option value="">
+                                                Not assigned
+                                            </option>
+
+                                            {% for faculty in faculty_users %}
+                                                <option
+                                                    value="{{ faculty.id }}"
+                                                    {% if offering.faculty and offering.faculty.id == faculty.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ faculty.get_full_name|default:faculty.username }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Batch
+                                        </label>
+
+                                        <select
+                                            name="batch"
+                                            required
+                                            class="input-control"
+                                        >
+                                            {% for batch in all_batches %}
+                                                <option
+                                                    value="{{ batch.id }}"
+                                                    {% if offering.batch.id == batch.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ batch.department.code }} - {{ batch.batch_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Semester
+                                        </label>
+
+                                        <select
+                                            name="semester"
+                                            required
+                                            class="input-control"
+                                        >
+                                            {% for semester in semesters %}
+                                                <option
+                                                    value="{{ semester.id }}"
+                                                    {% if offering.semester.id == semester.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ semester.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Section
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="section"
+                                            value="{{ offering.section }}"
+                                            required
+                                            class="input-control"
+                                        >
+                                    </div>
+
+
+                                    <div class="form-field">
+                                        <label>
+                                            Status
+                                        </label>
+
+                                        <label class="active-field">
+                                            <input
+                                                type="checkbox"
+                                                name="is_active"
+                                                {% if offering.is_active %}
+                                                    checked
+                                                {% endif %}
+                                            >
+                                            Active Offering
+                                        </label>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="edit-form-actions">
+                                    <div class="edit-primary-actions">
+                                        <button
+                                            type="submit"
+                                            class="ac-button primary"
+                                        >
+                                            Save Changes
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="ac-button cancel-edit"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+
+                {% empty %}
+
+                    <div class="empty-state">
+                        <div class="empty-state-title">
+                            No course offerings found
+                        </div>
+
+                        <div class="empty-state-text">
+                            Create an offering after courses, batches, and semesters are available.
+                        </div>
+                    </div>
+
+                {% endfor %}
+
+
+                <div class="empty-state search-empty">
+                    <div class="empty-state-title">
+                        No matching course offering
+                    </div>
+
+                    <div class="empty-state-text">
+                        Try another course, faculty, batch, semester, or section.
+                    </div>
+                </div>
+
+            </div>
+
+            {% if offering_page_obj.has_other_pages %}
+                <div class="ac-pagination">
+
+                    <div class="ac-pagination-info">
+                        Page {{ offering_page_obj.number }}
+                        of {{ offering_page_obj.paginator.num_pages }}
+                    </div>
+
+                    <div class="ac-pagination-links">
+
+                        {% if offering_page_obj.has_previous %}
+                            <a
+                                href="?tab=offerings{% if offering_query_string %}&{{ offering_query_string }}{% endif %}&offering_page={{ offering_page_obj.previous_page_number }}"
+                                class="ac-button"
+                            >
+                                ← Previous
+                            </a>
+                        {% endif %}
+
+                        {% if offering_page_obj.has_next %}
+                            <a
+                                href="?tab=offerings{% if offering_query_string %}&{{ offering_query_string }}{% endif %}&offering_page={{ offering_page_obj.next_page_number }}"
+                                class="ac-button"
+                            >
+                                Next →
+                            </a>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            {% endif %}
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        /* =====================================================
+           TAB NAVIGATION
+        ====================================================== */
+
+        const tabButtons = document.querySelectorAll(".academic-tab");
+        const tabPanels = document.querySelectorAll(".academic-panel");
+
+        function activateTab(tabName) {
+            tabButtons.forEach(function (button) {
+                button.classList.toggle(
+                    "active",
+                    button.dataset.tab === tabName
+                );
+            });
+
+            tabPanels.forEach(function (panel) {
+                panel.classList.toggle(
+                    "active",
+                    panel.id === tabName
+                );
+            });
+
+            sessionStorage.setItem(
+                "academicSetupActiveTab",
+                tabName
+            );
+        }
+
+
+        tabButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                activateTab(button.dataset.tab);
+            });
+        });
+
+
+        const serverActiveTab = "{{ active_tab|escapejs }}";
+
+        const savedTab = sessionStorage.getItem(
+            "academicSetupActiveTab"
+        );
+
+        const validTabs = Array.from(tabButtons).map(function (button) {
+            return button.dataset.tab;
+        });
+
+        const urlParams = new URLSearchParams(
+            window.location.search
+        );
+
+        const urlTab = urlParams.get(
+            "tab"
+        );
+
+        if (
+            serverActiveTab &&
+            validTabs.includes(serverActiveTab)
+        ) {
+            activateTab(serverActiveTab);
+
+        } else if (
+            urlTab &&
+            validTabs.includes(urlTab)
+        ) {
+            activateTab(urlTab);
+
+        } else if (
+            savedTab &&
+            validTabs.includes(savedTab)
+        ) {
+            activateTab(savedTab);
+        }
+
+
+        /* =====================================================
+           PRESERVE ACTIVE TAB ON FORM SUBMIT
+        ====================================================== */
+
+        document.querySelectorAll(".academic-page form").forEach(function (form) {
+            form.addEventListener("submit", function () {
+                const activeTab = document.querySelector(
+                    ".academic-tab.active"
+                );
+
+                if (activeTab) {
+                    sessionStorage.setItem(
+                        "academicSetupActiveTab",
+                        activeTab.dataset.tab
+                    );
+                }
+            });
+        });
+
+
+        /* =====================================================
+           CREATE PANEL TOGGLE
+        ====================================================== */
+
+        document.querySelectorAll(".toggle-create").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const targetId = button.dataset.target;
+                const panel = document.getElementById(targetId);
+
+                if (!panel) {
+                    return;
+                }
+
+                panel.classList.toggle("open");
+
+                if (panel.classList.contains("open")) {
+                    const firstInput = panel.querySelector(
+                        "input:not([type='hidden']), select"
+                    );
+
+                    if (firstInput) {
+                        setTimeout(function () {
+                            firstInput.focus();
+                        }, 100);
+                    }
+                }
+            });
+        });
+
+
+        document.querySelectorAll(".close-create").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const targetId = button.dataset.target;
+                const panel = document.getElementById(targetId);
+
+                if (panel) {
+                    panel.classList.remove("open");
+                }
+            });
+        });
+
+
+        /* =====================================================
+           RECORD EDIT MODE
+        ====================================================== */
+
+        document.querySelectorAll(".edit-record").forEach(function (button) {
+            button.addEventListener("click", function () {
+
+                const recordRow = button.closest(".record-row");
+
+                if (!recordRow) {
+                    return;
+                }
+
+                /*
+                 * Close other currently edited records.
+                 * This keeps the page clean and prevents many large
+                 * edit forms being open simultaneously.
+                 */
+                document
+                    .querySelectorAll(".record-row.editing")
+                    .forEach(function (row) {
+                        if (row !== recordRow) {
+                            row.classList.remove("editing");
+                        }
+                    });
+
+                recordRow.classList.add("editing");
+
+                const firstEditableField = recordRow.querySelector(
+                    ".record-edit input:not([type='hidden']), .record-edit select"
+                );
+
+                if (firstEditableField) {
+                    setTimeout(function () {
+                        firstEditableField.focus();
+                    }, 50);
+                }
+            });
+        });
+
+
+        document.querySelectorAll(".cancel-edit").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const recordRow = button.closest(".record-row");
+
+                if (recordRow) {
+                    recordRow.classList.remove("editing");
+                }
+            });
+        });
+
+
+        /* =====================================================
+           LIVE SEARCH
+        ====================================================== */
+
+        document.querySelectorAll(".workspace-search").forEach(function (input) {
+
+            input.addEventListener("input", function () {
+
+                const targetId = input.dataset.searchTarget;
+                const target = document.getElementById(targetId);
+
+                if (!target) {
+                    return;
+                }
+
+                const searchValue = input.value
+                    .trim()
+                    .toLowerCase();
+
+                const records = target.querySelectorAll(
+                    ".searchable-record"
+                );
+
+                let visibleCount = 0;
+
+
+                records.forEach(function (record) {
+
+                    const searchText = (
+                        record.dataset.searchText || ""
+                    ).toLowerCase();
+
+                    const shouldShow = (
+                        searchValue === "" ||
+                        searchText.includes(searchValue)
+                    );
+
+                    record.style.display = shouldShow
+                        ? ""
+                        : "none";
+
+                    if (shouldShow) {
+                        visibleCount += 1;
+                    }
+                });
+
+
+                const searchEmpty = target.querySelector(
+                    ".search-empty"
+                );
+
+                if (searchEmpty) {
+                    searchEmpty.classList.toggle(
+                        "visible",
+                        searchValue !== "" &&
+                        visibleCount === 0
+                    );
+                }
+            });
+        });
+
+
+        /* =====================================================
+           ESCAPE KEY
+        ====================================================== */
+
+        document.addEventListener("keydown", function (event) {
+
+            if (event.key !== "Escape") {
+                return;
+            }
+
+            document
+                .querySelectorAll(".record-row.editing")
+                .forEach(function (row) {
+                    row.classList.remove("editing");
+                });
+
+            document
+                .querySelectorAll(".create-panel.open")
+                .forEach(function (panel) {
+                    panel.classList.remove("open");
+                });
+        });
+
+    });
+</script>
+
+{% endblock %}

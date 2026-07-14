@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Application Details</h2>
+
+    <p><strong>Student:</strong> {{ application.student.student_id }} - {{ application.student.user.get_full_name|default:application.student.user.username }}</p>
+    <p><strong>Department:</strong> {{ application.student.department }}</p>
+    <p><strong>Batch:</strong> {{ application.student.batch }}</p>
+    <p><strong>Semester:</strong> {{ application.student.current_semester }}</p>
+    <p><strong>Submitted At:</strong> {{ application.submitted_at }}</p>
+
+    <a href="{% url 'faculty_applications' %}"
+       style="background:#555; color:white; padding:8px 12px; text-decoration:none; border-radius:5px;">
+        Back to Inbox
+    </a>
+</div>
+
+<div class="card">
+    <h2>{{ application.subject }}</h2>
+
+    <p style="white-space:pre-line;">{{ application.message }}</p>
+</div>
+
+<div class="card">
+    <h2>Reply / Update Status</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <p>
+            <label><strong>Status:</strong></label><br>
+            <select name="status"
+                    style="padding:10px; width:300px; border:1px solid #ccc; border-radius:5px;">
+                <option value="submitted" {% if application.status == 'submitted' %}selected{% endif %}>Submitted</option>
+                <option value="under_review" {% if application.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                <option value="approved" {% if application.status == 'approved' %}selected{% endif %}>Approved</option>
+                <option value="rejected" {% if application.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                <option value="need_more_info" {% if application.status == 'need_more_info' %}selected{% endif %}>Need More Information</option>
+            </select>
+        </p>
+
+        <p>
+            <label><strong>Reply:</strong></label><br>
+            <textarea name="reply" rows="7"
+                      placeholder="Write your reply here..."
+                      style="padding:10px; width:600px; border:1px solid #ccc; border-radius:5px;">{{ application.reply }}</textarea>
+        </p>
+
+        <button type="submit"
+                style="background:#0b3d91; color:white; padding:12px 20px; border:none; border-radius:6px; cursor:pointer;">
+            Submit Response
+        </button>
+    </form>
+</div>
+
+{% endblock %}

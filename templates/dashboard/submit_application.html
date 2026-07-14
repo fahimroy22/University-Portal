@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Submit Application</h2>
+
+    <p><strong>Student:</strong> {{ profile.student_id }} - {{ profile.user.get_full_name|default:profile.user.username }}</p>
+    <p><strong>Department:</strong> {{ profile.department }}</p>
+
+    <a href="{% url 'student_dashboard' %}"
+       style="background:#555; color:white; padding:8px 12px; text-decoration:none; border-radius:5px;">
+        Back to Dashboard
+    </a>
+</div>
+
+
+<div class="card">
+    <h2>Application Form</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <p>
+            <label><strong>Send To:</strong></label><br>
+            <select name="to_user" required
+                    style="padding:10px; width:420px; border:1px solid #ccc; border-radius:5px;">
+                <option value="">Select recipient</option>
+
+                {% for person in recipients %}
+                    <option value="{{ person.id }}">
+                        {{ person.username }} - {{ person.get_role_display }}
+                    </option>
+                {% endfor %}
+            </select>
+        </p>
+
+        <p>
+            <label><strong>Subject:</strong></label><br>
+            <input type="text" name="subject" required
+                   placeholder="Example: Request for marks correction"
+                   style="padding:10px; width:420px; border:1px solid #ccc; border-radius:5px;">
+        </p>
+
+        <p>
+            <label><strong>Message:</strong></label><br>
+            <textarea name="message" required rows="8"
+                      placeholder="Write your application here..."
+                      style="padding:10px; width:600px; border:1px solid #ccc; border-radius:5px;"></textarea>
+        </p>
+
+        <button type="submit"
+                style="background:#0b3d91; color:white; padding:12px 20px; border:none; border-radius:6px; cursor:pointer;">
+            Submit Application
+        </button>
+    </form>
+</div>
+
+{% endblock %}

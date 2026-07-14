@@ -1,0 +1,498 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .exam-overview {
+        display: grid;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .eo-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: none;
+    }
+
+    .eo-hero {
+        padding: 24px;
+    }
+
+    .eo-kicker {
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .eo-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .eo-text {
+        margin-top: 8px;
+        max-width: 760px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .eo-summary {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .eo-summary-item {
+        padding: 18px;
+        border-right: 1px solid #eef2f7;
+    }
+
+    .eo-summary-item:last-child {
+        border-right: none;
+    }
+
+    .eo-label {
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .eo-value {
+        margin-top: 7px;
+        color: #0f172a;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .eo-desc {
+        margin-top: 4px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .eo-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .eo-action {
+        padding: 18px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .eo-action:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .eo-action-title {
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .eo-action-text {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    .eo-arrow {
+        margin-top: 16px;
+        color: #94a3b8;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .eo-section {
+        padding: 20px 22px;
+    }
+
+    .eo-section-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .eo-section-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .eo-list {
+        margin-top: 18px;
+        display: grid;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .eo-row {
+        padding: 14px 16px;
+        border-bottom: 1px solid #eef2f7;
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .eo-row:last-child {
+        border-bottom: none;
+    }
+
+    .eo-row-title {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 750;
+    }
+
+    .eo-row-meta {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .eo-badge {
+        display: inline-flex;
+        align-items: center;
+        height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .eo-badge-pending {
+        background: #fffbeb;
+        border-color: #fde68a;
+        color: #b45309;
+    }
+
+    .eo-review-link {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    @media (max-width: 1180px) {
+        .eo-summary,
+        .eo-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .eo-summary-item {
+            border-right: none;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .eo-summary-item:nth-child(odd):not(:last-child) {
+            border-right: 1px solid #eef2f7;
+        }
+
+        .eo-summary-item:last-child {
+            border-bottom: none;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .eo-summary,
+        .eo-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .eo-summary-item,
+        .eo-summary-item:nth-child(odd):not(:last-child) {
+            border-right: none;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .eo-summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .eo-row {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="exam-overview">
+
+    <section class="eo-card eo-hero">
+        <div class="eo-kicker">Exam Controller</div>
+
+        <h1 class="eo-title">
+            Exam Controller Dashboard
+        </h1>
+
+        <p class="eo-text">
+            Monitor exam office activity and use the sidebar to create routines,
+            seat plans, hall duties, publish results, and review result correction requests.
+        </p>
+    </section>
+
+    <section class="eo-card">
+        <div class="eo-summary">
+
+            <div class="eo-summary-item">
+                <div class="eo-label">Exam Routines</div>
+                <div class="eo-value">{{ routine_count }}</div>
+                <div class="eo-desc">Total routine records</div>
+            </div>
+
+            <div class="eo-summary-item">
+                <div class="eo-label">Seat Plans</div>
+                <div class="eo-value">{{ seat_plan_count }}</div>
+                <div class="eo-desc">Total seat plans</div>
+            </div>
+
+            <div class="eo-summary-item">
+                <div class="eo-label">Hall Duties</div>
+                <div class="eo-value">{{ hall_duty_count }}</div>
+                <div class="eo-desc">Faculty assignments</div>
+            </div>
+
+            <div class="eo-summary-item">
+                <div class="eo-label">Results</div>
+                <div class="eo-value">{{ result_publication_count }}</div>
+                <div class="eo-desc">Publication records</div>
+            </div>
+
+            <div class="eo-summary-item">
+                <div class="eo-label">Pending Corrections</div>
+                <div class="eo-value">{{ pending_correction_count }}</div>
+                <div class="eo-desc">Awaiting verification</div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="eo-grid">
+
+        <a
+            href="{% url 'exam_create_routine' %}"
+            class="eo-card eo-action"
+        >
+            <div class="eo-action-title">
+                Create Exam Routine
+            </div>
+
+            <div class="eo-action-text">
+                Schedule midterm or final exams for course offerings.
+            </div>
+
+            <div class="eo-arrow">→</div>
+        </a>
+
+        <a
+            href="{% url 'exam_create_seat_plan' %}"
+            class="eo-card eo-action"
+        >
+            <div class="eo-action-title">
+                Create Seat Plan
+            </div>
+
+            <div class="eo-action-text">
+                Assign students to exam rooms and seat numbers.
+            </div>
+
+            <div class="eo-arrow">→</div>
+        </a>
+
+        <a
+            href="{% url 'exam_assign_hall_duty' %}"
+            class="eo-card eo-action"
+        >
+            <div class="eo-action-title">
+                Assign Hall Duty
+            </div>
+
+            <div class="eo-action-text">
+                Assign faculty members to exam invigilation duties.
+            </div>
+
+            <div class="eo-arrow">→</div>
+        </a>
+
+        <a
+            href="{% url 'exam_publish_result' %}"
+            class="eo-card eo-action"
+        >
+            <div class="eo-action-title">
+                Publish Result
+            </div>
+
+            <div class="eo-action-text">
+                Preview submitted marks and publish official results.
+            </div>
+
+            <div class="eo-arrow">→</div>
+        </a>
+
+        <a
+            href="{% url 'exam_correction_requests' %}"
+            class="eo-card eo-action"
+        >
+            <div class="eo-action-title">
+                Review Result Corrections
+            </div>
+
+            <div class="eo-action-text">
+                Verify faculty-submitted result correction requests and forward valid requests.
+            </div>
+
+            <div class="eo-arrow">→</div>
+        </a>
+
+    </section>
+
+    <section class="eo-card eo-section">
+        <h2 class="eo-section-title">
+            Pending Result Correction Requests
+        </h2>
+
+        <p class="eo-section-text">
+            Faculty-submitted requests currently waiting for Exam Controller verification.
+        </p>
+
+        <div class="eo-list">
+
+            {% for correction in recent_correction_requests %}
+
+                <a
+                    href="{% url 'exam_correction_request_detail' correction.id %}"
+                    class="eo-row eo-review-link"
+                >
+                    <div>
+                        <div class="eo-row-title">
+                            {{ correction.student.student_id }}
+                            ·
+                            {{ correction.student.user.get_full_name|default:correction.student.user.username }}
+                        </div>
+
+                        <div class="eo-row-meta">
+                            {{ correction.course_offering.course.code }}
+                            ·
+                            {{ correction.course_offering.course.title }}
+                            ·
+                            Submitted {{ correction.created_at }}
+                        </div>
+                    </div>
+
+                    <span class="eo-badge eo-badge-pending">
+                        Awaiting Verification
+                    </span>
+                </a>
+
+            {% empty %}
+
+                <div class="eo-row">
+                    <div>
+                        <div class="eo-row-title">
+                            No pending correction requests
+                        </div>
+
+                        <div class="eo-row-meta">
+                            Faculty-submitted correction requests will appear here.
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+
+        </div>
+    </section>
+
+    <section class="eo-card eo-section">
+        <h2 class="eo-section-title">
+            Recent Exam Routines
+        </h2>
+
+        <p class="eo-section-text">
+            Latest exam routine records in the system.
+        </p>
+
+        <div class="eo-list">
+
+            {% for routine in recent_routines %}
+
+                <div class="eo-row">
+                    <div>
+                        <div class="eo-row-title">
+                            {{ routine.course_offering.course.code }}
+                            ·
+                            {{ routine.get_exam_type_display }}
+                        </div>
+
+                        <div class="eo-row-meta">
+                            {{ routine.exam_date }}
+                            ·
+                            {{ routine.start_time }} - {{ routine.end_time }}
+                            ·
+                            {{ routine.room }}
+                        </div>
+                    </div>
+
+                    {% if routine.is_published %}
+
+                        <span class="eo-badge">
+                            Published
+                        </span>
+
+                    {% else %}
+
+                        <span class="eo-badge">
+                            Draft
+                        </span>
+
+                    {% endif %}
+                </div>
+
+            {% empty %}
+
+                <div class="eo-row">
+                    <div>
+                        <div class="eo-row-title">
+                            No routine found
+                        </div>
+
+                        <div class="eo-row-meta">
+                            Created routines will appear here.
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .correction-page {
+        display: grid;
+        gap: 16px;
+        width: min(100%, 960px);
+        margin: 0 auto;
+    }
+
+    .cr-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: none;
+        padding: 22px 24px;
+    }
+
+    .cr-kicker {
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .cr-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .cr-text {
+        margin-top: 8px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .cr-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .cr-full {
+        grid-column: 1 / -1;
+    }
+
+    .cr-note {
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid #fde68a;
+        background: #fffbeb;
+        color: #92400e;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.5;
+    }
+
+    .cr-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #eef2f7;
+    }
+
+    @media (max-width: 760px) {
+        .cr-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="correction-page">
+
+    <section class="cr-card">
+        <div class="cr-kicker">Correction Request</div>
+        <h1 class="cr-title">Request Result Correction</h1>
+        <p class="cr-text">
+            This will not directly update the official result. It sends a correction request to super admin for approval.
+        </p>
+    </section>
+
+    <section class="cr-card">
+        <h2 class="text-2xl font-black text-slate-950">
+            {{ mark.student.student_id }} · {{ mark.student.user.get_full_name|default:mark.student.user.username }}
+        </h2>
+
+        <p class="cr-text">
+            {{ mark.course_offering.course.code }} · {{ mark.course_offering.course.title }} · {{ mark.course_offering.semester }}
+        </p>
+
+        {% if pending_request %}
+            <div class="cr-note mt-4">
+                A pending correction request already exists for this result. Wait for super admin review before creating another request.
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="cr-card">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="cr-grid">
+                <div>
+                    <label>Quiz/CT /15</label>
+                    <input type="number" step="0.01" name="class_test" value="{{ mark.class_test }}" class="input-control mt-2">
+                </div>
+
+                <div>
+                    <label>Assignment /15</label>
+                    <input type="number" step="0.01" name="assignment" value="{{ mark.assignment }}" class="input-control mt-2">
+                </div>
+
+                <div>
+                    <label>Attendance /15</label>
+                    <input type="number" step="0.01" name="attendance" value="{{ mark.attendance }}" class="input-control mt-2">
+                </div>
+
+                <div>
+                    <label>Midterm /45</label>
+                    <input type="number" step="0.01" name="midterm" value="{{ mark.midterm }}" class="input-control mt-2">
+                </div>
+
+                <div>
+                    <label>Final /60</label>
+                    <input type="number" step="0.01" name="final" value="{{ mark.final }}" class="input-control mt-2">
+                </div>
+
+                <div>
+                    <label>Current Grade</label>
+                    <input type="text" value="{{ mark.grade }} · GP {{ mark.grade_point }}" class="input-control mt-2" disabled>
+                </div>
+
+                <div class="cr-full">
+                    <label>Reason for Correction</label>
+                    <textarea name="reason" rows="5" required class="input-control mt-2" placeholder="Explain why this result needs correction..."></textarea>
+                </div>
+            </div>
+
+            <div class="cr-actions">
+                <a href="{% url 'exam_student_result_detail' mark.student.id %}" class="btn-secondary">
+                    ← Back
+                </a>
+
+                {% if pending_request %}
+                    <button type="submit" class="btn-primary" disabled style="opacity:0.5; cursor:not-allowed;">
+                        Request Already Pending
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn-primary">
+                        Send Request to Super Admin
+                    </button>
+                {% endif %}
+            </div>
+        </form>
+    </section>
+
+</div>
+
+{% endblock %}

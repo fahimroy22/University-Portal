@@ -1,0 +1,1215 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .student-account-page {
+        width: min(100%, 1180px);
+        margin: 0 auto;
+        display: grid;
+        gap: 16px;
+    }
+
+    .sa-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: none;
+    }
+
+    .sa-hero,
+    .sa-panel {
+        padding: 24px;
+    }
+
+    .sa-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .sa-kicker {
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .sa-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .sa-text {
+        margin-top: 8px;
+        max-width: 780px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .hero-actions {
+        display: grid;
+        gap: 10px;
+        min-width: 230px;
+    }
+
+    .sa-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: 9px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 750;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .sa-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .sa-button.primary {
+        background: #9f1c1c;
+        border-color: #9f1c1c;
+        color: #ffffff;
+    }
+
+    .sa-button.primary:hover {
+        background: #7f1717;
+        border-color: #7f1717;
+        color: #ffffff;
+    }
+
+    .sa-button.success {
+        background: #047857;
+        border-color: #047857;
+        color: #ffffff;
+    }
+
+    .sa-button.success:hover {
+        background: #065f46;
+        border-color: #065f46;
+        color: #ffffff;
+    }
+
+    .sa-button.warning {
+        background: #b45309;
+        border-color: #b45309;
+        color: #ffffff;
+    }
+
+    .sa-button.warning:hover {
+        background: #92400e;
+        border-color: #92400e;
+        color: #ffffff;
+    }
+
+    .student-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .info-box {
+        padding: 16px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+    }
+
+    .info-label,
+    .summary-label,
+    .mini-label {
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 7px;
+    }
+
+    .info-value {
+        color: #0f172a;
+        font-size: 15px;
+        line-height: 1.35;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .finance-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .summary-box {
+        padding: 18px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+    }
+
+    .summary-value {
+        color: #0f172a;
+        font-size: 23px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        word-break: break-word;
+    }
+
+    .summary-value.paid {
+        color: #047857;
+    }
+
+    .summary-value.due {
+        color: #dc2626;
+    }
+
+    .summary-value.waiver {
+        color: #1d4ed8;
+    }
+
+    .summary-note {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .status-strip {
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .status-clear {
+        background: #ecfdf5;
+        border-color: #bbf7d0;
+    }
+
+    .status-due {
+        background: #fef2f2;
+        border-color: #fecaca;
+    }
+
+    .status-title {
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .status-clear .status-title {
+        color: #047857;
+    }
+
+    .status-due .status-title {
+        color: #dc2626;
+    }
+
+    .status-note {
+        margin-top: 4px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 650;
+    }
+
+    .nav-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 14px;
+    }
+
+    .nav-strip a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 750;
+        text-decoration: none;
+    }
+
+    .nav-strip a:hover {
+        background: #fffafa;
+        border-color: #fecaca;
+        color: #9f1c1c;
+    }
+
+    .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .panel-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .section-chip.success {
+        background: #ecfdf5;
+        border-color: #bbf7d0;
+        color: #047857;
+    }
+
+    .section-chip.danger {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #dc2626;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .action-box {
+        padding: 18px;
+        border-radius: 14px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+    }
+
+    .action-title {
+        margin: 0 0 14px;
+        color: #0f172a;
+        font-size: 18px;
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 13px;
+    }
+
+    .form-field {
+        margin: 0;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 13px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    textarea.input-control {
+        min-height: 96px;
+        resize: vertical;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: #9f1c1c;
+        box-shadow: 0 0 0 3px rgba(159, 28, 28, 0.10);
+    }
+
+    .filter-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 14px;
+        align-items: end;
+        padding: 16px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 16px;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .fee-list,
+    .payment-list,
+    .waiver-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .history-card {
+        padding: 16px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+    }
+
+    .history-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    .history-title {
+        color: #0f172a;
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .history-subtitle {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .mini-grid.payment-grid {
+        grid-template-columns: 1fr 1fr 1fr 2fr auto;
+    }
+
+    .mini-grid.waiver-grid {
+        grid-template-columns: 1fr 1fr 1fr 2fr 1.2fr;
+    }
+
+    .mini-box {
+        padding: 12px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .mini-value {
+        color: #0f172a;
+        font-size: 14px;
+        line-height: 1.35;
+        font-weight: 750;
+        word-break: break-word;
+    }
+
+    .mini-value.paid {
+        color: #047857;
+    }
+
+    .mini-value.due {
+        color: #dc2626;
+    }
+
+    .badge-paid,
+    .badge-partial,
+    .badge-unpaid {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .badge-paid {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #bbf7d0;
+    }
+
+    .badge-partial {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+
+    .badge-unpaid {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .admit-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .admit-card {
+        padding: 18px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        display: grid;
+        gap: 12px;
+    }
+
+    .admit-title {
+        color: #0f172a;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .admit-text {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        padding: 28px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    @media (max-width: 1180px) {
+        .student-summary-grid,
+        .finance-summary-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .profile-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .action-grid,
+        .admit-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .mini-grid,
+        .mini-grid.payment-grid,
+        .mini-grid.waiver-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .sa-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-actions {
+            min-width: 0;
+        }
+
+        .student-summary-grid,
+        .finance-summary-grid,
+        .profile-grid,
+        .mini-grid,
+        .mini-grid.payment-grid,
+        .mini-grid.waiver-grid,
+        .filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .panel-head,
+        .history-head,
+        .status-strip {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .filter-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .sa-button {
+            width: 100%;
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="student-account-page">
+
+    <section class="sa-card sa-hero">
+        <div>
+            <div class="sa-kicker">Student Finance</div>
+            <h1 class="sa-title">Student Payment Page</h1>
+            <p class="sa-text">
+                View student finance details, receive payments, print receipts, apply waivers, review history, and print admit cards from one organized page.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <a href="{% url 'accounts_students' %}" class="sa-button">
+                ← Back to Student Accounts
+            </a>
+
+            <a href="{% url 'accounts_dashboard' %}" class="sa-button">
+                Accounts Overview
+            </a>
+        </div>
+    </section>
+
+    <section class="student-summary-grid">
+        <div class="info-box">
+            <div class="info-label">Student Name</div>
+            <div class="info-value">{{ student.user.get_full_name|default:student.user.username }}</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-label">Student ID</div>
+            <div class="info-value">{{ student.student_id }}</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-label">Department</div>
+            <div class="info-value">{{ student.department|default:"-" }}</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-label">Batch</div>
+            <div class="info-value">{{ student.batch|default:"-" }}</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-label">Semester</div>
+            <div class="info-value">{{ student.current_semester|default:"-" }}</div>
+        </div>
+    </section>
+
+    <section class="finance-summary-grid">
+        <div class="summary-box">
+            <div class="summary-label">Total Payable</div>
+            <div class="summary-value">{{ total_payable }}</div>
+            <div class="summary-note">BDT after waiver</div>
+        </div>
+
+        <div class="summary-box">
+            <div class="summary-label">Total Paid</div>
+            <div class="summary-value paid">{{ total_paid }}</div>
+            <div class="summary-note">BDT collected</div>
+        </div>
+
+        <div class="summary-box">
+            <div class="summary-label">Total Waiver</div>
+            <div class="summary-value waiver">{{ total_waiver }}</div>
+            <div class="summary-note">BDT waived</div>
+        </div>
+
+        <div class="summary-box">
+            <div class="summary-label">Current Due</div>
+            <div class="summary-value due">{{ current_due }}</div>
+            <div class="summary-note">BDT pending</div>
+        </div>
+
+        <div class="summary-box">
+            <div class="summary-label">Credit Balance</div>
+            <div class="summary-value">{{ credit_balance }}</div>
+            <div class="summary-note">BDT extra paid</div>
+        </div>
+    </section>
+
+    {% if current_due <= 0 %}
+        <section class="sa-card status-strip status-clear">
+            <div>
+                <div class="status-title">Payment Status: Clear</div>
+                {% if credit_balance > 0 %}
+                    <div class="status-note">This student has {{ credit_balance }} BDT credit balance.</div>
+                {% else %}
+                    <div class="status-note">No outstanding due is currently available for this student.</div>
+                {% endif %}
+            </div>
+
+            <span class="section-chip success">Clear</span>
+        </section>
+    {% else %}
+        <section class="sa-card status-strip status-due">
+            <div>
+                <div class="status-title">Payment Status: Due Available</div>
+                <div class="status-note">Current due amount is {{ current_due }} BDT.</div>
+            </div>
+
+            <span class="section-chip danger">{{ current_due }} BDT Due</span>
+        </section>
+    {% endif %}
+
+    <section class="sa-card nav-strip">
+        <a href="#actions">Payment Actions</a>
+        <a href="#payable-fees">Payable Fees</a>
+        <a href="#payment-history">Payment History</a>
+        <a href="#waiver-history">Waiver History</a>
+        <a href="#admit-cards">Admit Cards</a>
+        <a href="#finance-profile">Finance Profile</a>
+    </section>
+
+    <section class="sa-card sa-panel" id="actions">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Payment Actions</h2>
+                <p class="panel-text">
+                    Add new payable fees, receive payment against a fee or general account, and apply manual waivers.
+                </p>
+            </div>
+
+            <span class="section-chip">Actions</span>
+        </div>
+
+        <div class="action-grid">
+            <div class="action-box">
+                <h3 class="action-title">Add Payable Fee</h3>
+
+                <form method="post" class="form-grid">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_fee">
+
+                    <p class="form-field">
+                        <label>Fee Type</label>
+                        <select name="fee_type" required class="input-control">
+                            <option value="">Select fee type</option>
+                            {% for fee_type in fee_types %}
+                                <option value="{{ fee_type.id }}">{{ fee_type.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Amount</label>
+                        <input type="number" step="0.01" name="amount" required class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Due Date</label>
+                        <input type="date" name="due_date" class="input-control">
+                    </p>
+
+                    <button type="submit" class="sa-button primary">Add Fee</button>
+                </form>
+            </div>
+
+            <div class="action-box">
+                <h3 class="action-title">Take Payment</h3>
+
+                <form method="post" class="form-grid">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_payment">
+
+                    <p class="form-field">
+                        <label>Pay For Fee / Semester</label>
+                        <select name="student_fee" class="input-control">
+                            <option value="">General payment / do not link to a fee</option>
+                            {% for fee in unpaid_fees %}
+                                <option value="{{ fee.id }}">{{ fee.display_payment_label }}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Payment Amount</label>
+                        <input type="number" step="0.01" name="amount" required class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Note</label>
+                        <textarea name="note" rows="3" placeholder="Example: Semester fee payment" class="input-control"></textarea>
+                    </p>
+
+                    <button type="submit" class="sa-button primary">
+                        Add Payment
+                    </button>
+
+                    <button type="submit" name="print_receipt" value="1" class="sa-button success">
+                        Add Payment & Print Receipt
+                    </button>
+                </form>
+            </div>
+
+            <div class="action-box">
+                <h3 class="action-title">Add Waiver</h3>
+
+                <form method="post" class="form-grid">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_waiver">
+
+                    <p class="form-field">
+                        <label>Waiver Amount</label>
+                        <input type="number" step="0.01" name="amount" required class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Reason</label>
+                        <textarea name="reason" rows="3" required placeholder="Example: Merit waiver" class="input-control"></textarea>
+                    </p>
+
+                    <button type="submit" class="sa-button primary">Add Waiver</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="sa-card sa-panel" id="payable-fees">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Payable Fees</h2>
+                <p class="panel-text">
+                    Review semester-wise fees, payable amount, paid amount, dues, and payment status.
+                </p>
+            </div>
+
+            <span class="section-chip">
+                {% if fees %}
+                    {{ fees|length }} Fee{{ fees|length|pluralize }}
+                {% else %}
+                    No Fee
+                {% endif %}
+            </span>
+        </div>
+
+        <form method="get" class="filter-form">
+            <p class="form-field">
+                <label>Payment Status</label>
+                <select name="fee_filter" class="input-control">
+                    <option value="all" {% if fee_filter == 'all' %}selected{% endif %}>All fees</option>
+                    <option value="due" {% if fee_filter == 'due' %}selected{% endif %}>Due only</option>
+                    <option value="paid" {% if fee_filter == 'paid' %}selected{% endif %}>Paid only</option>
+                </select>
+            </p>
+
+            <p class="form-field">
+                <label>Semester / Fee Stage</label>
+                <select name="semester_filter" class="input-control">
+                    <option value="all" {% if semester_filter == 'all' %}selected{% endif %}>All semesters</option>
+                    {% for option in semester_filter_options %}
+                        <option value="{{ option.value }}" {% if semester_filter == option.value %}selected{% endif %}>
+                            {{ option.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <div class="filter-actions">
+                <button type="submit" class="sa-button primary">Apply</button>
+                <a href="{% url 'accounts_student_detail' student.id %}#payable-fees" class="sa-button">Reset</a>
+            </div>
+        </form>
+
+        {% if fees %}
+            <div class="fee-list">
+                {% for fee in fees %}
+                    <article class="history-card">
+                        <div class="history-head">
+                            <div>
+                                <div class="history-title">{{ fee.fee_type.name }}</div>
+                                <div class="history-subtitle">{{ fee.display_semester }}</div>
+                            </div>
+
+                            <span class="{{ fee.display_status_class }}">
+                                {{ fee.display_payment_status }}
+                            </span>
+                        </div>
+
+                        <div class="mini-grid">
+                            <div class="mini-box">
+                                <div class="mini-label">Original</div>
+                                <div class="mini-value">{{ fee.display_original_amount }} BDT</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Waiver</div>
+                                <div class="mini-value">{{ fee.display_waiver_amount }} BDT</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Payable</div>
+                                <div class="mini-value">{{ fee.display_payable_amount }} BDT</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Paid</div>
+                                <div class="mini-value paid">{{ fee.display_paid_amount }} BDT</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Due</div>
+                                <div class="mini-value due">{{ fee.display_due_amount }} BDT</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Due Date</div>
+                                <div class="mini-value">{{ fee.due_date|default:"-" }}</div>
+                            </div>
+                        </div>
+
+                        {% if fee.display_due_amount > 0 %}
+                            <div class="action-row">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="mark_fee_paid">
+                                    <input type="hidden" name="fee_id" value="{{ fee.id }}">
+                                    <button type="submit" class="sa-button primary">Mark Paid</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No payable fees matched this filter.
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="sa-card sa-panel" id="payment-history">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Payment History</h2>
+                <p class="panel-text">
+                    Every payment record is preserved here. Receipts can be printed anytime.
+                </p>
+            </div>
+
+            <span class="section-chip">
+                {% if payments %}
+                    {{ payments|length }} Payment{{ payments|length|pluralize }}
+                {% else %}
+                    No Payment
+                {% endif %}
+            </span>
+        </div>
+
+        {% if payments %}
+            <div class="payment-list">
+                {% for payment in payments %}
+                    <article class="history-card">
+                        <div class="mini-grid payment-grid">
+                            <div class="mini-box">
+                                <div class="mini-label">Date</div>
+                                <div class="mini-value">{{ payment.payment_date }}</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Amount</div>
+                                <div class="mini-value paid">{{ payment.amount }} BDT</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Received By</div>
+                                <div class="mini-value">{{ payment.received_by|default:"-" }}</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Note</div>
+                                <div class="mini-value">{{ payment.note|default:"-" }}</div>
+                            </div>
+
+                            <div class="action-row" style="margin-top: 0;">
+                                <a href="{% url 'download_payment_receipt' payment.id %}" class="sa-button primary">
+                                    Print Receipt
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No payment history found yet.
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="sa-card sa-panel" id="waiver-history">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Waiver History</h2>
+                <p class="panel-text">
+                    Manual and linked waiver records are kept here for audit and review.
+                </p>
+            </div>
+
+            <span class="section-chip">
+                {% if waivers %}
+                    {{ waivers|length }} Waiver{{ waivers|length|pluralize }}
+                {% else %}
+                    No Waiver
+                {% endif %}
+            </span>
+        </div>
+
+        {% if waivers %}
+            <div class="waiver-list">
+                {% for waiver in waivers %}
+                    <article class="history-card">
+                        <div class="mini-grid waiver-grid">
+                            <div class="mini-box">
+                                <div class="mini-label">Amount</div>
+                                <div class="mini-value paid">{{ waiver.amount }} BDT</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Source</div>
+                                <div class="mini-value">{{ waiver.get_source_display|default:waiver.source }}</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Linked Fee</div>
+                                <div class="mini-value">
+                                    {% if waiver.student_fee %}
+                                        {{ waiver.student_fee.fee_type.name }}
+                                    {% else %}
+                                        Manual / General
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Reason</div>
+                                <div class="mini-value">{{ waiver.reason|default:"-" }}</div>
+                            </div>
+
+                            <div class="mini-box">
+                                <div class="mini-label">Approved / Date</div>
+                                <div class="mini-value">
+                                    {{ waiver.approved_by|default:"-" }}<br>
+                                    {{ waiver.created_at }}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No waiver history found yet.
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="sa-card sa-panel" id="admit-cards">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Admit Cards</h2>
+                <p class="panel-text">
+                    Print admit cards from the accounts side. Payment status is visible above before printing.
+                </p>
+            </div>
+
+            {% if current_due <= 0 %}
+                <span class="section-chip success">Payment Clear</span>
+            {% else %}
+                <span class="section-chip danger">Due Available</span>
+            {% endif %}
+        </div>
+
+        <div class="admit-grid">
+            <div class="admit-card">
+                <div>
+                    <div class="admit-title">Midterm Admit Card</div>
+                    <div class="admit-text">Print the student midterm admit card with routine and seat information if published.</div>
+                </div>
+
+                <a href="{% url 'download_accounts_admit_card' student.id 'midterm' %}" class="sa-button primary">
+                    Print Midterm
+                </a>
+            </div>
+
+            <div class="admit-card">
+                <div>
+                    <div class="admit-title">Final Admit Card</div>
+                    <div class="admit-text">Print the student final admit card with routine and seat information if published.</div>
+                </div>
+
+                <a href="{% url 'download_accounts_admit_card' student.id 'final' %}" class="sa-button success">
+                    Print Final
+                </a>
+            </div>
+
+            <div class="admit-card">
+                <div>
+                    <div class="admit-title">Recovery Admit Card</div>
+                    <div class="admit-text">Print recovery admit card if recovery exam routine is published for this student.</div>
+                </div>
+
+                <a href="{% url 'download_accounts_admit_card' student.id 'recovery' %}" class="sa-button warning">
+                    Print Recovery
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="sa-card sa-panel" id="finance-profile">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Program Finance Profile</h2>
+                <p class="panel-text">
+                    Program fee setup and waiver details generated during student account creation.
+                </p>
+            </div>
+
+            {% if financial_profile %}
+                <span class="section-chip success">Available</span>
+            {% else %}
+                <span class="section-chip danger">Missing</span>
+            {% endif %}
+        </div>
+
+        {% if financial_profile %}
+            <div class="profile-grid">
+                <div class="info-box">
+                    <div class="info-label">Program</div>
+                    <div class="info-value">{{ financial_profile.program_fee.program_name|default:"-" }}</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Admission Category</div>
+                    <div class="info-value">{{ financial_profile.get_admission_category_display }}</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">SSC GPA</div>
+                    <div class="info-value">{{ financial_profile.ssc_gpa }}</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">HSC GPA</div>
+                    <div class="info-value">{{ financial_profile.hsc_gpa }}</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Combined GPA</div>
+                    <div class="info-value">{{ financial_profile.combined_gpa }}</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Admission Fee</div>
+                    <div class="info-value">{{ financial_profile.admission_fee }} BDT</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Semester Fee Before Waiver</div>
+                    <div class="info-value">{{ financial_profile.semester_fee_before_waiver }} BDT</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Regular Waiver</div>
+                    <div class="info-value">{{ financial_profile.regular_waiver_amount }} BDT</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Special Waiver</div>
+                    <div class="info-value">{{ financial_profile.special_waiver_amount }} BDT</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Final Semester Fee</div>
+                    <div class="info-value">{{ financial_profile.final_semester_fee }} BDT</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Total Semesters</div>
+                    <div class="info-value">{{ financial_profile.total_semesters }}</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Total Semester Fee After Waiver</div>
+                    <div class="info-value">{{ financial_profile.total_semester_fee_after_waiver }} BDT</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Grand Total After Waiver</div>
+                    <div class="info-value">{{ financial_profile.grand_total_after_waiver }} BDT</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No Student Financial Profile was found for this student. This usually happens if the student was created before finance setup was added.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

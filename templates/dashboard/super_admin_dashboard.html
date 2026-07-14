@@ -1,0 +1,1320 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .super-admin-page {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        display: grid;
+        gap: 24px;
+    }
+
+    .super-admin-page,
+    .super-admin-page * {
+        box-sizing: border-box;
+    }
+
+    .super-admin-page a {
+        text-decoration: none;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .admin-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+
+        padding: 34px;
+
+        border-radius: 30px;
+
+        background:
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.72),
+                transparent 32%
+            ),
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.55),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #fffafa 0%,
+                #fff1f2 45%,
+                #ffffff 100%
+            );
+
+        border: 1px solid rgba(254, 202, 202, 0.85);
+
+        box-shadow:
+            0 10px 28px rgba(127, 29, 29, 0.07);
+    }
+
+    .admin-pill {
+        display: inline-flex;
+        align-items: center;
+
+        padding: 8px 14px;
+
+        border-radius: 999px;
+
+        background: var(--accent-soft);
+        color: var(--accent);
+
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+
+        margin-bottom: 14px;
+    }
+
+    .admin-hero h2 {
+        margin: 0 0 10px;
+
+        color: var(--navy);
+
+        font-size: clamp(32px, 4vw, 50px);
+        line-height: 1.02;
+
+        font-weight: 950;
+        letter-spacing: -0.055em;
+    }
+
+    .admin-hero p {
+        max-width: 760px;
+
+        margin: 0;
+
+        color: var(--muted);
+
+        font-size: 16px;
+        line-height: 1.65;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 46px;
+        padding: 0 18px;
+
+        border-radius: 15px;
+
+        background: #ffffff;
+
+        border: 1px solid #fecaca;
+
+        color: var(--accent);
+
+        font-size: 13px;
+        font-weight: 900;
+
+        box-shadow:
+            0 6px 16px rgba(127, 29, 29, 0.06);
+
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+       SUMMARY
+    ========================================================= */
+
+    .summary-row {
+        display: grid;
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+        gap: 16px;
+    }
+
+    .summary-card {
+        min-width: 0;
+
+        display: flex;
+        align-items: center;
+
+        gap: 14px;
+
+        padding: 18px;
+
+        border-radius: 24px;
+
+        background: #ffffff;
+
+        border: 1px solid var(--border);
+
+        box-shadow:
+            0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+
+        border-radius: 16px;
+
+        background: var(--accent);
+        color: #ffffff;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+    }
+
+    .summary-icon.green {
+        background: #16a34a;
+    }
+
+    .summary-icon.blue {
+        background: #2563eb;
+    }
+
+    .summary-icon.purple {
+        background: #7c3aed;
+    }
+
+    .summary-icon svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    .summary-label {
+        margin-bottom: 5px;
+
+        color: var(--soft-muted);
+
+        font-size: 11px;
+        font-weight: 950;
+
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+    }
+
+    .summary-value {
+        color: var(--navy);
+
+        font-size: 16px;
+        line-height: 1.25;
+
+        font-weight: 950;
+    }
+
+    /* =========================================================
+       PANELS
+    ========================================================= */
+
+    .panel-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        padding: 28px;
+
+        border-radius: 28px;
+
+        background: #ffffff;
+
+        border: 1px solid rgba(226, 232, 240, 0.95);
+
+        box-shadow:
+            0 8px 24px rgba(15, 23, 42, 0.045);
+    }
+
+    .panel-header {
+        display: flex;
+
+        align-items: flex-start;
+        justify-content: space-between;
+
+        gap: 18px;
+
+        margin-bottom: 24px;
+    }
+
+    .panel-card h3 {
+        margin: 0 0 8px;
+
+        color: var(--navy);
+
+        font-size: 27px;
+        line-height: 1.1;
+
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .panel-card p {
+        margin: 0;
+
+        color: var(--muted);
+
+        line-height: 1.6;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+
+        padding: 8px 14px;
+
+        border-radius: 999px;
+
+        background: var(--accent-soft);
+        color: var(--accent);
+
+        font-size: 12px;
+        font-weight: 950;
+
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+       MODULE GRID
+    ========================================================= */
+
+    .admin-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+        gap: 18px;
+    }
+
+    .admin-module {
+        width: 100%;
+        min-width: 0;
+        min-height: 190px;
+
+        padding: 22px;
+
+        border-radius: 26px;
+
+        background: #ffffff;
+
+        border: 1px solid var(--border);
+
+        box-shadow:
+            0 6px 18px rgba(15, 23, 42, 0.035);
+
+        display: flex;
+        flex-direction: column;
+
+        transition:
+            transform 0.14s ease,
+            background 0.14s ease,
+            border-color 0.14s ease,
+            box-shadow 0.14s ease;
+    }
+
+    .admin-module:hover {
+        background: #fffafa;
+        border-color: #fecaca;
+
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 16px 34px rgba(15, 23, 42, 0.055);
+    }
+
+    .admin-module.featured {
+        background:
+            linear-gradient(
+                135deg,
+                #fffafa 0%,
+                #ffffff 100%
+            );
+
+        border-color: #fecaca;
+    }
+
+    .module-icon {
+        width: 52px;
+        height: 52px;
+
+        border-radius: 18px;
+
+        background: var(--accent);
+        color: #ffffff;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+    }
+
+    .module-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .module-icon.green {
+        background: #16a34a;
+    }
+
+    .module-icon.amber {
+        background: #d97706;
+    }
+
+    .module-icon.blue {
+        background: #2563eb;
+    }
+
+    .module-icon.purple {
+        background: #7c3aed;
+    }
+
+    .module-icon.cyan {
+        background: #0891b2;
+    }
+
+    .module-icon.slate {
+        background: #475569;
+    }
+
+    .module-title {
+        margin-top: 16px;
+
+        color: var(--navy);
+
+        font-size: 19px;
+        line-height: 1.2;
+
+        font-weight: 950;
+        letter-spacing: -0.03em;
+    }
+
+    .module-desc {
+        margin-top: 6px;
+
+        color: var(--muted);
+
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    .module-link-text {
+        margin-top: auto;
+        padding-top: 18px;
+
+        color: var(--accent);
+
+        font-size: 13px;
+        font-weight: 950;
+    }
+
+    /* =========================================================
+       COMING SOON
+    ========================================================= */
+
+    .coming-soon {
+        opacity: 0.58;
+        cursor: not-allowed;
+    }
+
+    .coming-soon:hover {
+        background: #ffffff;
+        border-color: var(--border);
+        transform: none;
+        box-shadow:
+            0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+
+        width: fit-content;
+
+        margin-top: auto;
+
+        padding: 7px 12px;
+
+        border-radius: 999px;
+
+        background: #f8fafc;
+        color: #64748b;
+
+        border: 1px solid #e2e8f0;
+
+        font-size: 12px;
+        font-weight: 950;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1180px) {
+        .admin-grid {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+        .summary-row {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .super-admin-page {
+            gap: 16px;
+        }
+
+        .admin-hero {
+            flex-direction: column;
+            align-items: flex-start;
+
+            padding: 22px;
+
+            border-radius: 24px;
+        }
+
+        .admin-hero p {
+            font-size: 14px;
+        }
+
+        .hero-badge {
+            width: 100%;
+        }
+
+        .summary-row {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .summary-card {
+            padding: 16px;
+            border-radius: 20px;
+        }
+
+        .panel-card {
+            padding: 20px;
+
+            border-radius: 22px;
+
+            box-shadow:
+                0 4px 14px rgba(15, 23, 42, 0.035);
+        }
+
+        .panel-header {
+            flex-direction: column;
+
+            gap: 12px;
+
+            margin-bottom: 18px;
+        }
+
+        .panel-card h3 {
+            font-size: 24px;
+        }
+
+        .admin-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .admin-module {
+            min-height: 0;
+
+            padding: 18px;
+
+            border-radius: 22px;
+
+            display: grid;
+
+            grid-template-columns:
+                48px minmax(0, 1fr);
+
+            column-gap: 14px;
+        }
+
+        .admin-module .module-icon {
+            width: 48px;
+            height: 48px;
+
+            grid-row:
+                1 / span 3;
+        }
+
+        .admin-module .module-title {
+            margin-top: 0;
+        }
+
+        .admin-module .module-desc {
+            margin-top: 5px;
+        }
+
+        .admin-module .module-link-text,
+        .admin-module .status-badge {
+            grid-column: 2;
+
+            margin-top: 12px;
+            padding-top: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .admin-hero {
+            padding: 20px;
+        }
+
+        .admin-hero h2 {
+            font-size: 32px;
+        }
+
+        .admin-pill {
+            font-size: 10px;
+        }
+
+        .summary-icon {
+            width: 44px;
+            height: 44px;
+        }
+    }
+</style>
+
+
+<div class="super-admin-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="admin-hero">
+
+        <div>
+
+            <div class="admin-pill">
+                Full System Control
+            </div>
+
+            <h2>
+                Super Admin Dashboard
+            </h2>
+
+            <p>
+                Manage academic setup, users, enrollments, notices,
+                student uploads, result correction requests, audit activity,
+                and portal-wide system settings from one central dashboard.
+            </p>
+
+        </div>
+
+
+        <div class="hero-badge">
+            Super Admin Access
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SUMMARY
+    ====================================================== -->
+
+    <section class="summary-row">
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"
+                    />
+                </svg>
+
+            </div>
+
+            <div>
+
+                <div class="summary-label">
+                    Academic
+                </div>
+
+                <div class="summary-value">
+                    Setup & Enrollment
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon blue">
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                </svg>
+
+            </div>
+
+            <div>
+
+                <div class="summary-label">
+                    Users
+                </div>
+
+                <div class="summary-value">
+                    Students & Staff
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon purple">
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"
+                    />
+                </svg>
+
+            </div>
+
+            <div>
+
+                <div class="summary-label">
+                    Communication
+                </div>
+
+                <div class="summary-value">
+                    Notice Board
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon green">
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12h6m-6 4h6M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"
+                    />
+                </svg>
+
+            </div>
+
+            <div>
+
+                <div class="summary-label">
+                    Results
+                </div>
+
+                <div class="summary-value">
+                    Correction Workflow
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN MANAGEMENT
+    ====================================================== -->
+
+    <section class="panel-card">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h3>
+                    Main Management
+                </h3>
+
+                <p>
+                    Use these modules for the primary administrative workflows.
+                </p>
+
+            </div>
+
+            <span class="section-chip">
+                Core Tools
+            </span>
+
+        </div>
+
+
+        <div class="admin-grid">
+
+
+            <!-- ACADEMIC SETUP -->
+
+            <a href="{% url 'academic_setup' %}">
+
+                <div class="admin-module">
+
+                    <div class="module-icon">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <div class="module-title">
+                        Academic Setup
+                    </div>
+
+                    <div class="module-desc">
+                        Departments, batches, semesters, courses,
+                        and active course offerings.
+                    </div>
+
+                    <div class="module-link-text">
+                        Open module →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <!-- USER MANAGEMENT -->
+
+            <a href="{% url 'user_management' %}">
+
+                <div class="admin-module">
+
+                    <div class="module-icon blue">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <div class="module-title">
+                        User Management
+                    </div>
+
+                    <div class="module-desc">
+                        Create and manage students, faculty,
+                        administrators, and university staff accounts.
+                    </div>
+
+                    <div class="module-link-text">
+                        Open module →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <!-- COURSE ENROLLMENT -->
+
+            <a href="{% url 'course_enrollment' %}">
+
+                <div class="admin-module">
+
+                    <div class="module-icon green">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M9 12l2 2 4-4M7 4h10a2 2 0 012 2v14H5V6a2 2 0 012-2z"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <div class="module-title">
+                        Course Enrollment
+                    </div>
+
+                    <div class="module-desc">
+                        Enroll students into active course offerings
+                        and manage approved registrations.
+                    </div>
+
+                    <div class="module-link-text">
+                        Open module →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <!-- BULK UPLOAD -->
+
+            <a href="{% url 'bulk_student_upload' %}">
+
+                <div class="admin-module">
+
+                    <div class="module-icon amber">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <div class="module-title">
+                        Bulk Student Upload
+                    </div>
+
+                    <div class="module-desc">
+                        Upload CSV files to create many student
+                        accounts and records at once.
+                    </div>
+
+                    <div class="module-link-text">
+                        Open module →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <!-- NOTICE MANAGEMENT -->
+
+            <a href="{% url 'notice_management' %}">
+
+                <div class="admin-module">
+
+                    <div class="module-icon purple">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <div class="module-title">
+                        Notice Management
+                    </div>
+
+                    <div class="module-desc">
+                        Create and publish notices for students,
+                        faculty, departments, and staff.
+                    </div>
+
+                    <div class="module-link-text">
+                        Open module →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <!-- RESULT CORRECTIONS -->
+
+            <a href="{% url 'result_correction_requests' %}">
+
+                <div class="admin-module featured">
+
+                    <div class="module-icon cyan">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M9 12h6m-6 4h6M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <div class="module-title">
+                        Result Corrections
+                    </div>
+
+                    <div class="module-desc">
+                        Review submitted result correction requests
+                        and manage approved academic record changes.
+                    </div>
+
+                    <div class="module-link-text">
+                        Open module →
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SYSTEM TOOLS
+    ====================================================== -->
+
+    <section class="panel-card">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h3>
+                    System Tools
+                </h3>
+
+                <p>
+                    Manage portal configuration, review system activity,
+                    and access administrative system tools.
+                </p>
+
+            </div>
+
+            <span class="section-chip">
+                Admin Tools
+            </span>
+
+        </div>
+
+
+        <div class="admin-grid">
+
+
+            <!-- ROLES -->
+
+            <div class="admin-module coming-soon">
+
+                <div class="module-icon slate">
+
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0"
+                        />
+                    </svg>
+
+                </div>
+
+                <div class="module-title">
+                    Roles
+                </div>
+
+                <div class="module-desc">
+                    Role permissions and access control options.
+                </div>
+
+                <span class="status-badge">
+                    Coming soon
+                </span>
+
+            </div>
+
+
+            <!-- SYSTEM SETTINGS -->
+
+            <a href="{% url 'system_settings' %}">
+
+                <div class="admin-module featured">
+
+                    <div class="module-icon">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M10.5 6h3M7 10.5h10M8 15h8M12 3l2 3 3.5.5-2.5 2.5.6 3.5L12 11l-3.6 1.9.6-3.5L6.5 6.5 10 6z"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <div class="module-title">
+                        System Settings
+                    </div>
+
+                    <div class="module-desc">
+                        Manage university name, logo, session,
+                        portal configuration, and system notes.
+                    </div>
+
+                    <div class="module-link-text">
+                        Open module →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <!-- AUDIT LOGS -->
+
+            <a href="{% url 'audit_logs' %}">
+
+                <div class="admin-module">
+
+                    <div class="module-icon blue">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M9 12h6m-6 4h6M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <div class="module-title">
+                        Audit Logs
+                    </div>
+
+                    <div class="module-desc">
+                        Review system activity, administrative actions,
+                        and important portal changes.
+                    </div>
+
+                    <div class="module-link-text">
+                        Open module →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <!-- RESULT CORRECTIONS -->
+
+            <a href="{% url 'result_correction_requests' %}">
+
+                <div class="admin-module">
+
+                    <div class="module-icon amber">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M9 12h6m-6 4h6M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"
+                            />
+                        </svg>
+
+                    </div>
+
+                    <div class="module-title">
+                        Result Corrections
+                    </div>
+
+                    <div class="module-desc">
+                        Review correction requests and manage
+                        approved result modification workflows.
+                    </div>
+
+                    <div class="module-link-text">
+                        Open module →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <!-- BACKUP -->
+
+            <div class="admin-module coming-soon">
+
+                <div class="module-icon slate">
+
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 6v6l4 2M4 7h16M6 20h12"
+                        />
+                    </svg>
+
+                </div>
+
+                <div class="module-title">
+                    Backup
+                </div>
+
+                <div class="module-desc">
+                    Database and file backup management.
+                </div>
+
+                <span class="status-badge">
+                    Coming soon
+                </span>
+
+            </div>
+
+
+            <!-- SECURITY -->
+
+            <div class="admin-module coming-soon">
+
+                <div class="module-icon slate">
+
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 3l7 4v5c0 5-3.5 8.5-7 9-3.5-.5-7-4-7-9V7l7-4z"
+                        />
+                    </svg>
+
+                </div>
+
+                <div class="module-title">
+                    Security
+                </div>
+
+                <div class="module-desc">
+                    Security controls, login sessions,
+                    and protection settings.
+                </div>
+
+                <span class="status-badge">
+                    Coming soon
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,670 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .settings-page {
+        display: grid;
+        gap: 24px;
+    }
+
+    .settings-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #fffafa 0%, #fff1f2 50%, #ffffff 100%);
+        border: 1px solid rgba(254, 202, 202, 0.85);
+        box-shadow: 0 10px 28px rgba(127, 29, 29, 0.07);
+    }
+
+    .settings-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .settings-hero h2 {
+        font-size: clamp(32px, 4vw, 50px);
+        line-height: 1.02;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+        color: var(--navy);
+        margin: 0 0 10px;
+    }
+
+    .settings-hero p {
+        max-width: 700px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .soft-back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 15px;
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        font-weight: 900;
+        box-shadow: 0 6px 16px rgba(127, 29, 29, 0.06);
+        transition: background 0.14s ease, color 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .soft-back-button:hover {
+        background: var(--accent-soft);
+    }
+
+    .panel-card {
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .panel-card h3 {
+        margin: 0 0 8px;
+        color: var(--navy);
+        font-size: 27px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .panel-card p {
+        color: var(--muted);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .settings-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .form-field {
+        margin: 0;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid #cbd5e1;
+        background: white;
+        color: var(--navy);
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    textarea.input-control {
+        min-height: 105px;
+        resize: vertical;
+    }
+
+    input[type="file"].input-control {
+        padding: 10px 12px;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(127, 29, 29, 0.10);
+    }
+
+    .logo-card {
+        padding: 22px;
+        border-radius: 24px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+        display: grid;
+        gap: 16px;
+    }
+
+    .logo-preview-wrap {
+        width: 160px;
+        height: 160px;
+        border-radius: 28px;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.045);
+    }
+
+    .logo-preview {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .logo-placeholder {
+        width: 100%;
+        height: 100%;
+        border-radius: 22px;
+        background: linear-gradient(135deg, var(--accent), #b91c1c);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        font-weight: 950;
+        letter-spacing: -0.05em;
+    }
+
+    .note-box {
+        margin-top: 24px;
+        padding: 24px;
+        border-radius: 26px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+    }
+
+    .note-box h3 {
+        font-size: 24px;
+        margin-bottom: 18px;
+    }
+
+    .note-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .primary-button {
+        min-height: 48px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 16px;
+        background: var(--accent);
+        color: white;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: none;
+        transition: background 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .primary-button:hover {
+        background: var(--accent-dark);
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .summary-item {
+        padding: 18px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid var(--border);
+    }
+
+    .summary-label {
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        color: var(--soft-muted);
+        margin-bottom: 7px;
+    }
+
+    .summary-value {
+        color: var(--navy);
+        font-size: 16px;
+        line-height: 1.45;
+        font-weight: 850;
+        word-break: break-word;
+    }
+
+    .summary-value.muted {
+        color: var(--muted);
+    }
+
+    .summary-wide {
+        grid-column: 1 / -1;
+    }
+
+    .settings-info-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .info-tile {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 24px;
+        background: white;
+        border: 1px solid var(--border);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .info-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        background: var(--accent);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .info-icon svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    .info-label {
+        color: var(--soft-muted);
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .info-value {
+        color: var(--navy);
+        font-weight: 950;
+        line-height: 1.25;
+        word-break: break-word;
+    }
+
+    @media (max-width: 1100px) {
+        .settings-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .settings-info-strip {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .settings-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 26px;
+        }
+
+        .hero-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .soft-back-button,
+        .primary-button {
+            width: 100%;
+        }
+
+        .panel-card {
+            padding: 20px;
+            border-radius: 22px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+        }
+
+        .panel-header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-grid-2,
+        .summary-grid,
+        .settings-info-strip {
+            grid-template-columns: 1fr;
+        }
+
+        .logo-preview-wrap {
+            width: 140px;
+            height: 140px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .settings-hero {
+            padding: 20px;
+            border-radius: 24px;
+        }
+
+        .settings-hero h2 {
+            font-size: 32px;
+        }
+
+        .note-box,
+        .logo-card {
+            padding: 18px;
+            border-radius: 20px;
+        }
+    }
+</style>
+
+<div class="settings-page">
+
+    <section class="settings-hero">
+        <div>
+            <div class="settings-pill">Portal Configuration</div>
+            <h2>System Settings</h2>
+            <p>
+                Manage official university information, logo, contact details, and portal-wide notes.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <a href="{% url 'super_admin_dashboard' %}" class="soft-back-button">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </section>
+
+    <section class="settings-info-strip">
+        <div class="info-tile">
+            <div class="info-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>
+                </svg>
+            </div>
+            <div>
+                <div class="info-label">University</div>
+                <div class="info-value">{{ settings_obj.short_name|default:'Not set' }}</div>
+            </div>
+        </div>
+
+        <div class="info-tile">
+            <div class="info-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M5 11h14M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+                </svg>
+            </div>
+            <div>
+                <div class="info-label">Session</div>
+                <div class="info-value">{{ settings_obj.current_academic_session|default:'Not set' }}</div>
+            </div>
+        </div>
+
+        <div class="info-tile">
+            <div class="info-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div>
+                <div class="info-label">Last Updated</div>
+                <div class="info-value">{{ settings_obj.updated_at|default:'Not set' }}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-header">
+            <div>
+                <h3>University Information</h3>
+                <p>These details appear across the portal, login page, navbar, reports, and public documents.</p>
+            </div>
+            <span class="section-chip">Official Info</span>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="settings-layout">
+                <div>
+                    <div class="form-grid-2">
+                        <p class="form-field">
+                            <label>University Name</label>
+                            <input
+                                type="text"
+                                name="university_name"
+                                value="{{ settings_obj.university_name }}"
+                                required
+                                class="input-control"
+                            >
+                        </p>
+
+                        <p class="form-field">
+                            <label>Short Name</label>
+                            <input
+                                type="text"
+                                name="short_name"
+                                value="{{ settings_obj.short_name }}"
+                                required
+                                class="input-control"
+                            >
+                        </p>
+
+                        <p class="form-field">
+                            <label>Contact Email</label>
+                            <input
+                                type="email"
+                                name="contact_email"
+                                value="{{ settings_obj.contact_email|default:'' }}"
+                                class="input-control"
+                            >
+                        </p>
+
+                        <p class="form-field">
+                            <label>Phone</label>
+                            <input
+                                type="text"
+                                name="phone"
+                                value="{{ settings_obj.phone|default:'' }}"
+                                class="input-control"
+                            >
+                        </p>
+
+                        <p class="form-field">
+                            <label>Website</label>
+                            <input
+                                type="url"
+                                name="website"
+                                value="{{ settings_obj.website|default:'' }}"
+                                placeholder="https://example.edu"
+                                class="input-control"
+                            >
+                        </p>
+
+                        <p class="form-field">
+                            <label>Current Academic Session</label>
+                            <input
+                                type="text"
+                                name="current_academic_session"
+                                value="{{ settings_obj.current_academic_session|default:'' }}"
+                                placeholder="Summer 2026"
+                                class="input-control"
+                            >
+                        </p>
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <p class="form-field">
+                            <label>Address</label>
+                            <textarea name="address" rows="3" class="input-control">{{ settings_obj.address|default:'' }}</textarea>
+                        </p>
+                    </div>
+                </div>
+
+                <aside class="logo-card">
+                    <div>
+                        <h3 style="font-size: 22px; margin-bottom: 8px;">University Logo</h3>
+                        <p>Upload the official logo used in the portal header and login page.</p>
+                    </div>
+
+                    <div class="logo-preview-wrap">
+                        {% if settings_obj.logo %}
+                            <img src="{{ settings_obj.logo.url }}" alt="Logo" class="logo-preview">
+                        {% else %}
+                            <div class="logo-placeholder">
+                                {{ settings_obj.short_name|default:'UGV'|slice:":2" }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <p class="form-field">
+                        <label>Replace Logo</label>
+                        <input type="file" name="logo" class="input-control">
+                    </p>
+                </aside>
+            </div>
+
+            <div class="note-box">
+                <h3>Portal Notes</h3>
+
+                <div class="note-grid">
+                    <p class="form-field">
+                        <label>Result Publication Note</label>
+                        <textarea name="result_publication_note" rows="3" class="input-control">{{ settings_obj.result_publication_note|default:'' }}</textarea>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Admit Card Note</label>
+                        <textarea name="admit_card_note" rows="3" class="input-control">{{ settings_obj.admit_card_note|default:'' }}</textarea>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Payment Instruction</label>
+                        <textarea name="payment_instruction" rows="3" class="input-control">{{ settings_obj.payment_instruction|default:'' }}</textarea>
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top: 22px;">
+                <button type="submit" class="primary-button">Save System Settings</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-header">
+            <div>
+                <h3>Current Settings Summary</h3>
+                <p>Quick overview of the current portal configuration.</p>
+            </div>
+            <span class="section-chip">Summary</span>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">University</div>
+                <div class="summary-value">{{ settings_obj.university_name|default:'Not set' }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Short Name</div>
+                <div class="summary-value">{{ settings_obj.short_name|default:'Not set' }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Academic Session</div>
+                <div class="summary-value">{{ settings_obj.current_academic_session|default:'Not set' }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Contact Email</div>
+                <div class="summary-value">{{ settings_obj.contact_email|default:'Not set' }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Phone</div>
+                <div class="summary-value">{{ settings_obj.phone|default:'Not set' }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Website</div>
+                <div class="summary-value">{{ settings_obj.website|default:'Not set' }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Last Updated</div>
+                <div class="summary-value muted">{{ settings_obj.updated_at|default:'Not set' }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Updated By</div>
+                <div class="summary-value">
+                    {% if settings_obj.updated_by %}
+                        {{ settings_obj.updated_by.username }}
+                    {% else %}
+                        Not set
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="summary-item summary-wide">
+                <div class="summary-label">Address</div>
+                <div class="summary-value">{{ settings_obj.address|default:'Not set' }}</div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,237 @@
+from django.db import models
+from django.utils import timezone
+
+from accounts.models import User
+from academics.models import CourseOffering
+from students.models import StudentProfile
+
+
+class ExamRoutine(models.Model):
+    EXAM_TYPE_CHOICES = [
+        ('midterm', 'Midterm'),
+        ('final', 'Final'),
+        ('recovery', 'Recovery'),
+    ]
+
+    course_offering = models.ForeignKey(CourseOffering, on_delete=models.CASCADE)
+    exam_type = models.CharField(max_length=20, choices=EXAM_TYPE_CHOICES)
+    exam_date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room = models.CharField(max_length=50)
+    is_published = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('course_offering', 'exam_type')
+
+    def __str__(self):
+        return f"{self.course_offering.course.code} - {self.get_exam_type_display()}"
+
+
+class AdmitCard(models.Model):
+    EXAM_TYPE_CHOICES = [
+        ('midterm', 'Midterm'),
+        ('final', 'Final'),
+    ]
+
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
+    exam_type = models.CharField(
+        max_length=20,
+        choices=EXAM_TYPE_CHOICES,
+        default='final'
+    )
+    is_eligible = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=False)
+    generated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'exam_type')
+
+    def __str__(self):
+        return f"Admit Card - {self.student.student_id} - {self.get_exam_type_display()}"
+
+
+class SeatPlan(models.Model):
+    EXAM_TYPE_CHOICES = [
+        ('midterm', 'Midterm'),
+        ('final', 'Final'),
+    ]
+
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
+    course_offering = models.ForeignKey(CourseOffering, on_delete=models.CASCADE)
+    exam_type = models.CharField(max_length=20, choices=EXAM_TYPE_CHOICES)
+    room = models.CharField(max_length=50)
+    seat_number = models.CharField(max_length=30)
+    is_published = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('student', 'course_offering', 'exam_type')
+
+    def __str__(self):
+        return (
+            f"{self.student.student_id} - "
+            f"{self.course_offering.course.code} - "
+            f"{self.get_exam_type_display()} - "
+            f"Seat {self.seat_number}"
+        )
+
+
+class HallDuty(models.Model):
+    faculty = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': 'faculty'}
+    )
+    exam_routine = models.ForeignKey(ExamRoutine, on_delete=models.CASCADE)
+    duty_room = models.CharField(max_length=50)
+    duty_note = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('faculty', 'exam_routine', 'duty_room')
+
+    def __str__(self):
+        return (
+            f"{self.faculty.username} - "
+            f"{self.exam_routine.course_offering.course.code} - "
+            f"{self.duty_room}"
+        )
+
+
+class ResultPublication(models.Model):
+    EXAM_TYPE_CHOICES = [
+        ('midterm', 'Midterm'),
+        ('final', 'Final'),
+    ]
+
+    course_offering = models.ForeignKey(CourseOffering, on_delete=models.CASCADE)
+    exam_type = models.CharField(
+        max_length=20,
+        choices=EXAM_TYPE_CHOICES,
+        default='final'
+    )
+    is_published = models.BooleanField(default=False)
+
+    published_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    published_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('course_offering', 'exam_type')
+
+    def publish(self, user):
+        self.is_published = True
+        self.published_by = user
+        self.published_at = timezone.now()
+        self.save()
+
+    def unpublish(self):
+        self.is_published = False
+        self.published_at = None
+        self.save()
+
+    def __str__(self):
+        status = 'Published' if self.is_published else 'Unpublished'
+        return (
+            f"{self.course_offering.course.code} - "
+            f"{self.get_exam_type_display()} - "
+            f"{status}"
+        )
+
+
+class ResultCorrectionRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    mark = models.ForeignKey(
+        'faculty.Mark',
+        on_delete=models.CASCADE,
+        related_name='correction_requests'
+    )
+
+    student = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE
+    )
+
+    course_offering = models.ForeignKey(
+        CourseOffering,
+        on_delete=models.CASCADE
+    )
+
+    requested_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='result_correction_requests'
+    )
+
+    reviewed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_result_corrections'
+    )
+
+    reason = models.TextField()
+
+    old_class_test = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    old_assignment = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    old_attendance = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    old_midterm = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    old_final = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+    new_class_test = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    new_assignment = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    new_attendance = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    new_midterm = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    new_final = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
+
+    admin_note = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def approve(self, user):
+        self.mark.class_test = self.new_class_test
+        self.mark.assignment = self.new_assignment
+        self.mark.attendance = self.new_attendance
+        self.mark.midterm = self.new_midterm
+        self.mark.final = self.new_final
+        self.mark.save()
+
+        self.status = 'approved'
+        self.reviewed_by = user
+        self.reviewed_at = timezone.now()
+        self.save()
+
+    def reject(self, user, note=''):
+        self.status = 'rejected'
+        self.reviewed_by = user
+        self.reviewed_at = timezone.now()
+        self.admin_note = note
+        self.save()
+
+    def __str__(self):
+        return (
+            f"{self.student.student_id} - "
+            f"{self.course_offering.course.code} - "
+            f"{self.status}"
+        )

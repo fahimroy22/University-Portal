@@ -1,0 +1,365 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Academic Setup</h2>
+    <p>
+        Manage departments, batches, semesters, courses, and course offerings.
+    </p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px;">
+
+    <div class="card">
+        <h3>Create Department</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_department">
+
+            <p>
+                <label>Department Name</label><br>
+                <input type="text" name="name" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label>Department Code</label><br>
+                <input type="text" name="code" placeholder="CSE" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <button type="submit">Create Department</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Create Batch</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_batch">
+
+            <p>
+                <label>Department</label><br>
+                <select name="department" required style="width: 100%; padding: 8px;">
+                    <option value="">Select Department</option>
+                    {% for department in departments %}
+                        <option value="{{ department.id }}">{{ department.code }} - {{ department.name }}</option>
+                    {% empty %}
+                        <option value="">No department found</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p>
+                <label>Batch Name</label><br>
+                <input type="text" name="batch_name" placeholder="Batch 1" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label>Admission Year</label><br>
+                <input type="number" name="admission_year" placeholder="2026" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <button type="submit">Create Batch</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Create Semester</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_semester">
+
+            <p>
+                <label>Semester Name</label><br>
+                <input type="text" name="name" placeholder="1st Semester" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label>Semester Number</label><br>
+                <input type="number" name="number" placeholder="1" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <button type="submit">Create Semester</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Create Course</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_course">
+
+            <p>
+                <label>Department</label><br>
+                <select name="department" required style="width: 100%; padding: 8px;">
+                    <option value="">Select Department</option>
+                    {% for department in departments %}
+                        <option value="{{ department.id }}">{{ department.code }} - {{ department.name }}</option>
+                    {% empty %}
+                        <option value="">No department found</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p>
+                <label>Course Code</label><br>
+                <input type="text" name="code" placeholder="CSE101" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label>Course Title</label><br>
+                <input type="text" name="title" placeholder="Introduction to Programming" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label>Credit</label><br>
+                <input type="number" step="0.01" name="credit" placeholder="3.00" required style="width: 100%; padding: 8px;">
+            </p>
+
+            <p>
+                <label>Semester</label><br>
+                <select name="semester" required style="width: 100%; padding: 8px;">
+                    <option value="">Select Semester</option>
+                    {% for semester in semesters %}
+                        <option value="{{ semester.id }}">{{ semester.name }}</option>
+                    {% empty %}
+                        <option value="">No semester found</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <button type="submit">Create Course</button>
+        </form>
+    </div>
+
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h3>Create Course Offering</h3>
+
+    <p>
+        A course offering connects a course with a batch, semester, section, and faculty.
+        This is what makes the course appear for faculty, students, and exam controller.
+    </p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_course_offering">
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+
+            <p>
+                <label>Course</label><br>
+                <select name="course" required style="width: 100%; padding: 8px;">
+                    <option value="">Select Course</option>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">
+                            {{ course.code }} - {{ course.title }}
+                        </option>
+                    {% empty %}
+                        <option value="">No course found</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p>
+                <label>Faculty</label><br>
+                <select name="faculty" style="width: 100%; padding: 8px;">
+                    <option value="">Not assigned</option>
+                    {% for faculty in faculty_users %}
+                        <option value="{{ faculty.id }}">
+                            {{ faculty.get_full_name|default:faculty.username }}
+                        </option>
+                    {% empty %}
+                        <option value="">No faculty found</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p>
+                <label>Batch</label><br>
+                <select name="batch" required style="width: 100%; padding: 8px;">
+                    <option value="">Select Batch</option>
+                    {% for batch in batches %}
+                        <option value="{{ batch.id }}">
+                            {{ batch.department.code }} - {{ batch.batch_name }}
+                        </option>
+                    {% empty %}
+                        <option value="">No batch found</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p>
+                <label>Semester</label><br>
+                <select name="semester" required style="width: 100%; padding: 8px;">
+                    <option value="">Select Semester</option>
+                    {% for semester in semesters %}
+                        <option value="{{ semester.id }}">{{ semester.name }}</option>
+                    {% empty %}
+                        <option value="">No semester found</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p>
+                <label>Section</label><br>
+                <input type="text" name="section" value="A" style="width: 100%; padding: 8px;">
+            </p>
+
+            <p style="padding-top: 25px;">
+                <label>
+                    <input type="checkbox" name="is_active" checked>
+                    Active Offering
+                </label>
+            </p>
+
+        </div>
+
+        <button type="submit">Create Course Offering</button>
+    </form>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h3>Departments</h3>
+
+    <table width="100%" border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+        </tr>
+
+        {% for department in departments %}
+            <tr>
+                <td>{{ department.code }}</td>
+                <td>{{ department.name }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2">No department found.</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h3>Batches</h3>
+
+    <table width="100%" border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>Department</th>
+            <th>Batch</th>
+            <th>Admission Year</th>
+        </tr>
+
+        {% for batch in batches %}
+            <tr>
+                <td>{{ batch.department.code }}</td>
+                <td>{{ batch.batch_name }}</td>
+                <td>{{ batch.admission_year }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3">No batch found.</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h3>Semesters</h3>
+
+    <table width="100%" border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>Number</th>
+            <th>Name</th>
+        </tr>
+
+        {% for semester in semesters %}
+            <tr>
+                <td>{{ semester.number }}</td>
+                <td>{{ semester.name }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2">No semester found.</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h3>Courses</h3>
+
+    <table width="100%" border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>Department</th>
+            <th>Course Code</th>
+            <th>Title</th>
+            <th>Credit</th>
+            <th>Semester</th>
+        </tr>
+
+        {% for course in courses %}
+            <tr>
+                <td>{{ course.department.code }}</td>
+                <td>{{ course.code }}</td>
+                <td>{{ course.title }}</td>
+                <td>{{ course.credit }}</td>
+                <td>{{ course.semester.name }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">No course found.</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h3>Course Offerings</h3>
+
+    <table width="100%" border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>Course</th>
+            <th>Batch</th>
+            <th>Semester</th>
+            <th>Section</th>
+            <th>Faculty</th>
+            <th>Status</th>
+        </tr>
+
+        {% for offering in course_offerings %}
+            <tr>
+                <td>{{ offering.course.code }} - {{ offering.course.title }}</td>
+                <td>{{ offering.batch }}</td>
+                <td>{{ offering.semester }}</td>
+                <td>{{ offering.section }}</td>
+                <td>
+                    {% if offering.faculty %}
+                        {{ offering.faculty.get_full_name|default:offering.faculty.username }}
+                    {% else %}
+                        Not assigned
+                    {% endif %}
+                </td>
+                <td>
+                    {% if offering.is_active %}
+                        Active
+                    {% else %}
+                        Inactive
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">No course offering found.</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

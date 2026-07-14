@@ -1,0 +1,843 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .result-detail-page {
+        width: 100%;
+        max-width: 1180px;
+        margin: 0 auto;
+        display: grid;
+        gap: 16px;
+    }
+
+    body:not(.sidebar-collapsed) .result-detail-page {
+        max-width: 1080px;
+    }
+
+    body.sidebar-collapsed .result-detail-page {
+        max-width: 1240px;
+    }
+
+    .rd-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: none;
+    }
+
+    .rd-hero {
+        padding: 24px;
+    }
+
+    .rd-kicker {
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .rd-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.6vw, 46px);
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+    }
+
+    .rd-subtitle {
+        margin-top: 10px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 650;
+    }
+
+    .rd-actions {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .rd-panel {
+        padding: 20px 22px;
+    }
+
+    .rd-filter-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .rd-info-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    .rd-info-cell {
+        padding: 16px;
+        border-right: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .rd-info-cell:last-child {
+        border-right: none;
+    }
+
+    .rd-info-label {
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .rd-info-value {
+        margin-top: 7px;
+        color: #0f172a;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .rd-semester-card {
+        padding: 20px 22px;
+        scroll-margin-top: 96px;
+    }
+
+    .rd-semester-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .rd-semester-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+    }
+
+    .rd-semester-meta {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 650;
+    }
+
+    .rd-semester-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .rd-count-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .rd-download-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 10px;
+        background: #047857;
+        border: 1px solid #047857;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .rd-download-btn:hover {
+        background: #065f46;
+        border-color: #065f46;
+        color: #ffffff;
+    }
+
+    .rd-course-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .result-course-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #ffffff;
+        padding: 16px;
+    }
+
+    .result-course-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    .course-title {
+        color: #0f172a;
+        font-size: 17px;
+        line-height: 1.3;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+    }
+
+    .course-meta {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .result-status-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .status-pill.success {
+        background: #ecfdf5;
+        border: 1px solid #bbf7d0;
+        color: #047857;
+    }
+
+    .status-pill.warning {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        color: #b45309;
+    }
+
+    .correction-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 10px;
+        background: #9f1c1c;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .correction-btn:hover {
+        background: #7f1717;
+        color: #ffffff;
+    }
+
+    .result-marks-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fafc;
+    }
+
+    .result-mark-cell {
+        padding: 12px;
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .result-mark-cell:last-child {
+        border-right: none;
+    }
+
+    .result-mark-label {
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .result-mark-value {
+        margin-top: 5px;
+        color: #0f172a;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .result-meta-grid {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .meta-box {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px;
+        background: #ffffff;
+    }
+
+    .meta-label {
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .meta-value {
+        margin-top: 5px;
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .meta-muted {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .empty-state {
+        padding: 30px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        background: #f8fafc;
+        text-align: center;
+    }
+
+    .empty-title {
+        color: #0f172a;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .empty-text {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    @media (max-width: 1100px) {
+        .rd-info-grid,
+        .result-meta-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .rd-info-cell {
+            border-right: none;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .result-marks-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .result-mark-cell {
+            border-bottom: 1px solid #e2e8f0;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .rd-filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .rd-info-grid,
+        .result-marks-grid,
+        .result-meta-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .rd-semester-head,
+        .result-course-head {
+            flex-direction: column;
+        }
+
+        .rd-semester-actions,
+        .result-status-row {
+            justify-content: flex-start;
+        }
+
+        .result-mark-cell {
+            border-right: none;
+        }
+
+        .rd-panel,
+        .rd-hero,
+        .rd-semester-card {
+            padding: 18px;
+        }
+    }
+</style>
+
+<div class="result-detail-page">
+
+    <section class="rd-card rd-hero">
+        <div class="rd-kicker">Student Result Detail</div>
+
+        <h1 class="rd-title">
+            {{ student.user.get_full_name|default:student.user.username }}
+        </h1>
+
+        <div class="rd-subtitle">
+            {{ student.student_id }}
+            {% if student.department %} · {{ student.department }}{% endif %}
+            {% if student.batch %} · {{ student.batch }}{% endif %}
+            {% if student.current_semester %} · {{ student.current_semester }}{% endif %}
+        </div>
+
+        <div class="rd-actions">
+            <a href="{% url 'exam_manage_student_results' %}" class="btn-secondary">
+                ← Back to Manage Results
+            </a>
+
+            {% if selected_semester_id %}
+                <a
+                    href="{% url 'download_semester_transcript' %}?student={{ student.id }}&semester={{ selected_semester_id }}"
+                    class="rd-download-btn"
+                >
+                    Download Selected Semester Transcript
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="rd-card rd-panel">
+        <div class="rd-info-grid">
+            <div class="rd-info-cell">
+                <div class="rd-info-label">Student ID</div>
+                <div class="rd-info-value">{{ student.student_id }}</div>
+            </div>
+
+            <div class="rd-info-cell">
+                <div class="rd-info-label">Department</div>
+                <div class="rd-info-value">{{ student.department|default:"Not set" }}</div>
+            </div>
+
+            <div class="rd-info-cell">
+                <div class="rd-info-label">Batch</div>
+                <div class="rd-info-value">{{ student.batch|default:"Not set" }}</div>
+            </div>
+
+            <div class="rd-info-cell">
+                <div class="rd-info-label">Current Semester</div>
+                <div class="rd-info-value">{{ student.current_semester|default:"Not set" }}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="rd-card rd-panel">
+        <form method="GET" class="rd-filter-form">
+            <div>
+                <label>Semester</label>
+                <select name="semester" class="input-control mt-2" onchange="this.form.submit()">
+                    <option value="">All semesters</option>
+                    {% for semester in semesters %}
+                        <option value="{{ semester.id }}"
+                            {% if selected_semester_id|stringformat:"s" == semester.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ semester }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label>Exam Type</label>
+                <select name="exam_type" class="input-control mt-2">
+                    <option value="">All exam types</option>
+                    <option value="midterm" {% if selected_exam_type == 'midterm' %}selected{% endif %}>
+                        Midterm
+                    </option>
+                    <option value="final" {% if selected_exam_type == 'final' %}selected{% endif %}>
+                        Final
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                Apply Filter
+            </button>
+
+            <a href="{% url 'exam_student_result_detail' student.id %}" class="btn-secondary">
+                Reset
+            </a>
+        </form>
+    </section>
+
+    {% if semester_groups %}
+
+        {% for semester_group in semester_groups %}
+            <section
+                class="rd-card rd-semester-card"
+                id="semester-{{ semester_group.semester.id }}"
+            >
+                <div class="rd-semester-head">
+                    <div>
+                        <h2 class="rd-semester-title">
+                            {{ semester_group.semester|default:"No Semester" }}
+                        </h2>
+
+                        <div class="rd-semester-meta">
+                            Semester credits:
+                            {{ semester_group.semester_total_credits|default:"0" }}
+
+                            {% if semester_group.semester_cgpa %}
+                                · Semester CGPA: {{ semester_group.semester_cgpa }}
+                            {% else %}
+                                · Semester CGPA: Not available
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="rd-semester-actions">
+                        <span class="rd-count-pill">
+                            {{ semester_group.rows|length }} Record{{ semester_group.rows|length|pluralize }}
+                        </span>
+
+                        {% if semester_group.semester %}
+                            <a
+                                href="{% url 'download_semester_transcript' %}?student={{ student.id }}&semester={{ semester_group.semester.id }}"
+                                class="rd-download-btn"
+                            >
+                                Download Transcript
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="rd-course-list">
+                    {% for row in semester_group.rows %}
+                        <article class="result-course-card">
+
+                            <div class="result-course-head">
+                                <div>
+                                    <div class="course-title">
+                                        {{ row.mark.course_offering.course.code }} · {{ row.mark.course_offering.course.title }}
+                                    </div>
+
+                                    <div class="course-meta">
+                                        Credit: {{ row.mark.course_offering.course.credit|default:"0" }}
+
+                                        {% if row.mark.course_offering.faculty %}
+                                            · Course Teacher:
+                                            {{ row.mark.course_offering.faculty.get_full_name|default:row.mark.course_offering.faculty.username }}
+                                        {% else %}
+                                            · Course Teacher: Not assigned
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="result-status-row">
+                                    {% if selected_exam_type == 'midterm' %}
+                                        {% if row.midterm_publication and row.midterm_publication.is_published %}
+                                            <span class="status-pill success">Midterm Published</span>
+                                        {% else %}
+                                            <span class="status-pill warning">Midterm Not Published</span>
+                                        {% endif %}
+                                    {% elif selected_exam_type == 'final' %}
+                                        {% if row.final_publication and row.final_publication.is_published %}
+                                            <span class="status-pill success">Final Published</span>
+                                        {% else %}
+                                            <span class="status-pill warning">Final Not Published</span>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if row.midterm_publication and row.midterm_publication.is_published %}
+                                            <span class="status-pill success">Midterm Published</span>
+                                        {% else %}
+                                            <span class="status-pill warning">Midterm Not Published</span>
+                                        {% endif %}
+
+                                        {% if row.final_publication and row.final_publication.is_published %}
+                                            <span class="status-pill success">Final Published</span>
+                                        {% else %}
+                                            <span class="status-pill warning">Final Not Published</span>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <a href="{% url 'exam_result_correction_request' row.mark.id %}" class="correction-btn">
+                                        Request Correction
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="result-marks-grid">
+                                <div class="result-mark-cell">
+                                    <div class="result-mark-label">Quiz/CT</div>
+                                    <div class="result-mark-value">{{ row.mark.class_test }}/15</div>
+                                </div>
+
+                                <div class="result-mark-cell">
+                                    <div class="result-mark-label">Assignment</div>
+                                    <div class="result-mark-value">{{ row.mark.assignment }}/15</div>
+                                </div>
+
+                                <div class="result-mark-cell">
+                                    <div class="result-mark-label">Attendance</div>
+                                    <div class="result-mark-value">{{ row.mark.attendance }}/15</div>
+                                </div>
+
+                                <div class="result-mark-cell">
+                                    <div class="result-mark-label">Midterm</div>
+                                    <div class="result-mark-value">{{ row.mark.midterm }}/45</div>
+                                </div>
+
+                                <div class="result-mark-cell">
+                                    <div class="result-mark-label">Final</div>
+                                    <div class="result-mark-value">{{ row.mark.final }}/60</div>
+                                </div>
+
+                                <div class="result-mark-cell">
+                                    <div class="result-mark-label">Total</div>
+                                    <div class="result-mark-value">
+                                        {{ row.mark.total }}/100
+                                        <div class="meta-muted">Raw {{ row.mark.raw_total }}/150</div>
+                                    </div>
+                                </div>
+
+                                <div class="result-mark-cell">
+                                    <div class="result-mark-label">Grade</div>
+                                    <div class="result-mark-value">
+                                        {{ row.mark.grade }} · GP {{ row.mark.grade_point }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="result-meta-grid">
+
+                                <div class="meta-box">
+                                    <div class="meta-label">Submitted By</div>
+
+                                    {% if row.mark.submitted_by %}
+                                        <div class="meta-value">
+                                            {{ row.mark.submitted_by.get_full_name|default:row.mark.submitted_by.username }}
+                                        </div>
+
+                                        <div class="meta-muted">
+                                            {% if row.mark.submitted_by.staff_department %}
+                                                {{ row.mark.submitted_by.staff_department }}
+                                            {% elif row.mark.course_offering.course.department %}
+                                                {{ row.mark.course_offering.course.department.code|default:row.mark.course_offering.course.department.name }}
+                                            {% else %}
+                                                Department not set
+                                            {% endif %}
+
+                                            {% if row.mark.submitted_by.designation %}
+                                                · {{ row.mark.submitted_by.designation }}
+                                            {% else %}
+                                                · {{ row.mark.submitted_by.get_role_display }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="meta-muted">
+                                            {% if row.mark.submitted_at %}
+                                                Submitted on {{ row.mark.submitted_at }}
+                                            {% else %}
+                                                Existing record
+                                            {% endif %}
+                                        </div>
+
+                                    {% elif row.mark.course_offering.faculty %}
+                                        <div class="meta-value">
+                                            {{ row.mark.course_offering.faculty.get_full_name|default:row.mark.course_offering.faculty.username }}
+                                        </div>
+
+                                        <div class="meta-muted">
+                                            {% if row.mark.course_offering.faculty.staff_department %}
+                                                {{ row.mark.course_offering.faculty.staff_department }}
+                                            {% elif row.mark.course_offering.course.department %}
+                                                {{ row.mark.course_offering.course.department.code|default:row.mark.course_offering.course.department.name }}
+                                            {% else %}
+                                                Department not set
+                                            {% endif %}
+
+                                            {% if row.mark.course_offering.faculty.designation %}
+                                                · {{ row.mark.course_offering.faculty.designation }}
+                                            {% else %}
+                                                · {{ row.mark.course_offering.faculty.get_role_display }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="meta-muted">Existing record</div>
+                                    {% else %}
+                                        <div class="meta-value">Not tracked</div>
+                                        <div class="meta-muted">-</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="meta-box">
+                                    <div class="meta-label">Last Updated By</div>
+
+                                    {% if row.mark.last_updated_by %}
+                                        <div class="meta-value">
+                                            {{ row.mark.last_updated_by.get_full_name|default:row.mark.last_updated_by.username }}
+                                        </div>
+
+                                        <div class="meta-muted">
+                                            {% if row.mark.last_updated_by.staff_department %}
+                                                {{ row.mark.last_updated_by.staff_department }}
+                                            {% elif row.mark.course_offering.course.department %}
+                                                {{ row.mark.course_offering.course.department.code|default:row.mark.course_offering.course.department.name }}
+                                            {% else %}
+                                                Department not set
+                                            {% endif %}
+
+                                            {% if row.mark.last_updated_by.designation %}
+                                                · {{ row.mark.last_updated_by.designation }}
+                                            {% else %}
+                                                · {{ row.mark.last_updated_by.get_role_display }}
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <div class="meta-value">Not tracked</div>
+                                    {% endif %}
+
+                                    <div class="meta-muted">
+                                        {% if row.mark.last_updated_at %}
+                                            {{ row.mark.last_updated_at }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="meta-box">
+                                    <div class="meta-label">Midterm Published By</div>
+
+                                    {% if row.midterm_publication and row.midterm_publication.published_by %}
+                                        <div class="meta-value">
+                                            {{ row.midterm_publication.published_by.get_full_name|default:row.midterm_publication.published_by.username }}
+                                        </div>
+
+                                        <div class="meta-muted">
+                                            {% if row.midterm_publication.published_by.staff_department %}
+                                                {{ row.midterm_publication.published_by.staff_department }}
+                                            {% else %}
+                                                Exam Office
+                                            {% endif %}
+
+                                            {% if row.midterm_publication.published_by.designation %}
+                                                · {{ row.midterm_publication.published_by.designation }}
+                                            {% else %}
+                                                · {{ row.midterm_publication.published_by.get_role_display }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="meta-muted">{{ row.midterm_publication.published_at }}</div>
+                                    {% else %}
+                                        <div class="meta-value">Not published</div>
+                                        <div class="meta-muted">-</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="meta-box">
+                                    <div class="meta-label">Final Published By</div>
+
+                                    {% if row.final_publication and row.final_publication.published_by %}
+                                        <div class="meta-value">
+                                            {{ row.final_publication.published_by.get_full_name|default:row.final_publication.published_by.username }}
+                                        </div>
+
+                                        <div class="meta-muted">
+                                            {% if row.final_publication.published_by.staff_department %}
+                                                {{ row.final_publication.published_by.staff_department }}
+                                            {% else %}
+                                                Exam Office
+                                            {% endif %}
+
+                                            {% if row.final_publication.published_by.designation %}
+                                                · {{ row.final_publication.published_by.designation }}
+                                            {% else %}
+                                                · {{ row.final_publication.published_by.get_role_display }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="meta-muted">{{ row.final_publication.published_at }}</div>
+                                    {% else %}
+                                        <div class="meta-value">Not published</div>
+                                        <div class="meta-muted">-</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+
+    {% else %}
+
+        <section class="rd-card rd-panel">
+            <div class="empty-state">
+                <div class="empty-title">No result record found</div>
+                <div class="empty-text">
+                    No submitted marks were found for this student using the selected filters.
+                </div>
+            </div>
+        </section>
+
+    {% endif %}
+
+</div>
+
+{% if selected_semester_id %}
+<script>
+    window.addEventListener("load", function () {
+        const target = document.getElementById("semester-{{ selected_semester_id }}");
+        if (target) {
+            target.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    });
+</script>
+{% endif %}
+
+{% endblock %}

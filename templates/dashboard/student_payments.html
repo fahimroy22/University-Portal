@@ -1,0 +1,1476 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .payments-page {
+        --pay-ink: #0f172a;
+        --pay-text: #334155;
+        --pay-muted: #64748b;
+        --pay-faint: #94a3b8;
+
+        --pay-line: #e2e8f0;
+        --pay-line-soft: #eef2f7;
+        --pay-canvas: #f8fafc;
+        --pay-surface: #ffffff;
+
+        --pay-accent: #9f1c1c;
+        --pay-accent-dark: #7f1717;
+        --pay-accent-soft: #fff1f2;
+        --pay-accent-line: #fecaca;
+
+        --pay-success: #047857;
+        --pay-success-soft: #ecfdf5;
+        --pay-success-line: #bbf7d0;
+
+        --pay-warning: #b45309;
+        --pay-warning-soft: #fffbeb;
+        --pay-warning-line: #fde68a;
+
+        --pay-danger: #dc2626;
+        --pay-danger-soft: #fef2f2;
+        --pay-danger-line: #fecaca;
+
+        --pay-blue: #2563eb;
+        --pay-blue-soft: #eff6ff;
+        --pay-blue-line: #bfdbfe;
+
+        width: min(100%, 1180px);
+        margin: 0 auto;
+        display: grid;
+        gap: 22px;
+    }
+
+    .payments-page,
+    .payments-page * {
+        box-sizing: border-box;
+    }
+
+    .payments-page a {
+        text-decoration: none;
+    }
+
+    .pay-surface {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        background: var(--pay-surface);
+        border: 1px solid var(--pay-line);
+        border-radius: 28px;
+        overflow: hidden;
+    }
+
+    .pay-tabular {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* =========================================================
+       SHARED
+    ========================================================= */
+
+    .pay-kicker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: var(--pay-accent-soft);
+        color: var(--pay-accent-dark);
+        border: 1px solid var(--pay-accent-line);
+        font-size: 10.5px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .pay-section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .pay-section-eyebrow {
+        color: var(--pay-accent);
+        font-size: 10.5px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+    }
+
+    .pay-section-title {
+        margin: 7px 0 0;
+        color: var(--pay-ink);
+        font-size: 27px;
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: -0.045em;
+    }
+
+    .pay-section-subtitle {
+        margin: 8px 0 0;
+        max-width: 760px;
+        color: var(--pay-muted);
+        font-size: 14px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    .pay-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 0 11px;
+        border-radius: 999px;
+        border: 1px solid var(--pay-line);
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .pay-chip.brand {
+        background: var(--pay-accent-soft);
+        border-color: var(--pay-accent-line);
+        color: var(--pay-accent-dark);
+    }
+
+    .pay-chip.success {
+        background: var(--pay-success-soft);
+        border-color: var(--pay-success-line);
+        color: var(--pay-success);
+    }
+
+    .pay-chip.warning {
+        background: var(--pay-warning-soft);
+        border-color: var(--pay-warning-line);
+        color: var(--pay-warning);
+    }
+
+    .pay-chip.danger {
+        background: var(--pay-danger-soft);
+        border-color: var(--pay-danger-line);
+        color: var(--pay-danger);
+    }
+
+    .pay-empty {
+        padding: 34px 24px;
+        border-radius: 20px;
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        text-align: center;
+    }
+
+    .pay-empty-title {
+        color: var(--pay-ink);
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    .pay-empty-text {
+        margin-top: 6px;
+        color: var(--pay-muted);
+        font-size: 13px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .payments-hero {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+        gap: 28px;
+        align-items: center;
+        padding: 34px;
+        background:
+            radial-gradient(circle at 0% 100%, rgba(219, 234, 254, 0.56), transparent 34%),
+            radial-gradient(circle at 100% 0%, rgba(255, 228, 230, 0.74), transparent 34%),
+            linear-gradient(135deg, #ffffff 0%, #fffafb 100%);
+    }
+
+    .payments-title {
+        margin: 16px 0 0;
+        color: #020617;
+        font-size: clamp(34px, 5vw, 54px);
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+    }
+
+    .payments-subtitle {
+        margin-top: 14px;
+        max-width: 720px;
+        color: var(--pay-muted);
+        font-size: 15px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .payments-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .soft-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 15px;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 1px solid var(--pay-line);
+        color: var(--pay-ink);
+        font-size: 13px;
+        font-weight: 850;
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .soft-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    .status-summary {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+        padding: 22px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--pay-line);
+    }
+
+    .status-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 17px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: 950;
+    }
+
+    .status-icon.clear {
+        background: var(--pay-success);
+    }
+
+    .status-icon.due {
+        background: var(--pay-danger);
+    }
+
+    .status-kicker {
+        color: var(--pay-faint);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .status-title {
+        margin-top: 5px;
+        font-size: 24px;
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .status-title.clear {
+        color: var(--pay-success);
+    }
+
+    .status-title.due {
+        color: var(--pay-danger);
+    }
+
+    .status-desc {
+        margin-top: 7px;
+        color: var(--pay-muted);
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       FINANCE METRICS
+    ========================================================= */
+
+    .finance-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .finance-card {
+        min-width: 0;
+        min-height: 116px;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+        padding: 18px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid var(--pay-line);
+        transition:
+            border-color 0.15s ease,
+            transform 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .finance-card:hover {
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.05);
+    }
+
+    .finance-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid var(--pay-line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 950;
+        flex: none;
+    }
+
+    .finance-icon.brand {
+        background: var(--pay-accent-soft);
+        color: var(--pay-accent);
+        border-color: var(--pay-accent-line);
+    }
+
+    .finance-icon.green {
+        background: var(--pay-success-soft);
+        color: var(--pay-success);
+        border-color: var(--pay-success-line);
+    }
+
+    .finance-icon.red {
+        background: var(--pay-danger-soft);
+        color: var(--pay-danger);
+        border-color: var(--pay-danger-line);
+    }
+
+    .finance-label {
+        color: var(--pay-faint);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .finance-value {
+        margin-top: 7px;
+        color: var(--pay-ink);
+        font-size: 22px;
+        line-height: 1.05;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+        overflow-wrap: anywhere;
+    }
+
+    /* =========================================================
+       PANEL
+    ========================================================= */
+
+    .panel-card {
+        padding: 28px;
+    }
+
+    /* =========================================================
+       PROGRAM PROFILE
+    ========================================================= */
+
+    .program-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        border: 1px solid var(--pay-line);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .program-item {
+        min-width: 0;
+        padding: 18px;
+        border-right: 1px solid var(--pay-line-soft);
+    }
+
+    .program-item:last-child {
+        border-right: none;
+    }
+
+    .mini-label {
+        color: var(--pay-faint);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .mini-value {
+        margin-top: 7px;
+        color: var(--pay-ink);
+        font-size: 15px;
+        line-height: 1.45;
+        font-weight: 850;
+        overflow-wrap: anywhere;
+    }
+
+    /* =========================================================
+       FEE LIST
+    ========================================================= */
+
+    .fee-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .fee-card {
+        border: 1px solid var(--pay-line);
+        border-radius: 22px;
+        background: #ffffff;
+        overflow: hidden;
+    }
+
+    .fee-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 17px 18px;
+        border-bottom: 1px solid var(--pay-line-soft);
+        background: #ffffff;
+    }
+
+    .card-title {
+        color: var(--pay-ink);
+        font-size: 17px;
+        line-height: 1.3;
+        font-weight: 900;
+    }
+
+    .card-subtitle {
+        margin-top: 4px;
+        color: var(--pay-muted);
+        font-size: 12.5px;
+        font-weight: 650;
+    }
+
+    .fee-card-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .fee-data-item {
+        min-width: 0;
+        padding: 16px;
+        border-right: 1px solid var(--pay-line-soft);
+    }
+
+    .fee-data-item:last-child {
+        border-right: none;
+    }
+
+    .badge-paid,
+    .badge-partial,
+    .badge-unpaid {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 30px;
+        padding: 0 11px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .badge-paid {
+        background: var(--pay-success-soft);
+        color: var(--pay-success);
+    }
+
+    .badge-partial {
+        background: var(--pay-warning-soft);
+        color: var(--pay-warning);
+    }
+
+    .badge-unpaid {
+        background: var(--pay-danger-soft);
+        color: var(--pay-danger);
+    }
+
+    /* =========================================================
+       PAYMENTS LIST
+    ========================================================= */
+
+    .payment-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .payment-card {
+        display: grid;
+        grid-template-columns: 110px 140px minmax(140px, 1fr) minmax(220px, 2fr) auto;
+        gap: 0;
+        align-items: stretch;
+        border: 1px solid var(--pay-line);
+        border-radius: 20px;
+        background: #ffffff;
+        overflow: hidden;
+    }
+
+    .payment-data-item {
+        min-width: 0;
+        padding: 17px;
+        border-right: 1px solid var(--pay-line-soft);
+    }
+
+    .payment-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px;
+    }
+
+    .receipt-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: 11px;
+        background: var(--pay-accent);
+        color: #ffffff;
+        font-size: 12.5px;
+        font-weight: 900;
+        white-space: nowrap;
+        transition:
+            background 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .receipt-button:hover {
+        background: var(--pay-accent-dark);
+        transform: translateY(-1px);
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1180px) {
+        .payments-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .status-summary {
+            max-width: 520px;
+        }
+
+        .finance-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .program-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .program-item:nth-child(2) {
+            border-right: none;
+        }
+
+        .program-item:nth-child(1),
+        .program-item:nth-child(2) {
+            border-bottom: 1px solid var(--pay-line-soft);
+        }
+
+        .fee-card-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .fee-data-item:nth-child(3) {
+            border-right: none;
+        }
+
+        .fee-data-item:nth-child(1),
+        .fee-data-item:nth-child(2),
+        .fee-data-item:nth-child(3) {
+            border-bottom: 1px solid var(--pay-line-soft);
+        }
+
+        .payment-card {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .payment-data-item {
+            border-bottom: 1px solid var(--pay-line-soft);
+        }
+
+        .payment-data-item:nth-child(2n) {
+            border-right: none;
+        }
+
+        .payment-action {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .payments-page {
+            gap: 16px;
+        }
+
+        .pay-surface {
+            border-radius: 22px;
+        }
+
+        /* HERO */
+
+        .payments-hero {
+            padding: 22px 18px;
+            gap: 20px;
+        }
+
+        .pay-kicker {
+            min-height: 29px;
+            padding: 0 10px;
+            font-size: 9.5px;
+        }
+
+        .payments-title {
+            margin-top: 13px;
+            font-size: clamp(32px, 10vw, 39px);
+            line-height: 1.02;
+        }
+
+        .payments-subtitle {
+            margin-top: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .payments-hero-actions {
+            margin-top: 18px;
+        }
+
+        .soft-button {
+            width: 100%;
+        }
+
+        .status-summary {
+            width: 100%;
+            max-width: none;
+            grid-template-columns: 44px minmax(0, 1fr);
+            padding: 16px;
+            border-radius: 18px;
+        }
+
+        .status-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            font-size: 17px;
+        }
+
+        .status-title {
+            font-size: 21px;
+        }
+
+        /* SUMMARY METRICS */
+
+        .finance-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .finance-card {
+            min-height: 104px;
+            padding: 14px;
+            grid-template-columns: 38px minmax(0, 1fr);
+            gap: 10px;
+            border-radius: 18px;
+        }
+
+        .finance-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+        }
+
+        .finance-label {
+            font-size: 8.5px;
+            letter-spacing: 0.1em;
+        }
+
+        .finance-value {
+            margin-top: 6px;
+            font-size: 17px;
+            line-height: 1.12;
+        }
+
+        /* PANELS */
+
+        .panel-card {
+            padding: 20px 16px;
+        }
+
+        .pay-section-header {
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .pay-section-title {
+            font-size: 24px;
+        }
+
+        .pay-section-subtitle {
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        /* PROGRAM PROFILE */
+
+        .program-grid {
+            grid-template-columns: 1fr 1fr;
+            border-radius: 16px;
+        }
+
+        .program-item {
+            padding: 14px 12px;
+        }
+
+        .mini-label {
+            font-size: 8px;
+            letter-spacing: 0.1em;
+        }
+
+        .mini-value {
+            margin-top: 5px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* FEE CARD = MOBILE MINI TABLE */
+
+        .fee-card {
+            border-radius: 18px;
+        }
+
+        .fee-card-top {
+            padding: 14px;
+        }
+
+        .card-title {
+            font-size: 15px;
+        }
+
+        .card-subtitle {
+            font-size: 11.5px;
+        }
+
+        .fee-card-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .fee-data-item {
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .fee-data-item:nth-child(3) {
+            border-right: none;
+        }
+
+        .fee-data-item:nth-child(1),
+        .fee-data-item:nth-child(2),
+        .fee-data-item:nth-child(3) {
+            border-bottom: 1px solid var(--pay-line-soft);
+        }
+
+        .fee-data-item:nth-child(6) {
+            border-right: none;
+        }
+
+        .badge-paid,
+        .badge-partial,
+        .badge-unpaid {
+            min-height: 27px;
+            padding: 0 9px;
+            font-size: 10.5px;
+        }
+
+        /* PAYMENT HISTORY = COMPACT MOBILE ROW */
+
+        .payment-card {
+            grid-template-columns: 1fr 1fr;
+            border-radius: 18px;
+        }
+
+        .payment-data-item {
+            padding: 13px 11px;
+        }
+
+        .payment-data-item:nth-child(2n) {
+            border-right: none;
+        }
+
+        .payment-data-item:nth-child(3) {
+            border-right: 1px solid var(--pay-line-soft);
+        }
+
+        .payment-data-item:nth-child(4) {
+            border-right: none;
+        }
+
+        .payment-action {
+            grid-column: 1 / -1;
+            padding: 12px;
+        }
+
+        .receipt-button {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .finance-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .finance-card {
+            padding: 12px;
+            grid-template-columns: 34px minmax(0, 1fr);
+        }
+
+        .finance-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 11px;
+        }
+
+        .finance-value {
+            font-size: 15px;
+        }
+
+        .program-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .program-item {
+            border-right: none !important;
+            border-bottom: 1px solid var(--pay-line-soft);
+        }
+
+        .program-item:last-child {
+            border-bottom: none;
+        }
+
+        .fee-card-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .fee-data-item {
+            border-right: 1px solid var(--pay-line-soft);
+            border-bottom: 1px solid var(--pay-line-soft);
+        }
+
+        .fee-data-item:nth-child(2n) {
+            border-right: none;
+        }
+
+        .fee-data-item:nth-last-child(1),
+        .fee-data-item:nth-last-child(2) {
+            border-bottom: none;
+        }
+
+        .payment-card {
+            grid-template-columns: 1fr;
+        }
+
+        .payment-data-item {
+            border-right: none !important;
+            border-bottom: 1px solid var(--pay-line-soft);
+        }
+    }
+</style>
+
+
+<div class="payments-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="pay-surface payments-hero">
+
+        <div>
+            <div class="pay-kicker">
+                Finance Overview
+            </div>
+
+            <h1 class="payments-title">
+                Payments & Due
+            </h1>
+
+            <p class="payments-subtitle">
+                Review your assigned fees, waiver, payment history, outstanding balance,
+                credit balance, and downloadable money receipts.
+            </p>
+
+            <div class="payments-hero-actions">
+                <a
+                    href="{% url 'student_dashboard' %}"
+                    class="soft-button"
+                >
+                    ← Back to Overview
+                </a>
+            </div>
+        </div>
+
+
+        <aside class="status-summary">
+
+            {% if current_due <= 0 %}
+
+                <div class="status-icon clear">
+                    ✓
+                </div>
+
+                <div>
+                    <div class="status-kicker">
+                        Payment Status
+                    </div>
+
+                    <div class="status-title clear">
+                        Clear
+                    </div>
+
+                    <div class="status-desc">
+                        No current due.
+
+                        {% if credit_balance > 0 %}
+                            Credit:
+                            <strong>{{ credit_balance }} BDT</strong>.
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% else %}
+
+                <div class="status-icon due">
+                    !
+                </div>
+
+                <div>
+                    <div class="status-kicker">
+                        Payment Status
+                    </div>
+
+                    <div class="status-title due">
+                        Due Available
+                    </div>
+
+                    <div class="status-desc">
+                        Current outstanding balance:
+                        <strong>{{ current_due }} BDT</strong>.
+                    </div>
+                </div>
+
+            {% endif %}
+
+        </aside>
+
+    </section>
+
+
+    <!-- =====================================================
+         SUMMARY
+    ====================================================== -->
+
+    <section class="finance-grid">
+
+        <div class="finance-card">
+            <div class="finance-icon brand">
+                ৳
+            </div>
+
+            <div>
+                <div class="finance-label">
+                    Payable
+                </div>
+
+                <div class="finance-value pay-tabular">
+                    {{ total_payable }} BDT
+                </div>
+            </div>
+        </div>
+
+
+        <div class="finance-card">
+            <div class="finance-icon green">
+                ✓
+            </div>
+
+            <div>
+                <div class="finance-label">
+                    Paid
+                </div>
+
+                <div class="finance-value pay-tabular">
+                    {{ total_paid }} BDT
+                </div>
+            </div>
+        </div>
+
+
+        <div class="finance-card">
+            <div class="finance-icon">
+                −
+            </div>
+
+            <div>
+                <div class="finance-label">
+                    Waiver
+                </div>
+
+                <div class="finance-value pay-tabular">
+                    {{ total_waiver }} BDT
+                </div>
+            </div>
+        </div>
+
+
+        <div class="finance-card">
+
+            {% if current_due <= 0 %}
+                <div class="finance-icon green">
+                    0
+                </div>
+            {% else %}
+                <div class="finance-icon red">
+                    !
+                </div>
+            {% endif %}
+
+            <div>
+                <div class="finance-label">
+                    Due
+                </div>
+
+                <div class="finance-value pay-tabular">
+                    {{ current_due }} BDT
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="finance-card">
+            <div class="finance-icon">
+                +
+            </div>
+
+            <div>
+                <div class="finance-label">
+                    Credit
+                </div>
+
+                <div class="finance-value pay-tabular">
+                    {{ credit_balance }} BDT
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PROGRAM FINANCE PROFILE
+    ====================================================== -->
+
+    {% if financial_profile %}
+
+        <section class="pay-surface panel-card">
+
+            <div class="pay-section-header">
+
+                <div>
+                    <div class="pay-section-eyebrow">
+                        Finance Setup
+                    </div>
+
+                    <h2 class="pay-section-title">
+                        Program Finance Profile
+                    </h2>
+
+                    <p class="pay-section-subtitle">
+                        Your assigned program, admission category, GPA profile,
+                        and program fee after applicable waiver.
+                    </p>
+                </div>
+
+                <span class="pay-chip brand">
+                    Program
+                </span>
+
+            </div>
+
+
+            <div class="program-grid">
+
+                <div class="program-item">
+                    <div class="mini-label">
+                        Program
+                    </div>
+
+                    <div class="mini-value">
+                        {{ financial_profile.program_fee.program_name|default:"-" }}
+                    </div>
+                </div>
+
+
+                <div class="program-item">
+                    <div class="mini-label">
+                        Admission Category
+                    </div>
+
+                    <div class="mini-value">
+                        {{ financial_profile.get_admission_category_display }}
+                    </div>
+                </div>
+
+
+                <div class="program-item">
+                    <div class="mini-label">
+                        Combined GPA
+                    </div>
+
+                    <div class="mini-value pay-tabular">
+                        {{ financial_profile.combined_gpa }}
+                    </div>
+                </div>
+
+
+                <div class="program-item">
+                    <div class="mini-label">
+                        Grand Total
+                    </div>
+
+                    <div class="mini-value pay-tabular">
+                        {{ financial_profile.grand_total_after_waiver }} BDT
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         SEMESTER-WISE FEES
+    ====================================================== -->
+
+    <section class="pay-surface panel-card">
+
+        <div class="pay-section-header">
+
+            <div>
+                <div class="pay-section-eyebrow">
+                    Fee Ledger
+                </div>
+
+                <h2 class="pay-section-title">
+                    Semester-wise Fees
+                </h2>
+
+                <p class="pay-section-subtitle">
+                    Original amount, waiver, payable amount, paid amount,
+                    remaining due, and due date for each fee.
+                </p>
+            </div>
+
+
+            {% if student_fees %}
+                <span class="pay-chip">
+                    {{ student_fees|length }}
+                    Fee{{ student_fees|length|pluralize }}
+                </span>
+            {% else %}
+                <span class="pay-chip">
+                    No Fees
+                </span>
+            {% endif %}
+
+        </div>
+
+
+        {% if student_fees %}
+
+            <div class="fee-list">
+
+                {% for fee in student_fees %}
+
+                    <article class="fee-card">
+
+                        <div class="fee-card-top">
+
+                            <div>
+                                <div class="card-title">
+                                    {{ fee.fee_type.name }}
+                                </div>
+
+                                <div class="card-subtitle">
+                                    {{ fee.display_semester }}
+                                </div>
+                            </div>
+
+
+                            <span class="{{ fee.display_status_class }}">
+                                {{ fee.display_payment_status }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="fee-card-grid">
+
+                            <div class="fee-data-item">
+                                <div class="mini-label">
+                                    Original
+                                </div>
+
+                                <div class="mini-value pay-tabular">
+                                    {{ fee.display_original_amount }} BDT
+                                </div>
+                            </div>
+
+
+                            <div class="fee-data-item">
+                                <div class="mini-label">
+                                    Waiver
+                                </div>
+
+                                <div class="mini-value pay-tabular">
+                                    {{ fee.display_waiver_amount }} BDT
+                                </div>
+                            </div>
+
+
+                            <div class="fee-data-item">
+                                <div class="mini-label">
+                                    Payable
+                                </div>
+
+                                <div class="mini-value pay-tabular">
+                                    {{ fee.display_payable_amount }} BDT
+                                </div>
+                            </div>
+
+
+                            <div class="fee-data-item">
+                                <div class="mini-label">
+                                    Paid
+                                </div>
+
+                                <div class="mini-value pay-tabular">
+                                    {{ fee.display_paid_amount }} BDT
+                                </div>
+                            </div>
+
+
+                            <div class="fee-data-item">
+                                <div class="mini-label">
+                                    Due
+                                </div>
+
+                                <div class="mini-value pay-tabular">
+                                    {{ fee.display_due_amount }} BDT
+                                </div>
+                            </div>
+
+
+                            <div class="fee-data-item">
+                                <div class="mini-label">
+                                    Due Date
+                                </div>
+
+                                <div class="mini-value">
+                                    {{ fee.due_date|default:"-" }}
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="pay-empty">
+                <div class="pay-empty-title">
+                    No fee records found
+                </div>
+
+                <div class="pay-empty-text">
+                    Assigned semester and program fees will appear here.
+                </div>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         PAYMENT HISTORY
+    ====================================================== -->
+
+    <section class="pay-surface panel-card">
+
+        <div class="pay-section-header">
+
+            <div>
+                <div class="pay-section-eyebrow">
+                    Transaction History
+                </div>
+
+                <h2 class="pay-section-title">
+                    Payment History & Receipts
+                </h2>
+
+                <p class="pay-section-subtitle">
+                    Completed payments are listed here with downloadable official money receipts.
+                </p>
+            </div>
+
+
+            {% if payments %}
+                <span class="pay-chip success">
+                    {{ payments|length }}
+                    Payment{{ payments|length|pluralize }}
+                </span>
+            {% else %}
+                <span class="pay-chip">
+                    No Payments
+                </span>
+            {% endif %}
+
+        </div>
+
+
+        {% if payments %}
+
+            <div class="payment-list">
+
+                {% for payment in payments %}
+
+                    <article class="payment-card">
+
+                        <div class="payment-data-item">
+                            <div class="mini-label">
+                                Date
+                            </div>
+
+                            <div class="mini-value">
+                                {{ payment.payment_date }}
+                            </div>
+                        </div>
+
+
+                        <div class="payment-data-item">
+                            <div class="mini-label">
+                                Amount
+                            </div>
+
+                            <div class="mini-value pay-tabular">
+                                {{ payment.amount }} BDT
+                            </div>
+                        </div>
+
+
+                        <div class="payment-data-item">
+                            <div class="mini-label">
+                                Received By
+                            </div>
+
+                            <div class="mini-value">
+                                {{ payment.received_by|default:"-" }}
+                            </div>
+                        </div>
+
+
+                        <div class="payment-data-item">
+                            <div class="mini-label">
+                                Note
+                            </div>
+
+                            <div class="mini-value">
+                                {{ payment.note|default:"-" }}
+                            </div>
+                        </div>
+
+
+                        <div class="payment-action">
+                            <a
+                                href="{% url 'download_student_payment_receipt' payment.id %}"
+                                class="receipt-button"
+                            >
+                                Print Receipt
+                            </a>
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="pay-empty">
+                <div class="pay-empty-title">
+                    No payment records found
+                </div>
+
+                <div class="pay-empty-text">
+                    Completed payments and downloadable receipts will appear here.
+                </div>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

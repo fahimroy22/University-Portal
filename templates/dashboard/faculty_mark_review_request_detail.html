@@ -1,0 +1,2454 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .fmr-page {
+        --fmr-ink: #0f172a;
+        --fmr-text: #334155;
+        --fmr-muted: #64748b;
+        --fmr-faint: #94a3b8;
+
+        --fmr-line: #e2e8f0;
+        --fmr-line-soft: #eef2f7;
+        --fmr-canvas: #f8fafc;
+        --fmr-surface: #ffffff;
+
+        --fmr-accent: #9f1c1c;
+        --fmr-accent-dark: #7f1717;
+        --fmr-accent-soft: #fff1f2;
+        --fmr-accent-line: #fecaca;
+
+        --fmr-success: #047857;
+        --fmr-success-soft: #ecfdf5;
+        --fmr-success-line: #bbf7d0;
+
+        --fmr-warning: #b45309;
+        --fmr-warning-soft: #fffbeb;
+        --fmr-warning-line: #fde68a;
+
+        --fmr-danger: #b91c1c;
+        --fmr-danger-soft: #fef2f2;
+        --fmr-danger-line: #fecaca;
+
+        --fmr-blue: #2563eb;
+        --fmr-blue-soft: #eff6ff;
+        --fmr-blue-line: #bfdbfe;
+
+        display: grid;
+        gap: 20px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .fmr-page,
+    .fmr-page * {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .fmr-page a {
+        text-decoration: none;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .fmr-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 34px 36px;
+        overflow: hidden;
+        border: 1px solid var(--fmr-accent-line);
+        border-radius: 26px;
+        background:
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(254, 226, 226, 0.82),
+                transparent 34%
+            ),
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.58),
+                transparent 34%
+            ),
+            #ffffff;
+    }
+
+    .fmr-hero-copy {
+        max-width: 880px;
+    }
+
+    .fmr-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 31px;
+        padding: 0 11px;
+        border: 1px solid #ffe4e6;
+        border-radius: 999px;
+        background: var(--fmr-accent-soft);
+        color: var(--fmr-accent-dark);
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .fmr-kicker svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .fmr-title {
+        margin: 18px 0 0;
+        color: #020617;
+        font-size: clamp(34px, 4vw, 50px);
+        line-height: 1.02;
+        font-weight: 900;
+        letter-spacing: -0.055em;
+    }
+
+    .fmr-subtitle {
+        max-width: 820px;
+        margin: 16px 0 0;
+        color: var(--fmr-muted);
+        font-size: 16px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .fmr-back {
+        min-height: 46px;
+        padding: 0 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border: 1px solid var(--fmr-accent-line);
+        border-radius: 13px;
+        background: #ffffff;
+        color: var(--fmr-accent);
+        font-size: 13px;
+        font-weight: 850;
+        white-space: nowrap;
+        transition:
+            background 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .fmr-back:hover {
+        background: var(--fmr-accent-soft);
+        transform: translateY(-1px);
+    }
+
+    /* =========================================================
+       WORKFLOW STRIP
+    ========================================================= */
+
+    .fmr-workflow {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 17px 19px;
+        border: 1px solid var(--fmr-line);
+        border-radius: 19px;
+        background: #f8fafc;
+    }
+
+    .fmr-workflow-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #fee2e2;
+        color: var(--fmr-danger);
+    }
+
+    .fmr-workflow-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .fmr-workflow p {
+        margin: 0;
+        color: var(--fmr-muted);
+        font-size: 13.5px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .fmr-workflow strong {
+        color: var(--fmr-ink);
+        font-weight: 850;
+    }
+
+    /* =========================================================
+       UNIFIED REVIEW CASE
+    ========================================================= */
+
+    .fmr-case {
+        overflow: hidden;
+        border: 1px solid var(--fmr-line);
+        border-radius: 26px;
+        background: #ffffff;
+    }
+
+    .fmr-case-section {
+        padding: 28px;
+        border-bottom: 1px solid var(--fmr-line-soft);
+    }
+
+    .fmr-case-section:last-child {
+        border-bottom: 0;
+    }
+
+    .fmr-case-section.soft {
+        background: #fbfcfe;
+    }
+
+    .fmr-case-top {
+        display: grid;
+        grid-template-columns: minmax(0, 1.52fr) minmax(340px, 0.72fr);
+        gap: 28px;
+        align-items: start;
+    }
+
+    .fmr-case-main,
+    .fmr-case-side {
+        display: grid;
+        gap: 22px;
+        align-content: start;
+    }
+
+    .fmr-case-side {
+        padding-left: 28px;
+        border-left: 1px solid var(--fmr-line-soft);
+    }
+
+    .fmr-side-block + .fmr-side-block {
+        padding-top: 22px;
+        border-top: 1px solid var(--fmr-line-soft);
+    }
+
+    /* =========================================================
+       SECTION HEADERS
+    ========================================================= */
+
+    .fmr-section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 20px;
+    }
+
+    .fmr-section-heading {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .fmr-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--fmr-line);
+        border-radius: 14px;
+        background: #f8fafc;
+        color: var(--fmr-muted);
+    }
+
+    .fmr-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .fmr-icon.red {
+        border-color: #ffe4e6;
+        background: var(--fmr-accent-soft);
+        color: var(--fmr-danger);
+    }
+
+    .fmr-icon.green {
+        border-color: var(--fmr-success-line);
+        background: var(--fmr-success-soft);
+        color: var(--fmr-success);
+    }
+
+    .fmr-icon.blue {
+        border-color: var(--fmr-blue-line);
+        background: var(--fmr-blue-soft);
+        color: var(--fmr-blue);
+    }
+
+    .fmr-section-title {
+        margin: 0;
+        color: var(--fmr-ink);
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .fmr-section-text {
+        margin: 6px 0 0;
+        color: var(--fmr-muted);
+        font-size: 13px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       STATUS BADGES
+    ========================================================= */
+
+    .fmr-status {
+        min-height: 31px;
+        padding: 0 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        font-size: 10.5px;
+        font-weight: 850;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .fmr-status.pending {
+        border: 1px solid var(--fmr-warning-line);
+        background: var(--fmr-warning-soft);
+        color: var(--fmr-warning);
+    }
+
+    .fmr-status.success {
+        border: 1px solid var(--fmr-success-line);
+        background: var(--fmr-success-soft);
+        color: var(--fmr-success);
+    }
+
+    .fmr-status.danger {
+        border: 1px solid var(--fmr-danger-line);
+        background: var(--fmr-danger-soft);
+        color: var(--fmr-danger);
+    }
+
+    /* =========================================================
+       STUDENT INFORMATION
+    ========================================================= */
+
+    .fmr-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .fmr-info-item {
+        min-height: 78px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 13px 14px;
+        border: 1px solid #dbe3ef;
+        border-radius: 15px;
+        background: #f8fafc;
+    }
+
+    .fmr-info-icon {
+        width: 39px;
+        height: 39px;
+        flex: 0 0 39px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--fmr-line);
+        border-radius: 11px;
+        background: #ffffff;
+        color: var(--fmr-muted);
+    }
+
+    .fmr-info-icon svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .fmr-info-label {
+        color: var(--fmr-faint);
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .fmr-info-value {
+        margin-top: 4px;
+        color: var(--fmr-ink);
+        font-size: 13px;
+        line-height: 1.42;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    /* =========================================================
+       REVIEW STATUS
+    ========================================================= */
+
+    .fmr-status-banner {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .fmr-status-banner.pending {
+        border: 1px solid var(--fmr-warning-line);
+        background: var(--fmr-warning-soft);
+    }
+
+    .fmr-status-banner.success {
+        border: 1px solid var(--fmr-success-line);
+        background: var(--fmr-success-soft);
+    }
+
+    .fmr-status-banner.danger {
+        border: 1px solid var(--fmr-danger-line);
+        background: var(--fmr-danger-soft);
+    }
+
+    .fmr-status-banner-title {
+        font-size: 13.5px;
+        font-weight: 850;
+    }
+
+    .fmr-status-banner-text {
+        margin-top: 6px;
+        font-size: 12px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .fmr-status-banner.pending .fmr-status-banner-title,
+    .fmr-status-banner.pending .fmr-status-banner-text {
+        color: #92400e;
+    }
+
+    .fmr-status-banner.success .fmr-status-banner-title,
+    .fmr-status-banner.success .fmr-status-banner-text {
+        color: var(--fmr-success);
+    }
+
+    .fmr-status-banner.danger .fmr-status-banner-title,
+    .fmr-status-banner.danger .fmr-status-banner-text {
+        color: var(--fmr-danger);
+    }
+
+    .fmr-review-summary {
+        display: grid;
+        gap: 12px;
+        margin-top: 14px;
+    }
+
+    .fmr-review-row {
+        padding: 14px;
+        border: 1px solid var(--fmr-line);
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .fmr-review-row-label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--fmr-faint);
+        font-size: 9.5px;
+        font-weight: 850;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .fmr-review-row-label svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .fmr-review-row-value {
+        margin-top: 8px;
+        color: var(--fmr-text);
+        font-size: 12.5px;
+        line-height: 1.6;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .fmr-workflow-status-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--fmr-line);
+    }
+
+    .fmr-workflow-status-label {
+        color: var(--fmr-muted);
+        font-size: 11px;
+        line-height: 1.45;
+        font-weight: 700;
+    }
+
+    .fmr-workflow-status-value {
+        min-height: 29px;
+        max-width: 170px;
+        padding: 5px 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--fmr-success-line);
+        border-radius: 999px;
+        background: var(--fmr-success-soft);
+        color: var(--fmr-success);
+        font-size: 10px;
+        line-height: 1.3;
+        font-weight: 850;
+        text-align: center;
+    }
+
+    /* =========================================================
+       REQUESTED COMPONENTS
+    ========================================================= */
+
+    .fmr-component-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .fmr-component {
+        min-height: 112px;
+        padding: 14px;
+        border: 1px solid #dbe3ef;
+        border-radius: 15px;
+        background: #f8fafc;
+    }
+
+    .fmr-component.requested {
+        border-color: #fca5a5;
+        background: #fff7f7;
+    }
+
+    .fmr-component-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .fmr-component-name {
+        color: var(--fmr-text);
+        font-size: 12px;
+        line-height: 1.35;
+        font-weight: 850;
+    }
+
+    .fmr-check {
+        width: 25px;
+        height: 25px;
+        flex: 0 0 25px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #ffffff;
+        color: transparent;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .fmr-component.requested .fmr-check {
+        border-color: var(--fmr-danger);
+        background: var(--fmr-danger);
+        color: #ffffff;
+    }
+
+    .fmr-component-value {
+        color: var(--fmr-ink);
+        font-size: 24px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    .fmr-component-meta {
+        margin-top: 8px;
+        color: var(--fmr-faint);
+        font-size: 8.5px;
+        font-weight: 850;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    /* =========================================================
+       EXPLANATION + EVIDENCE
+    ========================================================= */
+
+    .fmr-detail-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 28px;
+    }
+
+    .fmr-detail-column + .fmr-detail-column {
+        padding-left: 28px;
+        border-left: 1px solid var(--fmr-line-soft);
+    }
+
+    .fmr-message {
+    padding: 17px 18px;
+    display: block !important;
+
+    border: 1px solid var(--fmr-accent-line);
+    border-radius: 15px;
+    background: #fffafa;
+
+    color: var(--fmr-text);
+    font-size: 13.5px;
+    line-height: 1.7;
+    font-weight: 650;
+
+    text-align: left;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+    .fmr-attachment {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 14px;
+        border: 1px solid #dbe3ef;
+        border-radius: 15px;
+        background: #f8fafc;
+    }
+
+    .fmr-attachment-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #fee2e2;
+        color: var(--fmr-danger);
+    }
+
+    .fmr-attachment-icon svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .fmr-attachment-info {
+        flex: 1;
+    }
+
+    .fmr-attachment-info strong {
+        display: block;
+        color: var(--fmr-ink);
+        font-size: 12.5px;
+        font-weight: 850;
+    }
+
+    .fmr-attachment-info span {
+        display: block;
+        margin-top: 4px;
+        overflow: hidden;
+        color: var(--fmr-muted);
+        font-size: 10.5px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .fmr-attachment-link {
+        min-height: 38px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--fmr-accent-line);
+        border-radius: 10px;
+        background: #ffffff;
+        color: var(--fmr-danger);
+        font-size: 10.5px;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .fmr-empty {
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed #cbd5e1;
+        border-radius: 15px;
+        background: #f8fafc;
+        color: var(--fmr-muted);
+        font-size: 12.5px;
+        line-height: 1.55;
+        text-align: center;
+    }
+
+    /* =========================================================
+       CURRENT MARK TABLE
+    ========================================================= */
+
+    .fmr-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--fmr-line);
+        border-radius: 15px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .fmr-table {
+        width: 100%;
+        min-width: 650px;
+        border-collapse: collapse;
+    }
+
+    .fmr-table th,
+    .fmr-table td {
+        padding: 14px 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--fmr-line-soft);
+    }
+
+    .fmr-table th {
+        background: #f8fafc;
+        color: var(--fmr-muted);
+        font-size: 9.5px;
+        font-weight: 850;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .fmr-table td {
+        color: var(--fmr-text);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .fmr-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .fmr-highlight {
+        background: #fff7f7;
+        color: var(--fmr-danger) !important;
+    }
+
+    /* =========================================================
+       DECISION FORM
+    ========================================================= */
+
+    .fmr-decision-notice {
+        padding: 14px;
+        border: 1px solid var(--fmr-warning-line);
+        border-radius: 14px;
+        background: var(--fmr-warning-soft);
+    }
+
+    .fmr-decision-notice strong {
+        display: block;
+        color: #92400e;
+        font-size: 12.5px;
+        font-weight: 850;
+    }
+
+    .fmr-decision-notice p {
+        margin: 5px 0 0;
+        color: #92400e;
+        font-size: 11.5px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .fmr-field {
+        margin-top: 16px;
+    }
+
+    .fmr-field:first-child {
+        margin-top: 0;
+    }
+
+    .fmr-field-label {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--fmr-text);
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .fmr-field-help {
+        margin: -2px 0 8px;
+        color: var(--fmr-faint);
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .fmr-textarea {
+        width: 100%;
+        min-height: 112px;
+        padding: 12px 13px;
+        resize: vertical;
+        border: 1px solid #cbd5e1;
+        border-radius: 13px;
+        background: #ffffff;
+        color: var(--fmr-ink);
+        font: inherit;
+        font-size: 12.5px;
+        line-height: 1.55;
+        outline: none;
+    }
+
+    .fmr-textarea:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+    }
+
+    .fmr-correction-panel {
+        display: grid;
+        gap: 12px;
+        margin-top: 17px;
+        padding: 15px;
+        border: 1px solid #dbe3ef;
+        border-radius: 15px;
+        background: #f8fafc;
+    }
+
+    .fmr-correction-title {
+        margin: 0;
+        color: var(--fmr-ink);
+        font-size: 15px;
+        font-weight: 850;
+    }
+
+    .fmr-correction-text {
+        margin: -4px 0 0;
+        color: var(--fmr-muted);
+        font-size: 11px;
+        line-height: 1.55;
+    }
+
+    .fmr-mark-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .fmr-mark-field:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+
+    .fmr-mark-label {
+        min-height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 7px;
+        margin-bottom: 6px;
+        color: var(--fmr-text);
+        font-size: 10.5px;
+        font-weight: 850;
+    }
+
+    .fmr-requested-badge {
+        min-height: 20px;
+        padding: 0 6px;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        background: #fee2e2;
+        color: var(--fmr-danger);
+        font-size: 7.5px;
+        font-weight: 850;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .fmr-mark-input {
+        width: 100%;
+        min-height: 41px;
+        padding: 0 11px;
+        border: 1px solid #cbd5e1;
+        border-radius: 11px;
+        background: #ffffff;
+        color: var(--fmr-ink);
+        font: inherit;
+        font-size: 12.5px;
+        font-weight: 800;
+        outline: none;
+    }
+
+    .fmr-mark-input.requested-input {
+        border-color: #fca5a5;
+        background: #fffafa;
+    }
+
+    .fmr-mark-input:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+    }
+
+    .fmr-mark-input[readonly] {
+        background: #f1f5f9;
+        color: var(--fmr-muted);
+        cursor: not-allowed;
+    }
+
+    .fmr-file-input {
+        width: 100%;
+        padding: 9px;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        background: #ffffff;
+        color: var(--fmr-text);
+        font-size: 11.5px;
+    }
+
+    .fmr-required {
+        color: #dc2626;
+    }
+
+    .fmr-warning {
+        margin-top: 15px;
+        padding: 12px 13px;
+        border: 1px solid var(--fmr-danger-line);
+        border-radius: 12px;
+        background: #fff7f7;
+        color: #991b1b;
+        font-size: 11px;
+        line-height: 1.55;
+    }
+
+    .fmr-actions {
+        display: grid;
+        gap: 9px;
+        margin-top: 15px;
+    }
+
+    .fmr-button {
+        width: 100%;
+        min-height: 45px;
+        padding: 0 14px;
+        border-radius: 12px;
+        font: inherit;
+        font-size: 11.5px;
+        font-weight: 850;
+        cursor: pointer;
+        transition:
+            transform 0.15s ease,
+            background 0.15s ease;
+    }
+
+    .fmr-button:hover {
+        transform: translateY(-1px);
+    }
+
+    .fmr-confirm {
+        border: 1px solid var(--fmr-accent);
+        background: var(--fmr-accent);
+        color: #ffffff;
+    }
+
+    .fmr-confirm:hover {
+        background: var(--fmr-accent-dark);
+    }
+
+    .fmr-reject {
+        border: 1px solid var(--fmr-danger-line);
+        background: #ffffff;
+        color: var(--fmr-danger);
+    }
+
+    .fmr-reject:hover {
+        background: var(--fmr-danger-soft);
+    }
+
+    .fmr-action-help {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--fmr-line-soft);
+        color: var(--fmr-muted);
+        font-size: 10.5px;
+        line-height: 1.6;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1180px) {
+        .fmr-component-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 1050px) {
+        .fmr-case-top {
+            grid-template-columns: 1fr;
+        }
+
+        .fmr-case-side {
+            padding-left: 0;
+            padding-top: 26px;
+            border-left: 0;
+            border-top: 1px solid var(--fmr-line-soft);
+        }
+    }
+
+    @media (max-width: 800px) {
+        .fmr-detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .fmr-detail-column + .fmr-detail-column {
+            padding-left: 0;
+            padding-top: 24px;
+            border-left: 0;
+            border-top: 1px solid var(--fmr-line-soft);
+        }
+
+        .fmr-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .fmr-page {
+            gap: 16px;
+        }
+
+        .fmr-hero {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 25px 21px;
+        }
+
+        .fmr-back {
+            width: 100%;
+        }
+
+        .fmr-title {
+            font-size: 38px;
+        }
+
+        .fmr-case-section {
+            padding: 21px;
+        }
+
+        .fmr-section-head {
+            flex-direction: column;
+        }
+
+        .fmr-component-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .fmr-mark-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .fmr-mark-field:last-child:nth-child(odd) {
+            grid-column: auto;
+        }
+
+        .fmr-workflow-status-line {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .fmr-workflow-status-value {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .fmr-component-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .fmr-attachment {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .fmr-attachment-link {
+            width: 100%;
+        }
+
+        .fmr-workflow {
+            align-items: flex-start;
+        }
+    }
+</style>
+
+
+<div class="fmr-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+    <section class="fmr-hero">
+
+        <div class="fmr-hero-copy">
+
+            <div class="fmr-kicker">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12h6m-6 4h6M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                    />
+                </svg>
+
+                Faculty Review
+            </div>
+
+            <h1 class="fmr-title">
+                Review Student Mark Concern
+            </h1>
+
+            <p class="fmr-subtitle">
+                Verify the student's concern against recorded marks, supporting
+                evidence, and official academic records before deciding whether
+                a formal result correction should be initiated.
+            </p>
+
+        </div>
+
+        <a
+            href="{% url 'faculty_mark_review_requests' %}"
+            class="fmr-back"
+        >
+            ← Back to Requests
+        </a>
+
+    </section>
+
+
+    <!-- =====================================================
+         WORKFLOW STRIP
+    ====================================================== -->
+    <section class="fmr-workflow">
+
+        <div class="fmr-workflow-icon">
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M5 12h14m-6-6l6 6-6 6"
+                />
+            </svg>
+        </div>
+
+        <p>
+            <strong>Review workflow:</strong>
+            Confirm the requested mark components using your course records.
+            A legitimate concern creates an official correction request for
+            Exam Controller verification and final Super Admin approval.
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         UNIFIED REVIEW CASE
+    ====================================================== -->
+    <section class="fmr-case">
+
+
+        <!-- =================================================
+             TOP SECTION
+             STUDENT INFORMATION + STATUS / DECISION
+        ================================================== -->
+        <div class="fmr-case-section">
+
+            <div class="fmr-case-top">
+
+
+                <!-- =========================================
+                     MAIN COLUMN
+                ========================================== -->
+                <div class="fmr-case-main">
+
+
+                    <!-- =====================================
+                         STUDENT & COURSE INFORMATION
+                    ====================================== -->
+                    <div>
+
+                        <div class="fmr-section-head">
+
+                            <div class="fmr-section-heading">
+
+                                <div class="fmr-icon blue">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h2 class="fmr-section-title">
+                                        Student &amp; Course Information
+                                    </h2>
+
+                                    <p class="fmr-section-text">
+                                        Confirm the student, course, section,
+                                        semester, and responsible faculty member.
+                                    </p>
+                                </div>
+
+                            </div>
+
+
+                            {% if review_request.status == 'pending_faculty' %}
+
+                                <span class="fmr-status pending">
+                                    {{ review_request.get_status_display }}
+                                </span>
+
+                            {% elif review_request.status == 'faculty_confirmed' %}
+
+                                <span class="fmr-status success">
+                                    {{ review_request.get_status_display }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="fmr-status danger">
+                                    {{ review_request.get_status_display }}
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="fmr-info-grid">
+
+                            <div class="fmr-info-item">
+
+                                <div class="fmr-info-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M5 5h14v14H5zM8 9h3M8 13h5"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <div class="fmr-info-label">
+                                        Student ID
+                                    </div>
+
+                                    <div class="fmr-info-value">
+                                        {{ review_request.student.student_id|default:"-" }}
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-info-item">
+
+                                <div class="fmr-info-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <div class="fmr-info-label">
+                                        Student Name
+                                    </div>
+
+                                    <div class="fmr-info-value">
+                                        {% if review_request.student.user.get_full_name %}
+                                            {{ review_request.student.user.get_full_name }}
+                                        {% else %}
+                                            {{ review_request.student.user.username }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-info-item">
+
+                                <div class="fmr-info-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M4 19.5V5a2 2 0 012-2h12v18H6a2 2 0 01-2-1.5z"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <div class="fmr-info-label">
+                                        Course
+                                    </div>
+
+                                    <div class="fmr-info-value">
+                                        {{ review_request.course_offering.course.code|default:"-" }}
+                                        —
+                                        {{ review_request.course_offering.course.title|default:"-" }}
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-info-item">
+
+                                <div class="fmr-info-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M12 3l9 5-9 5-9-5 9-5zm0 10l7-4v6l-7 4-7-4V9l7 4z"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <div class="fmr-info-label">
+                                        Semester
+                                    </div>
+
+                                    <div class="fmr-info-value">
+                                        {{ review_request.course_offering.semester|default:"-" }}
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-info-item">
+
+                                <div class="fmr-info-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M8 4h8v16H8zM4 8h4m8 0h4M4 16h4m8 0h4"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <div class="fmr-info-label">
+                                        Section
+                                    </div>
+
+                                    <div class="fmr-info-value">
+                                        {{ review_request.course_offering.section|default:"-" }}
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-info-item">
+
+                                <div class="fmr-info-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8z"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <div class="fmr-info-label">
+                                        Responsible Faculty
+                                    </div>
+
+                                    <div class="fmr-info-value">
+
+                                        {% if review_request.course_offering.faculty %}
+
+                                            {% if review_request.course_offering.faculty.get_full_name %}
+                                                {{ review_request.course_offering.faculty.get_full_name }}
+                                            {% else %}
+                                                {{ review_request.course_offering.faculty.username }}
+                                            {% endif %}
+
+                                        {% else %}
+                                            Not assigned
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         REQUESTED MARKS
+                    ====================================== -->
+                    <div>
+
+                        <div class="fmr-section-head">
+
+                            <div class="fmr-section-heading">
+
+                                <div class="fmr-icon red">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M4 19V5m4 14v-6m4 6V9m4 10v-3m4 3V7"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h2 class="fmr-section-title">
+                                        Requested Marks for Review
+                                    </h2>
+
+                                    <p class="fmr-section-text">
+                                        Highlighted components are the specific marks
+                                        the student asked you to verify.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="fmr-component-grid">
+
+                            <div class="fmr-component {% if 'class_test' in review_request.requested_components %}requested{% endif %}">
+
+                                <div class="fmr-component-top">
+                                    <span class="fmr-component-name">
+                                        Class Test
+                                    </span>
+
+                                    <span class="fmr-check">
+                                        {% if 'class_test' in review_request.requested_components %}
+                                            ✓
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="fmr-component-value">
+                                    {{ review_request.mark.class_test|default:"0" }}
+                                </div>
+
+                                <div class="fmr-component-meta">
+                                    Recorded Mark
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-component {% if 'assignment' in review_request.requested_components %}requested{% endif %}">
+
+                                <div class="fmr-component-top">
+                                    <span class="fmr-component-name">
+                                        Assignment
+                                    </span>
+
+                                    <span class="fmr-check">
+                                        {% if 'assignment' in review_request.requested_components %}
+                                            ✓
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="fmr-component-value">
+                                    {{ review_request.mark.assignment|default:"0" }}
+                                </div>
+
+                                <div class="fmr-component-meta">
+                                    Recorded Mark
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-component {% if 'attendance' in review_request.requested_components %}requested{% endif %}">
+
+                                <div class="fmr-component-top">
+                                    <span class="fmr-component-name">
+                                        Attendance
+                                    </span>
+
+                                    <span class="fmr-check">
+                                        {% if 'attendance' in review_request.requested_components %}
+                                            ✓
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="fmr-component-value">
+                                    {{ review_request.mark.attendance|default:"0" }}
+                                </div>
+
+                                <div class="fmr-component-meta">
+                                    Recorded Mark
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-component {% if 'midterm' in review_request.requested_components %}requested{% endif %}">
+
+                                <div class="fmr-component-top">
+                                    <span class="fmr-component-name">
+                                        Midterm
+                                    </span>
+
+                                    <span class="fmr-check">
+                                        {% if 'midterm' in review_request.requested_components %}
+                                            ✓
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="fmr-component-value">
+                                    {{ review_request.mark.midterm|default:"0" }}
+                                </div>
+
+                                <div class="fmr-component-meta">
+                                    Recorded Mark
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-component {% if 'final' in review_request.requested_components %}requested{% endif %}">
+
+                                <div class="fmr-component-top">
+                                    <span class="fmr-component-name">
+                                        Final
+                                    </span>
+
+                                    <span class="fmr-check">
+                                        {% if 'final' in review_request.requested_components %}
+                                            ✓
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="fmr-component-value">
+                                    {{ review_request.mark.final|default:"0" }}
+                                </div>
+
+                                <div class="fmr-component-meta">
+                                    Recorded Mark
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     SIDE COLUMN
+                ========================================== -->
+                <aside class="fmr-case-side">
+
+
+                    <!-- =====================================
+                         REVIEW STATUS
+                    ====================================== -->
+                    <div class="fmr-side-block">
+
+                        <div class="fmr-section-head">
+
+                            <div class="fmr-section-heading">
+
+                                <div class="fmr-icon green">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M9 12l2 2 4-4M12 22a10 10 0 110-20 10 10 0 010 20z"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h2 class="fmr-section-title">
+                                        Review Status
+                                    </h2>
+
+                                    <p class="fmr-section-text">
+                                        Faculty decision and correction workflow summary.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {% if review_request.status == 'pending_faculty' %}
+
+                            <div class="fmr-status-banner pending">
+
+                                <div class="fmr-status-banner-title">
+                                    Faculty verification required
+                                </div>
+
+                                <div class="fmr-status-banner-text">
+                                    Review the student's concern and supporting
+                                    records before completing the decision.
+                                </div>
+
+                            </div>
+
+                        {% elif review_request.status == 'faculty_confirmed' %}
+
+                            <div class="fmr-status-banner success">
+
+                                <div class="fmr-status-banner-title">
+                                    Faculty review completed
+                                </div>
+
+                                <div class="fmr-status-banner-text">
+                                    The concern was confirmed and forwarded through
+                                    the official correction workflow.
+                                </div>
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="fmr-status-banner danger">
+
+                                <div class="fmr-status-banner-title">
+                                    Student concern rejected
+                                </div>
+
+                                <div class="fmr-status-banner-text">
+                                    The faculty review was completed without
+                                    creating an official correction request.
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if review_request.status != 'pending_faculty' %}
+
+                            <div class="fmr-review-summary">
+
+                                <div class="fmr-review-row">
+
+                                    <div class="fmr-review-row-label">
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                d="M9 12h6m-6 4h6M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                                            />
+                                        </svg>
+
+                                        Faculty Verification Note
+                                    </div>
+
+                                    <div class="fmr-review-row-value">
+                                        {{ review_request.faculty_note|default:"No faculty verification note was recorded."|linebreaksbr }}
+                                    </div>
+
+                                </div>
+
+
+                                {% if existing_correction %}
+
+                                    <div class="fmr-review-row">
+
+                                        <div class="fmr-review-row-label">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d="M5 12h14m-6-6l6 6-6 6"
+                                                />
+                                            </svg>
+
+                                            Correction Workflow
+                                        </div>
+
+                                        <div class="fmr-review-row-value">
+                                            An official correction request was created
+                                            and forwarded for Exam Controller verification
+                                            and final administrative approval.
+                                        </div>
+
+                                        <div class="fmr-workflow-status-line">
+
+                                            <span class="fmr-workflow-status-label">
+                                                Current correction status
+                                            </span>
+
+                                            <span class="fmr-workflow-status-value">
+                                                {{ existing_correction.get_status_display }}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                {% elif review_request.status == 'faculty_rejected' %}
+
+                                    <div class="fmr-review-row">
+
+                                        <div class="fmr-review-row-label">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d="M6 18L18 6M6 6l12 12"
+                                                />
+                                            </svg>
+
+                                            Workflow Result
+                                        </div>
+
+                                        <div class="fmr-review-row-value">
+                                            The concern was rejected during faculty
+                                            verification. No official correction
+                                            request was created.
+                                        </div>
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- =====================================
+                         FACULTY DECISION
+                         ONLY WHILE PENDING
+                    ====================================== -->
+                    {% if review_request.status == 'pending_faculty' %}
+
+                        <div class="fmr-side-block">
+
+                            <div class="fmr-section-head">
+
+                                <div class="fmr-section-heading">
+
+                                    <div class="fmr-icon red">
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L8 18l-4 1 1-4 11.5-11.5z"
+                                            />
+                                        </svg>
+                                    </div>
+
+                                    <div>
+                                        <h2 class="fmr-section-title">
+                                            Faculty Decision
+                                        </h2>
+
+                                        <p class="fmr-section-text">
+                                            Verify the concern and enter proposed corrections.
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="fmr-decision-notice">
+
+                                <strong>
+                                    Faculty verification required
+                                </strong>
+
+                                <p>
+                                    Compare the student's concern with your
+                                    official course and assessment records
+                                    before taking action.
+                                </p>
+
+                            </div>
+
+
+                            <form method="POST" enctype="multipart/form-data">
+
+                                {% csrf_token %}
+
+
+                                <div class="fmr-field">
+
+                                    <label
+                                        class="fmr-field-label"
+                                        for="faculty_note"
+                                    >
+                                        Faculty Verification Note
+                                    </label>
+
+                                    <div class="fmr-field-help">
+                                        State which records you checked and your conclusion.
+                                    </div>
+
+                                    <textarea
+                                        id="faculty_note"
+                                        name="faculty_note"
+                                        class="fmr-textarea"
+                                        placeholder="Example: Verified the assignment submission sheet and confirmed the recorded mark was incorrect."
+                                    >{{ request.POST.faculty_note|default:"" }}</textarea>
+
+                                </div>
+
+
+                                <div class="fmr-field">
+
+                                    <label
+                                        class="fmr-field-label"
+                                        for="correction_reason"
+                                    >
+                                        Official Correction Reason
+                                        <span class="fmr-required">*</span>
+                                    </label>
+
+                                    <div class="fmr-field-help">
+                                        Required when accepting the student's concern.
+                                    </div>
+
+                                    <textarea
+                                        id="correction_reason"
+                                        name="correction_reason"
+                                        class="fmr-textarea"
+                                        placeholder="Explain why the recorded result requires correction."
+                                    >{{ request.POST.correction_reason|default:"" }}</textarea>
+
+                                </div>
+
+
+                                <div class="fmr-correction-panel">
+
+                                    <h3 class="fmr-correction-title">
+                                        Proposed Corrected Marks
+                                    </h3>
+
+                                    <p class="fmr-correction-text">
+                                        Requested components are editable.
+                                        Other components remain locked.
+                                    </p>
+
+
+                                    <div class="fmr-mark-grid">
+
+
+                                        <div class="fmr-mark-field">
+
+                                            <label
+                                                class="fmr-mark-label"
+                                                for="class_test"
+                                            >
+                                                <span>Class Test</span>
+
+                                                {% if 'class_test' in review_request.requested_components %}
+                                                    <span class="fmr-requested-badge">
+                                                        Requested
+                                                    </span>
+                                                {% endif %}
+                                            </label>
+
+                                            <input
+                                                id="class_test"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                name="class_test"
+                                                value="{% if request.POST.class_test %}{{ request.POST.class_test }}{% else %}{{ review_request.mark.class_test }}{% endif %}"
+                                                class="fmr-mark-input {% if 'class_test' in review_request.requested_components %}requested-input{% endif %}"
+                                                {% if 'class_test' not in review_request.requested_components %}
+                                                    readonly
+                                                {% endif %}
+                                            >
+
+                                        </div>
+
+
+                                        <div class="fmr-mark-field">
+
+                                            <label
+                                                class="fmr-mark-label"
+                                                for="assignment"
+                                            >
+                                                <span>Assignment</span>
+
+                                                {% if 'assignment' in review_request.requested_components %}
+                                                    <span class="fmr-requested-badge">
+                                                        Requested
+                                                    </span>
+                                                {% endif %}
+                                            </label>
+
+                                            <input
+                                                id="assignment"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                name="assignment"
+                                                value="{% if request.POST.assignment %}{{ request.POST.assignment }}{% else %}{{ review_request.mark.assignment }}{% endif %}"
+                                                class="fmr-mark-input {% if 'assignment' in review_request.requested_components %}requested-input{% endif %}"
+                                                {% if 'assignment' not in review_request.requested_components %}
+                                                    readonly
+                                                {% endif %}
+                                            >
+
+                                        </div>
+
+
+                                        <div class="fmr-mark-field">
+
+                                            <label
+                                                class="fmr-mark-label"
+                                                for="attendance"
+                                            >
+                                                <span>Attendance</span>
+
+                                                {% if 'attendance' in review_request.requested_components %}
+                                                    <span class="fmr-requested-badge">
+                                                        Requested
+                                                    </span>
+                                                {% endif %}
+                                            </label>
+
+                                            <input
+                                                id="attendance"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                name="attendance"
+                                                value="{% if request.POST.attendance %}{{ request.POST.attendance }}{% else %}{{ review_request.mark.attendance }}{% endif %}"
+                                                class="fmr-mark-input {% if 'attendance' in review_request.requested_components %}requested-input{% endif %}"
+                                                {% if 'attendance' not in review_request.requested_components %}
+                                                    readonly
+                                                {% endif %}
+                                            >
+
+                                        </div>
+
+
+                                        <div class="fmr-mark-field">
+
+                                            <label
+                                                class="fmr-mark-label"
+                                                for="midterm"
+                                            >
+                                                <span>Midterm</span>
+
+                                                {% if 'midterm' in review_request.requested_components %}
+                                                    <span class="fmr-requested-badge">
+                                                        Requested
+                                                    </span>
+                                                {% endif %}
+                                            </label>
+
+                                            <input
+                                                id="midterm"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                name="midterm"
+                                                value="{% if request.POST.midterm %}{{ request.POST.midterm }}{% else %}{{ review_request.mark.midterm }}{% endif %}"
+                                                class="fmr-mark-input {% if 'midterm' in review_request.requested_components %}requested-input{% endif %}"
+                                                {% if 'midterm' not in review_request.requested_components %}
+                                                    readonly
+                                                {% endif %}
+                                            >
+
+                                        </div>
+
+
+                                        <div class="fmr-mark-field">
+
+                                            <label
+                                                class="fmr-mark-label"
+                                                for="final"
+                                            >
+                                                <span>Final</span>
+
+                                                {% if 'final' in review_request.requested_components %}
+                                                    <span class="fmr-requested-badge">
+                                                        Requested
+                                                    </span>
+                                                {% endif %}
+                                            </label>
+
+                                            <input
+                                                id="final"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                name="final"
+                                                value="{% if request.POST.final %}{{ request.POST.final }}{% else %}{{ review_request.mark.final }}{% endif %}"
+                                                class="fmr-mark-input {% if 'final' in review_request.requested_components %}requested-input{% endif %}"
+                                                {% if 'final' not in review_request.requested_components %}
+                                                    readonly
+                                                {% endif %}
+                                            >
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="fmr-field">
+
+                                    <label
+                                        class="fmr-field-label"
+                                        for="faculty_attachment"
+                                    >
+                                        Faculty Supporting Evidence
+                                    </label>
+
+                                    <div class="fmr-field-help">
+                                        Optional corrected mark sheet, attendance
+                                        register, or assessment record.
+                                    </div>
+
+                                    <input
+                                        id="faculty_attachment"
+                                        type="file"
+                                        name="faculty_attachment"
+                                        class="fmr-file-input"
+                                        accept=".pdf,.jpg,.jpeg,.png"
+                                    >
+
+                                </div>
+
+
+                                <div class="fmr-warning">
+                                    Accepting this concern does not immediately
+                                    change the official result. It creates a
+                                    correction request for further verification
+                                    and final approval.
+                                </div>
+
+
+                                <div class="fmr-actions">
+
+                                    <button
+                                        type="submit"
+                                        name="action"
+                                        value="confirm_and_create_correction"
+                                        class="fmr-button fmr-confirm"
+                                    >
+                                        Accept &amp; Create Correction Request
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        name="action"
+                                        value="reject"
+                                        class="fmr-button fmr-reject"
+                                        formnovalidate
+                                    >
+                                        Reject Student Concern
+                                    </button>
+
+                                </div>
+
+
+                                <div class="fmr-action-help">
+                                    <strong>Accept</strong> only after confirming
+                                    the concern and entering corrected values.
+
+                                    <br><br>
+
+                                    <strong>Reject</strong> closes the student
+                                    request without creating a correction request.
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    {% endif %}
+
+                </aside>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             EXPLANATION + SUPPORTING EVIDENCE
+        ================================================== -->
+        <div class="fmr-case-section soft">
+
+            <div class="fmr-detail-grid">
+
+
+                <!-- =========================================
+                     STUDENT EXPLANATION
+                ========================================== -->
+                <div class="fmr-detail-column">
+
+                    <div class="fmr-section-head">
+
+                        <div class="fmr-section-heading">
+
+                            <div class="fmr-icon red">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 14c3 0 5-2 5-5s-2-5-5-5-5 2-5 5 2 5 5 5zm-7 6c1-3 4-5 7-5s6 2 7 5"
+                                    />
+                                </svg>
+                            </div>
+
+                            <div>
+                                <h2 class="fmr-section-title">
+                                    Student Explanation
+                                </h2>
+
+                                <p class="fmr-section-text">
+                                    Reason submitted with the review request.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="fmr-message">
+                        {{ review_request.reason|default:"No explanation provided." }}
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     SUPPORTING EVIDENCE
+                ========================================== -->
+                <div class="fmr-detail-column">
+
+                    <div class="fmr-section-head">
+
+                        <div class="fmr-section-heading">
+
+                            <div class="fmr-icon blue">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"
+                                    />
+                                </svg>
+                            </div>
+
+                            <div>
+                                <h2 class="fmr-section-title">
+                                    Supporting Evidence
+                                </h2>
+
+                                <p class="fmr-section-text">
+                                    Student document or image submitted for review.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {% if review_request.attachment %}
+
+                        <div class="fmr-attachment">
+
+                            <div class="fmr-attachment-icon">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"
+                                    />
+                                </svg>
+                            </div>
+
+                            <div class="fmr-attachment-info">
+
+                                <strong>
+                                    Student Evidence
+                                </strong>
+
+                                <span>
+                                    {{ review_request.attachment.name }}
+                                </span>
+
+                            </div>
+
+                            <a
+                                href="{{ review_request.attachment.url }}"
+                                target="_blank"
+                                rel="noopener"
+                                class="fmr-attachment-link"
+                            >
+                                Open File
+                            </a>
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="fmr-empty">
+                            No supporting attachment was submitted.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CURRENT MARK RECORD
+        ================================================== -->
+        <div class="fmr-case-section">
+
+            <div class="fmr-section-head">
+
+                <div class="fmr-section-heading">
+
+                    <div class="fmr-icon blue">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M9 12h6m-6 4h6M5 7h14M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"
+                            />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h2 class="fmr-section-title">
+                            Complete Current Mark Record
+                        </h2>
+
+                        <p class="fmr-section-text">
+                            Requested components are highlighted for easier comparison.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="fmr-table-wrap">
+
+                <table class="fmr-table">
+
+                    <thead>
+                        <tr>
+                            <th>Class Test</th>
+                            <th>Assignment</th>
+                            <th>Attendance</th>
+                            <th>Midterm</th>
+                            <th>Final</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+
+                            <td class="{% if 'class_test' in review_request.requested_components %}fmr-highlight{% endif %}">
+                                {{ review_request.mark.class_test|default:"0" }}
+                            </td>
+
+                            <td class="{% if 'assignment' in review_request.requested_components %}fmr-highlight{% endif %}">
+                                {{ review_request.mark.assignment|default:"0" }}
+                            </td>
+
+                            <td class="{% if 'attendance' in review_request.requested_components %}fmr-highlight{% endif %}">
+                                {{ review_request.mark.attendance|default:"0" }}
+                            </td>
+
+                            <td class="{% if 'midterm' in review_request.requested_components %}fmr-highlight{% endif %}">
+                                {{ review_request.mark.midterm|default:"0" }}
+                            </td>
+
+                            <td class="{% if 'final' in review_request.requested_components %}fmr-highlight{% endif %}">
+                                {{ review_request.mark.final|default:"0" }}
+                            </td>
+
+                            <td>
+                                {{ review_request.mark.total|default:"0" }}
+                            </td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

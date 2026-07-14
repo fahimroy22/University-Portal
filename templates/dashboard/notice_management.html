@@ -1,0 +1,987 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .notice-page {
+        width: min(100%, 1180px);
+        margin: 0 auto;
+        display: grid;
+        gap: 16px;
+    }
+
+    .notice-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+    }
+
+    .notice-hero,
+    .notice-panel {
+        padding: 24px;
+    }
+
+    .notice-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .notice-kicker {
+        margin-bottom: 10px;
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .notice-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.4vw, 42px);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+    }
+
+    .notice-description {
+        margin-top: 8px;
+        max-width: 760px;
+        color: #64748b;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.55;
+    }
+
+    .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 750;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .button.primary {
+        background: #9f1c1c;
+        border-color: #9f1c1c;
+        color: #ffffff;
+    }
+
+    .button.primary:hover {
+        background: #7f1717;
+        border-color: #7f1717;
+    }
+
+    .button.success {
+        background: #047857;
+        border-color: #047857;
+        color: #ffffff;
+    }
+
+    .button.danger {
+        background: #ffffff;
+        border-color: #fecaca;
+        color: #dc2626;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .summary-item {
+        padding: 18px;
+        border-right: 1px solid #eef2f7;
+    }
+
+    .summary-item:last-child {
+        border-right: none;
+    }
+
+    .summary-label {
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .summary-value {
+        margin-top: 7px;
+        color: #0f172a;
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+    .summary-value.success {
+        color: #047857;
+    }
+
+    .summary-value.danger {
+        color: #dc2626;
+    }
+
+    .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .panel-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    details.create-panel summary {
+        list-style: none;
+        cursor: pointer;
+    }
+
+    details.create-panel summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .details-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .details-content {
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid #eef2f7;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 1.6fr repeat(4, minmax(0, 1fr)) auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .form-field {
+        margin: 0;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    textarea.input-control {
+        min-height: 115px;
+        resize: vertical;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: #9f1c1c;
+        box-shadow: 0 0 0 3px rgba(159, 28, 28, 0.10);
+    }
+
+    .checkbox-line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 46px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .checkbox-line input {
+        width: 16px;
+        height: 16px;
+        accent-color: #9f1c1c;
+    }
+
+    .form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .table-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+    }
+
+    .notice-table {
+        width: 100%;
+        min-width: 1100px;
+        border-collapse: collapse;
+    }
+
+    .notice-table th {
+        padding: 13px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.10em;
+        text-align: left;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .notice-table td {
+        padding: 14px;
+        border-bottom: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .notice-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .notice-table tr:hover td {
+        background: #fffafa;
+    }
+
+    .reference-id {
+        color: #9f1c1c;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .notice-name {
+        margin-top: 4px;
+        color: #0f172a;
+        font-weight: 750;
+    }
+
+    .notice-preview {
+        margin-top: 4px;
+        max-width: 280px;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 27px;
+        padding: 0 9px;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 11px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .badge.published {
+        border-color: #bbf7d0;
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .badge.draft {
+        border-color: #fde68a;
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    .action-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .pagination-text {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .empty-state {
+        padding: 30px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+        .summary-grid,
+        .form-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .filter-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .notice-hero,
+        .panel-head,
+        .details-summary,
+        .pagination {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .summary-grid,
+        .form-grid,
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-item {
+            border-right: none;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .button {
+            width: 100%;
+        }
+
+        .form-actions,
+        .action-group {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="notice-page">
+
+    <section class="notice-card notice-hero">
+        <div>
+            <div class="notice-kicker">Notice Board</div>
+            <h1 class="notice-title">Notice Management</h1>
+            <p class="notice-description">
+                Create, search, publish, update, and organize official university notices without displaying every editing form at once.
+            </p>
+        </div>
+
+        {% if user.role == 'super_admin' %}
+            <a href="{% url 'super_admin_dashboard' %}" class="button">← Back to Dashboard</a>
+        {% elif user.role == 'admin' %}
+            <a href="{% url 'admin_dashboard' %}" class="button">← Back to Dashboard</a>
+        {% elif user.role == 'dept_head' %}
+            <a href="{% url 'dept_head_dashboard' %}" class="button">← Back to Dashboard</a>
+        {% elif user.role == 'exam_controller' %}
+            <a href="{% url 'exam_controller_dashboard' %}" class="button">← Back to Dashboard</a>
+        {% elif user.role == 'accounts' %}
+            <a href="{% url 'accounts_dashboard' %}" class="button">← Back to Dashboard</a>
+        {% endif %}
+    </section>
+
+    <section class="notice-card">
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">All Notices</div>
+                <div class="summary-value">{{ all_notice_count }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Published</div>
+                <div class="summary-value success">{{ published_notice_count }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Drafts</div>
+                <div class="summary-value danger">{{ draft_notice_count }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">With Attachments</div>
+                <div class="summary-value">{{ attachment_notice_count }}</div>
+            </div>
+        </div>
+    </section>
+
+    <details class="notice-card notice-panel create-panel">
+        <summary>
+            <div class="details-summary">
+                <div>
+                    <h2 class="panel-title">Create New Notice</h2>
+                    <p class="panel-text">
+                        Open this section only when a new notice needs to be created.
+                    </p>
+                </div>
+
+                <span class="button primary">+ Create Notice</span>
+            </div>
+        </summary>
+
+        <div class="details-content">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_notice">
+
+                <div class="form-grid">
+                    <p class="form-field">
+                        <label>Title</label>
+                        <input type="text" name="title" required class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Notice Type</label>
+                        <select name="notice_type" class="input-control">
+                            {% for value, label in notice_type_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Target Audience</label>
+                        <select name="target_audience" class="input-control">
+                            {% for value, label in target_audience_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Department</label>
+                        <select name="department" class="input-control">
+                            <option value="">No department</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">
+                                    {{ department.code }} - {{ department.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Batch</label>
+                        <select name="batch" class="input-control">
+                            <option value="">No batch</option>
+                            {% for batch in batches %}
+                                <option value="{{ batch.id }}">
+                                    {{ batch.department.code }} - {{ batch.batch_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Attachment</label>
+                        <input type="file" name="attachment" class="input-control">
+                    </p>
+                </div>
+
+                <p class="form-field" style="margin-top: 14px;">
+                    <label>Message</label>
+                    <textarea name="message" required class="input-control"></textarea>
+                </p>
+
+                <label class="checkbox-line">
+                    <input type="checkbox" name="is_published" checked>
+                    Publish immediately
+                </label>
+
+                <div class="form-actions">
+                    <button type="submit" class="button primary">
+                        Create Notice
+                    </button>
+                </div>
+            </form>
+        </div>
+    </details>
+
+    {% if edit_notice %}
+        <section class="notice-card notice-panel">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title">
+                        Edit {{ edit_notice.reference_id }}
+                    </h2>
+                    <p class="panel-text">
+                        Only the selected notice is opened for editing.
+                    </p>
+                </div>
+
+                <a href="{% url 'notice_management' %}" class="button">
+                    Close Editor
+                </a>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_notice">
+                <input type="hidden" name="notice_id" value="{{ edit_notice.id }}">
+
+                <div class="form-grid">
+                    <p class="form-field">
+                        <label>Title</label>
+                        <input
+                            type="text"
+                            name="title"
+                            value="{{ edit_notice.title }}"
+                            required
+                            class="input-control"
+                        >
+                    </p>
+
+                    <p class="form-field">
+                        <label>Notice Type</label>
+                        <select name="notice_type" class="input-control">
+                            {% for value, label in notice_type_choices %}
+                                <option
+                                    value="{{ value }}"
+                                    {% if edit_notice.notice_type == value %}selected{% endif %}
+                                >
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Target Audience</label>
+                        <select name="target_audience" class="input-control">
+                            {% for value, label in target_audience_choices %}
+                                <option
+                                    value="{{ value }}"
+                                    {% if edit_notice.target_audience == value %}selected{% endif %}
+                                >
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Department</label>
+                        <select name="department" class="input-control">
+                            <option value="">No department</option>
+                            {% for department in departments %}
+                                <option
+                                    value="{{ department.id }}"
+                                    {% if edit_notice.department and edit_notice.department.id == department.id %}selected{% endif %}
+                                >
+                                    {{ department.code }} - {{ department.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Batch</label>
+                        <select name="batch" class="input-control">
+                            <option value="">No batch</option>
+                            {% for batch in batches %}
+                                <option
+                                    value="{{ batch.id }}"
+                                    {% if edit_notice.batch and edit_notice.batch.id == batch.id %}selected{% endif %}
+                                >
+                                    {{ batch.department.code }} - {{ batch.batch_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Replace Attachment</label>
+                        <input type="file" name="attachment" class="input-control">
+                    </p>
+                </div>
+
+                <p class="form-field" style="margin-top: 14px;">
+                    <label>Message</label>
+                    <textarea name="message" required class="input-control">{{ edit_notice.message }}</textarea>
+                </p>
+
+                <label class="checkbox-line">
+                    <input
+                        type="checkbox"
+                        name="is_published"
+                        {% if edit_notice.is_published %}checked{% endif %}
+                    >
+                    Published
+                </label>
+
+                {% if edit_notice.attachment %}
+                    <div class="form-actions">
+                        <a
+                            href="{{ edit_notice.attachment.url }}"
+                            target="_blank"
+                            class="button success"
+                        >
+                            Open Current Attachment
+                        </a>
+                    </div>
+                {% endif %}
+
+                <div class="form-actions">
+                    <button type="submit" class="button primary">
+                        Save Changes
+                    </button>
+
+                    <a href="{% url 'notice_management' %}" class="button">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </section>
+    {% endif %}
+
+    <section class="notice-card notice-panel">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Find Notices</h2>
+                <p class="panel-text">
+                    Search by Notice ID, title, message, or publisher and apply optional filters.
+                </p>
+            </div>
+
+            <span class="section-chip">
+                {{ page_obj.paginator.count }} Result{{ page_obj.paginator.count|pluralize }}
+            </span>
+        </div>
+
+        <form method="get" class="filter-grid">
+            <p class="form-field">
+                <label>Search</label>
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="NTC-000001, title, message, publisher"
+                    class="input-control"
+                >
+            </p>
+
+            <p class="form-field">
+                <label>Type</label>
+                <select name="notice_type" class="input-control">
+                    <option value="">All types</option>
+                    {% for value, label in notice_type_choices %}
+                        <option
+                            value="{{ value }}"
+                            {% if selected_notice_type == value %}selected{% endif %}
+                        >
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p class="form-field">
+                <label>Audience</label>
+                <select name="target_audience" class="input-control">
+                    <option value="">All audiences</option>
+                    {% for value, label in target_audience_choices %}
+                        <option
+                            value="{{ value }}"
+                            {% if selected_audience == value %}selected{% endif %}
+                        >
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p class="form-field">
+                <label>Department</label>
+                <select name="department" class="input-control">
+                    <option value="">All departments</option>
+                    {% for department in departments %}
+                        <option
+                            value="{{ department.id }}"
+                            {% if selected_department|stringformat:"s" == department.id|stringformat:"s" %}selected{% endif %}
+                        >
+                            {{ department.code }} - {{ department.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p class="form-field">
+                <label>Status</label>
+                <select name="status" class="input-control">
+                    <option value="">All statuses</option>
+                    <option value="published" {% if selected_status == 'published' %}selected{% endif %}>
+                        Published
+                    </option>
+                    <option value="draft" {% if selected_status == 'draft' %}selected{% endif %}>
+                        Draft
+                    </option>
+                </select>
+            </p>
+
+            <div class="form-actions" style="margin-top: 0;">
+                <button type="submit" class="button primary">Filter</button>
+                <a href="{% url 'notice_management' %}" class="button">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="notice-card notice-panel">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Existing Notices</h2>
+                <p class="panel-text">
+                    Notices remain compact until the Edit button is selected.
+                </p>
+            </div>
+
+            <span class="section-chip">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+        </div>
+
+        {% if notices %}
+            <div class="table-wrap">
+                <table class="notice-table">
+                    <thead>
+                        <tr>
+                            <th>Notice</th>
+                            <th>Type</th>
+                            <th>Audience</th>
+                            <th>Department / Batch</th>
+                            <th>Publisher</th>
+                            <th>Status</th>
+                            <th>Attachment</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for notice in notices %}
+                            <tr>
+                                <td>
+                                    <div class="reference-id">
+                                        {{ notice.reference_id }}
+                                    </div>
+
+                                    <div class="notice-name">
+                                        {{ notice.title }}
+                                    </div>
+
+                                    <div class="notice-preview">
+                                        {{ notice.message|truncatechars:85 }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="badge">
+                                        {{ notice.get_notice_type_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ notice.get_target_audience_display }}
+                                </td>
+
+                                <td>
+                                    {% if notice.department %}
+                                        {{ notice.department }}
+                                    {% else %}
+                                        All departments
+                                    {% endif %}
+
+                                    {% if notice.batch %}
+                                        <br>{{ notice.batch }}
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if notice.published_by %}
+                                        {{ notice.published_by.username }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if notice.is_published %}
+                                        <span class="badge published">Published</span>
+                                    {% else %}
+                                        <span class="badge draft">Draft</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if notice.attachment %}
+                                        <a
+                                            href="{{ notice.attachment.url }}"
+                                            target="_blank"
+                                            class="button"
+                                        >
+                                            Open
+                                        </a>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ notice.published_at|date:"M d, Y" }}</td>
+
+                                <td>
+                                    <div class="action-group">
+                                        <a
+                                            href="?edit={{ notice.id }}"
+                                            class="button primary"
+                                        >
+                                            Edit
+                                        </a>
+
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="toggle_notice">
+                                            <input type="hidden" name="notice_id" value="{{ notice.id }}">
+
+                                            {% if notice.is_published %}
+                                                <button type="submit" class="button">
+                                                    Unpublish
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" class="button success">
+                                                    Publish
+                                                </button>
+                                            {% endif %}
+                                        </form>
+
+                                        <form
+                                            method="post"
+                                            onsubmit="return confirm('Delete {{ notice.reference_id }}?');"
+                                        >
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="delete_notice">
+                                            <input type="hidden" name="notice_id" value="{{ notice.id }}">
+
+                                            <button type="submit" class="button danger">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <div class="pagination-text">
+                    Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </div>
+
+                <div class="action-group">
+                    {% if page_obj.has_previous %}
+                        <a
+                            href="?page={{ page_obj.previous_page_number }}&q={{ query }}&notice_type={{ selected_notice_type }}&target_audience={{ selected_audience }}&department={{ selected_department }}&status={{ selected_status }}"
+                            class="button"
+                        >
+                            Previous
+                        </a>
+                    {% endif %}
+
+                    {% if page_obj.has_next %}
+                        <a
+                            href="?page={{ page_obj.next_page_number }}&q={{ query }}&notice_type={{ selected_notice_type }}&target_audience={{ selected_audience }}&department={{ selected_department }}&status={{ selected_status }}"
+                            class="button"
+                        >
+                            Next
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No notices matched the selected filters.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,2736 @@
+from collections import defaultdict
+from decimal import Decimal
+import os
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.utils import timezone
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.pdfgen import canvas
+
+from accounts.models import User
+from academics.models import Department, CourseOffering
+from students.models import StudentProfile, CourseRegistration
+from faculty.models import Mark
+from exams.models import (
+    ExamRoutine,
+    SeatPlan,
+    HallDuty,
+    ResultPublication,
+    ResultCorrectionRequest,
+)
+
+
+def _user_display_name(user):
+    if not user:
+        return '-'
+
+    return user.get_full_name() or user.username
+
+
+def _department_label(department):
+    if not department:
+        return '-'
+
+    if hasattr(department, 'code') and department.code:
+        return department.code
+
+    if hasattr(department, 'name') and department.name:
+        return department.name
+
+    return str(department)
+
+
+def _faculty_department_designation(user, fallback_department=None):
+    if not user:
+        return '-'
+
+    department = None
+
+    if hasattr(user, 'staff_department') and user.staff_department:
+        department = user.staff_department
+    elif fallback_department:
+        department = _department_label(fallback_department)
+
+    designation = None
+
+    if hasattr(user, 'designation') and user.designation:
+        designation = user.designation
+    elif hasattr(user, 'get_role_display'):
+        designation = user.get_role_display()
+
+    if department and designation:
+        return f'{department} · {designation}'
+
+    if department:
+        return str(department)
+
+    if designation:
+        return str(designation)
+
+    return '-'
+
+
+def _exam_type_display(exam_type):
+    labels = {
+        'midterm': 'Midterm',
+        'final': 'Final',
+        'recovery': 'Recovery',
+    }
+
+    return labels.get(exam_type, str(exam_type).title())
+
+
+def _get_semesters_from_course_offerings(queryset):
+    semesters = []
+    used_semester_ids = set()
+
+    for offering in queryset:
+        if offering.semester and offering.semester.id not in used_semester_ids:
+            semesters.append(offering.semester)
+            used_semester_ids.add(offering.semester.id)
+
+    return semesters
+
+
+def _exam_controller_base_context(request):
+    selected_department_id = (
+        request.GET.get('department') or
+        request.POST.get('selected_department_id')
+    )
+
+    departments = Department.objects.all().order_by('name')
+
+    course_offerings = CourseOffering.objects.select_related(
+        'course',
+        'course__department',
+        'batch',
+        'batch__department',
+        'semester',
+        'faculty'
+    )
+
+    students = StudentProfile.objects.select_related(
+        'user',
+        'department',
+        'batch',
+        'current_semester'
+    )
+
+    routines = ExamRoutine.objects.select_related(
+        'course_offering',
+        'course_offering__course',
+        'course_offering__batch',
+        'course_offering__semester'
+    )
+
+    seat_plans = SeatPlan.objects.select_related(
+        'student',
+        'student__user',
+        'course_offering',
+        'course_offering__course'
+    )
+
+    hall_duties = HallDuty.objects.select_related(
+        'faculty',
+        'exam_routine',
+        'exam_routine__course_offering',
+        'exam_routine__course_offering__course'
+    )
+
+    result_publications = ResultPublication.objects.select_related(
+        'course_offering',
+        'course_offering__course',
+        'course_offering__batch',
+        'course_offering__semester',
+        'published_by'
+    )
+
+    if selected_department_id:
+        course_offerings = course_offerings.filter(
+            Q(course__department_id=selected_department_id) |
+            Q(batch__department_id=selected_department_id)
+        )
+
+        students = students.filter(
+            department_id=selected_department_id
+        )
+
+        routines = routines.filter(
+            Q(course_offering__course__department_id=selected_department_id) |
+            Q(course_offering__batch__department_id=selected_department_id)
+        )
+
+        seat_plans = seat_plans.filter(
+            Q(course_offering__course__department_id=selected_department_id) |
+            Q(course_offering__batch__department_id=selected_department_id)
+        )
+
+        hall_duties = hall_duties.filter(
+            Q(exam_routine__course_offering__course__department_id=selected_department_id) |
+            Q(exam_routine__course_offering__batch__department_id=selected_department_id)
+        )
+
+        result_publications = result_publications.filter(
+            Q(course_offering__course__department_id=selected_department_id) |
+            Q(course_offering__batch__department_id=selected_department_id)
+        )
+
+    course_offerings = course_offerings.order_by(
+        'semester__id',
+        'course__code',
+        'section'
+    )
+
+    students = students.order_by('student_id')
+
+    routines = routines.order_by(
+        '-exam_date',
+        '-id'
+    )
+
+    seat_plans = seat_plans.order_by(
+        'course_offering__course__code',
+        'student__student_id'
+    )
+
+    hall_duties = hall_duties.order_by('-id')
+
+    result_publications = result_publications.order_by(
+        'course_offering__semester__id',
+        'course_offering__course__code',
+        'exam_type'
+    )
+
+    semesters = _get_semesters_from_course_offerings(course_offerings)
+
+    faculty_users = User.objects.filter(
+        role='faculty',
+        is_active=True
+    ).order_by('username')
+
+    return {
+        'departments': departments,
+        'selected_department_id': selected_department_id,
+
+        'course_offerings': course_offerings,
+        'students': students,
+        'faculty_users': faculty_users,
+        'routines': routines,
+        'seat_plans': seat_plans,
+        'hall_duties': hall_duties,
+        'result_publications': result_publications,
+        'semesters': semesters,
+    }
+
+
+def _redirect_exam_action(request, url_name):
+    selected_department_id = request.POST.get('selected_department_id')
+
+    base_url = reverse(url_name)
+
+    if selected_department_id:
+        return redirect(f'{base_url}?department={selected_department_id}')
+
+    return redirect(url_name)
+
+
+def _routine_redirect_url(department_id=None, semester_id=None, exam_type=None, section=None):
+    base_url = reverse('exam_create_routine')
+    query_parts = []
+
+    if department_id:
+        query_parts.append(f'department={department_id}')
+
+    if semester_id:
+        query_parts.append(f'routine_semester={semester_id}')
+
+    if exam_type:
+        query_parts.append(f'routine_exam_type={exam_type}')
+
+    if section:
+        query_parts.append(f'routine_section={section}')
+
+    if query_parts:
+        return f'{base_url}?{"&".join(query_parts)}'
+
+    return base_url
+
+
+def _get_semester_routine_course_offerings(department_id, semester_id, section=None):
+    if not department_id or not semester_id:
+        return CourseOffering.objects.none()
+
+    course_offerings = CourseOffering.objects.filter(
+        semester_id=semester_id
+    ).filter(
+        Q(course__department_id=department_id) |
+        Q(batch__department_id=department_id)
+    ).select_related(
+        'course',
+        'course__department',
+        'batch',
+        'batch__department',
+        'semester',
+        'faculty'
+    )
+
+    if section:
+        course_offerings = course_offerings.filter(section=section)
+
+    return course_offerings.order_by(
+        'course__code',
+        'section'
+    )
+
+
+def _get_routine_scope_label(department_id, semester_id, exam_type):
+    department = None
+    semester = None
+
+    if department_id:
+        department = Department.objects.filter(id=department_id).first()
+
+    if semester_id:
+        offering = CourseOffering.objects.filter(
+            semester_id=semester_id
+        ).select_related(
+            'semester'
+        ).first()
+
+        if offering:
+            semester = offering.semester
+
+    return department, semester, exam_type
+
+
+@login_required
+def exam_controller_dashboard(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    recent_routines = ExamRoutine.objects.select_related(
+        'course_offering',
+        'course_offering__course',
+        'course_offering__batch',
+        'course_offering__semester'
+    ).order_by('-exam_date', '-id')[:5]
+
+    recent_seat_plans = SeatPlan.objects.select_related(
+        'student',
+        'student__user',
+        'course_offering',
+        'course_offering__course'
+    ).order_by('-id')[:5]
+
+    recent_hall_duties = HallDuty.objects.select_related(
+        'faculty',
+        'exam_routine',
+        'exam_routine__course_offering',
+        'exam_routine__course_offering__course'
+    ).order_by('-id')[:5]
+
+    recent_result_publications = ResultPublication.objects.select_related(
+        'course_offering',
+        'course_offering__course',
+        'course_offering__batch',
+        'course_offering__semester',
+        'published_by'
+    ).order_by('-published_at', '-id')[:5]
+
+    context = {
+        'routine_count': ExamRoutine.objects.count(),
+        'seat_plan_count': SeatPlan.objects.count(),
+        'hall_duty_count': HallDuty.objects.count(),
+        'result_publication_count': ResultPublication.objects.count(),
+
+        'recent_routines': recent_routines,
+        'recent_seat_plans': recent_seat_plans,
+        'recent_hall_duties': recent_hall_duties,
+        'recent_result_publications': recent_result_publications,
+    }
+
+    return render(request, 'dashboard/exam_controller_dashboard.html', context)
+
+
+@login_required
+def exam_create_routine(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    selected_department_id = (
+        request.GET.get('department') or
+        request.POST.get('selected_department_id') or
+        ''
+    )
+
+    selected_routine_semester_id = (
+        request.GET.get('routine_semester') or
+        request.POST.get('routine_semester') or
+        ''
+    )
+
+    selected_routine_exam_type = (
+        request.GET.get('routine_exam_type') or
+        request.POST.get('routine_exam_type') or
+        'midterm'
+    )
+
+    selected_routine_section = (
+        request.GET.get('routine_section') or
+        request.POST.get('routine_section') or
+        ''
+    )
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'create_routine':
+            course_offering_id = request.POST.get('course_offering')
+            exam_type = request.POST.get('exam_type')
+            exam_date = request.POST.get('exam_date')
+            start_time = request.POST.get('start_time')
+            end_time = request.POST.get('end_time')
+            room = request.POST.get('room')
+            is_published = request.POST.get('is_published') == 'on'
+
+            course_offering = CourseOffering.objects.filter(
+                id=course_offering_id
+            ).first()
+
+            if course_offering and exam_type and exam_date and start_time and end_time and room:
+                routine, created = ExamRoutine.objects.update_or_create(
+                    course_offering=course_offering,
+                    exam_type=exam_type,
+                    defaults={
+                        'exam_date': exam_date,
+                        'start_time': start_time,
+                        'end_time': end_time,
+                        'room': room,
+                        'is_published': is_published,
+                    }
+                )
+
+                if created:
+                    messages.success(request, 'Exam routine created successfully.')
+                else:
+                    messages.success(request, 'Exam routine updated successfully.')
+            else:
+                messages.error(request, 'Please fill all exam routine fields.')
+
+            return redirect(
+                _routine_redirect_url(
+                    selected_department_id,
+                    selected_routine_semester_id,
+                    selected_routine_exam_type,
+                    selected_routine_section
+                )
+            )
+
+        if action == 'save_semester_routine':
+            department_id = request.POST.get('selected_department_id', '').strip()
+            semester_id = request.POST.get('routine_semester', '').strip()
+            exam_type = request.POST.get('routine_exam_type', '').strip()
+            section = request.POST.get('routine_section', '').strip()
+            publish_mode = request.POST.get('publish_mode', 'draft').strip()
+
+            if not department_id or not semester_id or not exam_type:
+                messages.error(request, 'Please select department, semester, and exam type first.')
+                return redirect('exam_create_routine')
+
+            course_offerings = _get_semester_routine_course_offerings(
+                department_id,
+                semester_id,
+                section
+            )
+
+            saved_count = 0
+            skipped_count = 0
+
+            for offering in course_offerings:
+                date_value = request.POST.get(f'exam_date_{offering.id}', '').strip()
+                start_value = request.POST.get(f'start_time_{offering.id}', '').strip()
+                end_value = request.POST.get(f'end_time_{offering.id}', '').strip()
+                room_value = request.POST.get(f'room_{offering.id}', '').strip()
+
+                has_any_value = date_value or start_value or end_value or room_value
+                has_all_values = date_value and start_value and end_value and room_value
+
+                if not has_any_value:
+                    skipped_count += 1
+                    continue
+
+                if not has_all_values:
+                    skipped_count += 1
+                    continue
+
+                ExamRoutine.objects.update_or_create(
+                    course_offering=offering,
+                    exam_type=exam_type,
+                    defaults={
+                        'exam_date': date_value,
+                        'start_time': start_value,
+                        'end_time': end_value,
+                        'room': room_value,
+                        'is_published': publish_mode == 'publish',
+                    }
+                )
+
+                saved_count += 1
+
+            if publish_mode == 'publish':
+                messages.success(
+                    request,
+                    f'{saved_count} {_exam_type_display(exam_type)} routine(s) saved and published. {skipped_count} course(s) skipped.'
+                )
+            else:
+                messages.success(
+                    request,
+                    f'{saved_count} {_exam_type_display(exam_type)} routine(s) saved as draft. {skipped_count} course(s) skipped.'
+                )
+
+            return redirect(
+                _routine_redirect_url(
+                    department_id,
+                    semester_id,
+                    exam_type,
+                    section
+                )
+            )
+
+        if action == 'toggle_routine':
+            routine_id = request.POST.get('routine_id')
+
+            routine = ExamRoutine.objects.filter(
+                id=routine_id
+            ).first()
+
+            if routine:
+                routine.is_published = not routine.is_published
+                routine.save()
+
+                if routine.is_published:
+                    messages.success(request, 'Exam routine published.')
+                else:
+                    messages.warning(request, 'Exam routine unpublished.')
+            else:
+                messages.error(request, 'Exam routine not found.')
+
+            return redirect(
+                _routine_redirect_url(
+                    selected_department_id,
+                    selected_routine_semester_id,
+                    selected_routine_exam_type,
+                    selected_routine_section
+                )
+            )
+
+    context = _exam_controller_base_context(request)
+
+    available_sections = []
+
+    if selected_department_id and selected_routine_semester_id:
+        section_queryset = CourseOffering.objects.filter(
+            semester_id=selected_routine_semester_id
+        ).filter(
+            Q(course__department_id=selected_department_id) |
+            Q(batch__department_id=selected_department_id)
+        ).exclude(
+            section__isnull=True
+        ).exclude(
+            section=''
+        ).values_list(
+            'section',
+            flat=True
+        ).distinct().order_by('section')
+
+        available_sections = list(section_queryset)
+
+    semester_builder_offerings = _get_semester_routine_course_offerings(
+        selected_department_id,
+        selected_routine_semester_id,
+        selected_routine_section
+    )
+
+    existing_routine_map = {}
+
+    if selected_routine_exam_type:
+        existing_routines = ExamRoutine.objects.filter(
+            course_offering_id__in=semester_builder_offerings.values_list('id', flat=True),
+            exam_type=selected_routine_exam_type
+        ).select_related(
+            'course_offering',
+            'course_offering__course',
+            'course_offering__batch',
+            'course_offering__semester'
+        )
+
+        for routine in existing_routines:
+            existing_routine_map[routine.course_offering_id] = routine
+
+    semester_builder_rows = []
+
+    for offering in semester_builder_offerings:
+        semester_builder_rows.append({
+            'offering': offering,
+            'routine': existing_routine_map.get(offering.id),
+        })
+
+    scope_department, scope_semester, scope_exam_type = _get_routine_scope_label(
+        selected_department_id,
+        selected_routine_semester_id,
+        selected_routine_exam_type
+    )
+
+    semester_scope_routines = ExamRoutine.objects.none()
+
+    if selected_department_id and selected_routine_semester_id and selected_routine_exam_type:
+        semester_scope_routines = ExamRoutine.objects.filter(
+            course_offering_id__in=semester_builder_offerings.values_list('id', flat=True),
+            exam_type=selected_routine_exam_type
+        ).select_related(
+            'course_offering',
+            'course_offering__course',
+            'course_offering__batch',
+            'course_offering__semester',
+            'course_offering__faculty'
+        ).order_by(
+            'exam_date',
+            'start_time',
+            'course_offering__course__code'
+        )
+
+    context.update({
+        'page_type': 'routine',
+        'page_title': 'Create Exam Routine',
+        'page_subtitle': 'Create individual, semester-wise, and recovery exam routines.',
+
+        'selected_routine_semester_id': selected_routine_semester_id,
+        'selected_routine_exam_type': selected_routine_exam_type,
+        'selected_routine_section': selected_routine_section,
+        'available_sections': available_sections,
+
+        'semester_builder_rows': semester_builder_rows,
+        'semester_scope_routines': semester_scope_routines,
+
+        'scope_department': scope_department,
+        'scope_semester': scope_semester,
+        'scope_exam_type': scope_exam_type,
+        'scope_exam_type_display': _exam_type_display(scope_exam_type),
+    })
+
+    return render(request, 'dashboard/exam_controller_action_page.html', context)
+
+
+@login_required
+def exam_create_seat_plan(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'create_seat_plan':
+            student_id = request.POST.get('student')
+            course_offering_id = request.POST.get('course_offering')
+            exam_type = request.POST.get('exam_type')
+            room = request.POST.get('room')
+            seat_number = request.POST.get('seat_number')
+            is_published = request.POST.get('is_published') == 'on'
+
+            student = StudentProfile.objects.filter(
+                id=student_id
+            ).first()
+
+            course_offering = CourseOffering.objects.filter(
+                id=course_offering_id
+            ).first()
+
+            if student and course_offering and exam_type and room and seat_number:
+                seat_plan, created = SeatPlan.objects.update_or_create(
+                    student=student,
+                    course_offering=course_offering,
+                    exam_type=exam_type,
+                    defaults={
+                        'room': room,
+                        'seat_number': seat_number,
+                        'is_published': is_published,
+                    }
+                )
+
+                if created:
+                    messages.success(request, 'Seat plan created successfully.')
+                else:
+                    messages.success(request, 'Seat plan updated successfully.')
+            else:
+                messages.error(request, 'Please fill all seat plan fields.')
+
+            return _redirect_exam_action(request, 'exam_create_seat_plan')
+
+        if action == 'toggle_seat_plan':
+            seat_plan_id = request.POST.get('seat_plan_id')
+
+            seat_plan = SeatPlan.objects.filter(
+                id=seat_plan_id
+            ).first()
+
+            if seat_plan:
+                seat_plan.is_published = not seat_plan.is_published
+                seat_plan.save()
+
+                if seat_plan.is_published:
+                    messages.success(request, 'Seat plan published.')
+                else:
+                    messages.warning(request, 'Seat plan unpublished.')
+            else:
+                messages.error(request, 'Seat plan not found.')
+
+            return _redirect_exam_action(request, 'exam_create_seat_plan')
+
+    context = _exam_controller_base_context(request)
+    context.update({
+        'page_type': 'seat_plan',
+        'page_title': 'Create Seat Plan',
+        'page_subtitle': 'Assign exam rooms and seat numbers to students.',
+    })
+
+    return render(request, 'dashboard/exam_controller_action_page.html', context)
+
+
+@login_required
+def exam_assign_hall_duty(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        faculty_id = request.POST.get('faculty')
+        exam_routine_id = request.POST.get('exam_routine')
+        duty_room = request.POST.get('duty_room')
+        duty_note = request.POST.get('duty_note')
+
+        faculty = User.objects.filter(
+            id=faculty_id,
+            role='faculty'
+        ).first()
+
+        exam_routine = ExamRoutine.objects.filter(
+            id=exam_routine_id
+        ).first()
+
+        if faculty and exam_routine and duty_room:
+            hall_duty, created = HallDuty.objects.update_or_create(
+                faculty=faculty,
+                exam_routine=exam_routine,
+                duty_room=duty_room,
+                defaults={
+                    'duty_note': duty_note,
+                }
+            )
+
+            if created:
+                messages.success(request, 'Hall duty assigned successfully.')
+            else:
+                messages.success(request, 'Hall duty updated successfully.')
+        else:
+            messages.error(request, 'Please select faculty, routine, and duty room.')
+
+        return _redirect_exam_action(request, 'exam_assign_hall_duty')
+
+    context = _exam_controller_base_context(request)
+    context.update({
+        'page_type': 'hall_duty',
+        'page_title': 'Assign Hall Duty',
+        'page_subtitle': 'Assign faculty members to exam halls.',
+    })
+
+    return render(request, 'dashboard/exam_controller_action_page.html', context)
+
+
+@login_required
+def exam_publish_result(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'unpublish_result':
+            publication_id = request.POST.get('publication_id')
+
+            publication = ResultPublication.objects.filter(
+                id=publication_id
+            ).first()
+
+            if publication:
+                publication.unpublish()
+                messages.warning(request, 'Result unpublished successfully.')
+            else:
+                messages.error(request, 'Result publication record not found.')
+
+            return _redirect_exam_action(request, 'exam_publish_result')
+
+    context = _exam_controller_base_context(request)
+    context.update({
+        'page_type': 'result',
+        'page_title': 'Publish Result',
+        'page_subtitle': (
+            'Search courses, preview submitted marks, publish individual results, '
+            'publish semester results, and open official mark sheets.'
+        ),
+    })
+
+    return render(request, 'dashboard/exam_controller_action_page.html', context)
+
+
+@login_required
+def exam_result_preview(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    course_offering_id = request.GET.get('course_offering')
+    exam_type = request.GET.get('exam_type')
+    department_id = request.GET.get('department')
+
+    if not course_offering_id or not exam_type:
+        messages.error(request, 'Please select course and exam type to preview result.')
+
+        if department_id:
+            return redirect(f'{reverse("exam_publish_result")}?department={department_id}')
+
+        return redirect('exam_publish_result')
+
+    course_offering = get_object_or_404(
+        CourseOffering.objects.select_related(
+            'course',
+            'batch',
+            'semester',
+            'faculty'
+        ),
+        id=course_offering_id
+    )
+
+    registrations = CourseRegistration.objects.filter(
+        course_offering=course_offering,
+        status='approved'
+    ).select_related(
+        'student',
+        'student__user'
+    ).order_by('student__student_id')
+
+    result_rows = []
+
+    submitted_count = 0
+    missing_count = 0
+
+    for reg in registrations:
+        student = reg.student
+
+        mark = Mark.objects.filter(
+            student=student,
+            course_offering=course_offering,
+            is_submitted=True
+        ).first()
+
+        midterm_total = Decimal('0')
+        final_total = Decimal('0')
+        total_marks = Decimal('0')
+
+        if mark:
+            submitted_count += 1
+
+            midterm_total = (
+                mark.class_test +
+                mark.assignment +
+                mark.attendance +
+                mark.midterm
+            )
+
+            final_total = mark.final
+            total_marks = mark.total
+        else:
+            missing_count += 1
+
+        result_rows.append({
+            'student': student,
+            'mark': mark,
+            'midterm_total': midterm_total,
+            'final_total': final_total,
+            'total_marks': total_marks,
+        })
+
+    publication = ResultPublication.objects.filter(
+        course_offering=course_offering,
+        exam_type=exam_type
+    ).first()
+
+    context = {
+        'course_offering': course_offering,
+        'exam_type': exam_type,
+        'result_rows': result_rows,
+        'publication': publication,
+        'selected_department_id': department_id,
+        'submitted_count': submitted_count,
+        'missing_count': missing_count,
+    }
+
+    return render(request, 'dashboard/result_preview.html', context)
+
+
+@login_required
+def publish_result_from_preview(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    if request.method != 'POST':
+        return redirect('exam_publish_result')
+
+    course_offering_id = request.POST.get('course_offering')
+    exam_type = request.POST.get('exam_type')
+    department_id = request.POST.get('selected_department_id')
+
+    course_offering = CourseOffering.objects.filter(
+        id=course_offering_id
+    ).first()
+
+    if course_offering and exam_type:
+        publication, created = ResultPublication.objects.get_or_create(
+            course_offering=course_offering,
+            exam_type=exam_type
+        )
+
+        publication.is_published = True
+        publication.published_by = request.user
+        publication.published_at = timezone.now()
+        publication.save()
+
+        messages.success(request, f'{exam_type.title()} result published successfully.')
+    else:
+        messages.error(request, 'Invalid result publication request.')
+
+    if department_id:
+        return redirect(f'{reverse("exam_publish_result")}?department={department_id}')
+
+    return redirect('exam_publish_result')
+
+
+@login_required
+def exam_semester_result_review(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    department_id = request.GET.get('department', '').strip()
+    semester_id = request.GET.get('semester', '').strip()
+    exam_type = request.GET.get('exam_type', 'midterm').strip() or 'midterm'
+
+    if not department_id or not semester_id or not exam_type:
+        messages.error(request, 'Please select department, semester, and exam type.')
+        return redirect('exam_publish_result')
+
+    department = get_object_or_404(Department, id=department_id)
+
+    course_offerings = CourseOffering.objects.filter(
+        semester_id=semester_id
+    ).filter(
+        Q(course__department_id=department_id) |
+        Q(batch__department_id=department_id)
+    ).select_related(
+        'course',
+        'course__department',
+        'batch',
+        'batch__department',
+        'semester',
+        'faculty'
+    ).order_by(
+        'course__code',
+        'section'
+    )
+
+    semester = None
+
+    if course_offerings.exists():
+        semester = course_offerings.first().semester
+
+    course_rows = []
+    ready_count = 0
+
+    for offering in course_offerings:
+        registrations = CourseRegistration.objects.filter(
+            course_offering=offering,
+            status='approved'
+        ).select_related(
+            'student',
+            'student__user'
+        ).order_by(
+            'student__student_id'
+        )
+
+        total_students = registrations.count()
+
+        marks = Mark.objects.filter(
+            course_offering=offering,
+            is_submitted=True
+        ).select_related(
+            'student',
+            'student__user'
+        )
+
+        submitted_count = marks.count()
+        missing_count = max(total_students - submitted_count, 0)
+
+        publication = ResultPublication.objects.filter(
+            course_offering=offering,
+            exam_type=exam_type
+        ).select_related(
+            'published_by'
+        ).first()
+
+        total_sum = Decimal('0')
+        mark_count = 0
+
+        for mark in marks:
+            if exam_type == 'midterm':
+                total_sum += (
+                    mark.class_test +
+                    mark.assignment +
+                    mark.attendance +
+                    mark.midterm
+                )
+            else:
+                total_sum += mark.total
+
+            mark_count += 1
+
+        if mark_count > 0:
+            average_marks = round(total_sum / mark_count, 2)
+        else:
+            average_marks = None
+
+        is_ready = submitted_count > 0
+
+        if is_ready:
+            ready_count += 1
+
+        student_rows = []
+
+        for reg in registrations:
+            mark = marks.filter(student=reg.student).first()
+
+            if mark:
+                if exam_type == 'midterm':
+                    shown_total = (
+                        mark.class_test +
+                        mark.assignment +
+                        mark.attendance +
+                        mark.midterm
+                    )
+                    total_label = f'{shown_total}/90'
+                else:
+                    shown_total = mark.total
+                    total_label = f'{mark.total}/100'
+
+                student_rows.append({
+                    'student': reg.student,
+                    'mark': mark,
+                    'total_label': total_label,
+                    'status': 'Submitted',
+                })
+            else:
+                student_rows.append({
+                    'student': reg.student,
+                    'mark': None,
+                    'total_label': '-',
+                    'status': 'Not Submitted',
+                })
+
+        course_rows.append({
+            'offering': offering,
+            'course_offering': offering,
+
+            'student_rows': student_rows,
+
+            'total_students': total_students,
+
+            'submitted_count': submitted_count,
+            'submitted_marks': submitted_count,
+
+            'missing_count': missing_count,
+            'missing_marks': missing_count,
+
+            'average_marks': average_marks,
+            'average_total': average_marks,
+
+            'publication': publication,
+            'is_ready': is_ready,
+
+            'preview_url': (
+                f'{reverse("exam_result_preview")}'
+                f'?course_offering={offering.id}&exam_type={exam_type}'
+            ),
+        })
+
+    context = {
+        'department': department,
+        'semester': semester,
+        'exam_type': exam_type,
+        'course_rows': course_rows,
+        'total_courses': course_offerings.count(),
+
+        'ready_count': ready_count,
+        'ready_courses': ready_count,
+
+        'department_id': department_id,
+        'semester_id': semester_id,
+    }
+
+    return render(request, 'dashboard/exam_semester_result_review.html', context)
+
+
+@login_required
+def publish_semester_results(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    if request.method != 'POST':
+        return redirect('exam_publish_result')
+
+    department_id = request.POST.get('department', '').strip()
+    semester_id = request.POST.get('semester', '').strip()
+    exam_type = request.POST.get('exam_type', '').strip()
+
+    if not department_id or not semester_id or not exam_type:
+        messages.error(request, 'Please select department, semester, and exam type.')
+        return redirect('exam_publish_result')
+
+    course_offerings = CourseOffering.objects.filter(
+        semester_id=semester_id
+    ).filter(
+        Q(course__department_id=department_id) |
+        Q(batch__department_id=department_id)
+    )
+
+    published_count = 0
+    skipped_count = 0
+
+    for offering in course_offerings:
+        submitted_marks_count = Mark.objects.filter(
+            course_offering=offering,
+            is_submitted=True
+        ).count()
+
+        if submitted_marks_count == 0:
+            skipped_count += 1
+            continue
+
+        publication, created = ResultPublication.objects.get_or_create(
+            course_offering=offering,
+            exam_type=exam_type
+        )
+
+        publication.is_published = True
+        publication.published_by = request.user
+        publication.published_at = timezone.now()
+        publication.save()
+
+        published_count += 1
+
+    messages.success(
+        request,
+        f'{published_count} course result(s) published. {skipped_count} course(s) skipped because no submitted marks were found.'
+    )
+
+    review_url = reverse('exam_semester_result_review')
+    return redirect(
+        f'{review_url}?department={department_id}&semester={semester_id}&exam_type={exam_type}'
+    )
+
+
+@login_required
+def exam_manage_student_results(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    student_id_query = request.GET.get('student_id', '').strip()
+    selected_department_id = request.GET.get('department', '').strip()
+    selected_semester_id = request.GET.get('semester', '').strip()
+    selected_exam_type = request.GET.get('exam_type', '').strip()
+
+    departments = Department.objects.all().order_by('name')
+
+    course_offerings_for_semesters = CourseOffering.objects.select_related(
+        'semester'
+    ).exclude(
+        semester__isnull=True
+    ).order_by(
+        'semester__id'
+    )
+
+    semesters = _get_semesters_from_course_offerings(course_offerings_for_semesters)
+
+    if student_id_query:
+        student = StudentProfile.objects.filter(
+            student_id__iexact=student_id_query
+        ).first()
+
+        if not student:
+            student = StudentProfile.objects.filter(
+                student_id__icontains=student_id_query
+            ).first()
+
+        if student:
+            detail_url = reverse(
+                'exam_student_result_detail',
+                args=[student.id]
+            )
+
+            query_parts = []
+
+            if selected_semester_id:
+                query_parts.append(f'semester={selected_semester_id}')
+
+            if selected_exam_type:
+                query_parts.append(f'exam_type={selected_exam_type}')
+
+            if query_parts:
+                return redirect(f'{detail_url}?{"&".join(query_parts)}')
+
+            return redirect(detail_url)
+
+        messages.error(request, 'No student found with this student ID.')
+
+    students = StudentProfile.objects.select_related(
+        'user',
+        'department',
+        'batch',
+        'current_semester'
+    )
+
+    marks = Mark.objects.filter(
+        is_submitted=True
+    ).select_related(
+        'student',
+        'student__user',
+        'student__department',
+        'student__batch',
+        'student__current_semester',
+        'course_offering',
+        'course_offering__course',
+        'course_offering__batch',
+        'course_offering__semester'
+    )
+
+    if selected_department_id:
+        students = students.filter(
+            department_id=selected_department_id
+        )
+
+        marks = marks.filter(
+            Q(student__department_id=selected_department_id) |
+            Q(course_offering__course__department_id=selected_department_id) |
+            Q(course_offering__batch__department_id=selected_department_id)
+        )
+
+    if selected_semester_id:
+        marks = marks.filter(
+            course_offering__semester_id=selected_semester_id
+        )
+
+    if selected_exam_type:
+        marks = marks.filter(
+            course_offering__resultpublication__exam_type=selected_exam_type,
+            course_offering__resultpublication__is_published=True,
+        )
+
+    student_ids_with_marks = marks.values_list(
+        'student_id',
+        flat=True
+    ).distinct()
+
+    students = students.filter(
+        id__in=student_ids_with_marks
+    ).order_by(
+        'department__code',
+        'batch__batch_name',
+        'student_id'
+    )
+
+    student_rows = []
+
+    for student in students:
+        student_marks = marks.filter(student=student)
+
+        publication_query = ResultPublication.objects.filter(
+            course_offering_id__in=student_marks.values_list(
+                'course_offering_id',
+                flat=True
+            ),
+            is_published=True
+        )
+
+        if selected_exam_type:
+            publication_query = publication_query.filter(
+                exam_type=selected_exam_type
+            )
+
+        student_rows.append({
+            'student': student,
+            'marks_count': student_marks.count(),
+            'published_count': publication_query.count(),
+        })
+
+    context = {
+        'departments': departments,
+        'semesters': semesters,
+
+        'student_id_query': student_id_query,
+        'selected_department_id': selected_department_id,
+        'selected_semester_id': selected_semester_id,
+        'selected_exam_type': selected_exam_type,
+
+        'student_rows': student_rows,
+    }
+
+    return render(request, 'dashboard/exam_manage_student_results.html', context)
+
+
+@login_required
+def exam_student_result_detail(request, student_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    student = get_object_or_404(
+        StudentProfile.objects.select_related(
+            'user',
+            'department',
+            'batch',
+            'current_semester'
+        ),
+        id=student_id
+    )
+
+    selected_semester_id = request.GET.get('semester', '').strip()
+    selected_exam_type = request.GET.get('exam_type', '').strip()
+
+    marks = Mark.objects.filter(
+        student=student,
+        is_submitted=True
+    ).select_related(
+        'student',
+        'student__user',
+        'course_offering',
+        'course_offering__course',
+        'course_offering__course__department',
+        'course_offering__batch',
+        'course_offering__semester',
+        'course_offering__faculty',
+        'submitted_by',
+        'last_updated_by',
+    ).order_by(
+        'course_offering__semester__id',
+        'course_offering__course__code'
+    )
+
+    if selected_semester_id:
+        marks = marks.filter(
+            course_offering__semester_id=selected_semester_id
+        )
+
+    course_offering_ids = marks.values_list(
+        'course_offering_id',
+        flat=True
+    )
+
+    publications = ResultPublication.objects.filter(
+        course_offering_id__in=course_offering_ids
+    ).select_related(
+        'published_by',
+        'course_offering'
+    )
+
+    publication_map = {}
+
+    for publication in publications:
+        publication_map[
+            (publication.course_offering_id, publication.exam_type)
+        ] = publication
+
+    grouped = defaultdict(list)
+
+    for mark in marks:
+        semester = mark.course_offering.semester
+
+        midterm_publication = publication_map.get(
+            (mark.course_offering_id, 'midterm')
+        )
+
+        final_publication = publication_map.get(
+            (mark.course_offering_id, 'final')
+        )
+
+        if selected_exam_type == 'midterm' and not midterm_publication:
+            continue
+
+        if selected_exam_type == 'final' and not final_publication:
+            continue
+
+        midterm_total = (
+            mark.class_test +
+            mark.assignment +
+            mark.attendance +
+            mark.midterm
+        )
+
+        submitted_by = mark.submitted_by or mark.course_offering.faculty
+        submitted_by_meta = _faculty_department_designation(
+            submitted_by,
+            mark.course_offering.course.department
+        )
+
+        grouped[semester].append({
+            'mark': mark,
+            'midterm_total': midterm_total,
+            'midterm_publication': midterm_publication,
+            'final_publication': final_publication,
+            'submitted_by': submitted_by,
+            'submitted_by_meta': submitted_by_meta,
+        })
+
+    semester_groups = []
+
+    for semester, rows in grouped.items():
+        semester_total_credits = Decimal('0')
+        semester_weighted_points = Decimal('0')
+
+        used_course_ids = set()
+
+        for row in rows:
+            mark = row['mark']
+            final_publication = row['final_publication']
+
+            if (
+                final_publication and
+                final_publication.is_published and
+                mark.course_offering_id not in used_course_ids
+            ):
+                used_course_ids.add(mark.course_offering_id)
+
+                credit = Decimal(str(mark.course_offering.course.credit or 0))
+                grade_point = Decimal(str(mark.grade_point or 0))
+
+                semester_total_credits += credit
+                semester_weighted_points += credit * grade_point
+
+        if semester_total_credits > 0:
+            semester_cgpa = round(
+                semester_weighted_points / semester_total_credits,
+                2
+            )
+        else:
+            semester_cgpa = None
+
+        transcript_url = ''
+
+        if semester:
+            transcript_url = reverse(
+                'download_semester_transcript_by_student',
+                args=[student.id, semester.id]
+            )
+
+        semester_groups.append({
+            'semester': semester,
+            'rows': rows,
+            'semester_total_credits': semester_total_credits,
+            'semester_cgpa': semester_cgpa,
+            'transcript_url': transcript_url,
+        })
+
+    all_semesters = []
+    used_semester_ids = set()
+
+    course_offerings_for_semesters = CourseOffering.objects.select_related(
+        'semester'
+    ).exclude(
+        semester__isnull=True
+    ).order_by(
+        'semester__id'
+    )
+
+    for offering in course_offerings_for_semesters:
+        if offering.semester and offering.semester.id not in used_semester_ids:
+            all_semesters.append(offering.semester)
+            used_semester_ids.add(offering.semester.id)
+
+    context = {
+        'student': student,
+        'semester_groups': semester_groups,
+        'semesters': all_semesters,
+        'selected_semester_id': selected_semester_id,
+        'selected_exam_type': selected_exam_type,
+    }
+
+    return render(request, 'dashboard/exam_student_result_detail.html', context)
+
+
+@login_required
+def exam_result_correction_request(request, mark_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    mark = get_object_or_404(
+        Mark.objects.select_related(
+            'student',
+            'student__user',
+            'student__department',
+            'student__batch',
+            'student__current_semester',
+            'course_offering',
+            'course_offering__course',
+            'course_offering__semester',
+            'course_offering__faculty',
+            'submitted_by',
+            'last_updated_by',
+        ),
+        id=mark_id,
+        is_submitted=True
+    )
+
+    pending_request = ResultCorrectionRequest.objects.filter(
+        mark=mark,
+        status='pending'
+    ).first()
+
+    if request.method == 'POST':
+        if pending_request:
+            messages.warning(
+                request,
+                'A pending correction request already exists for this result.'
+            )
+            return redirect(
+                'exam_student_result_detail',
+                student_id=mark.student.id
+            )
+
+        reason = request.POST.get('reason', '').strip()
+
+        new_class_test = Decimal(request.POST.get('class_test') or '0')
+        new_assignment = Decimal(request.POST.get('assignment') or '0')
+        new_attendance = Decimal(request.POST.get('attendance') or '0')
+        new_midterm = Decimal(request.POST.get('midterm') or '0')
+        new_final = Decimal(request.POST.get('final') or '0')
+
+        if not reason:
+            messages.error(request, 'Please write a reason for this correction request.')
+            return redirect(
+                'exam_result_correction_request',
+                mark_id=mark.id
+            )
+
+        ResultCorrectionRequest.objects.create(
+            mark=mark,
+            student=mark.student,
+            course_offering=mark.course_offering,
+
+            requested_by=request.user,
+            reason=reason,
+
+            old_class_test=mark.class_test,
+            old_assignment=mark.assignment,
+            old_attendance=mark.attendance,
+            old_midterm=mark.midterm,
+            old_final=mark.final,
+
+            new_class_test=new_class_test,
+            new_assignment=new_assignment,
+            new_attendance=new_attendance,
+            new_midterm=new_midterm,
+            new_final=new_final,
+        )
+
+        messages.success(
+            request,
+            'Correction request sent to super admin successfully.'
+        )
+
+        return redirect(
+            'exam_student_result_detail',
+            student_id=mark.student.id
+        )
+
+    correction_requests = ResultCorrectionRequest.objects.filter(
+        mark=mark
+    ).select_related(
+        'requested_by',
+        'reviewed_by'
+    ).order_by('-created_at')
+
+    context = {
+        'mark': mark,
+        'pending_request': pending_request,
+        'correction_requests': correction_requests,
+    }
+
+    return render(request, 'dashboard/exam_result_correction_request.html', context)
+
+
+@login_required
+def result_correction_requests(request):
+    if request.user.role != 'super_admin':
+        return redirect('dashboard')
+
+    status_filter = request.GET.get('status', '').strip()
+
+    correction_requests = ResultCorrectionRequest.objects.select_related(
+        'mark',
+        'student',
+        'student__user',
+        'course_offering',
+        'course_offering__course',
+        'course_offering__batch',
+        'course_offering__semester',
+        'requested_by',
+        'reviewed_by'
+    ).order_by('-created_at')
+
+    if status_filter:
+        correction_requests = correction_requests.filter(
+            status=status_filter
+        )
+
+    context = {
+        'correction_requests': correction_requests,
+        'requests': correction_requests,
+        'status_filter': status_filter,
+    }
+
+    return render(request, 'dashboard/result_correction_requests.html', context)
+
+
+@login_required
+def review_result_correction_request(request, request_id):
+    if request.user.role != 'super_admin':
+        return redirect('dashboard')
+
+    correction_request = get_object_or_404(
+        ResultCorrectionRequest.objects.select_related(
+            'mark',
+            'student',
+            'student__user',
+            'student__department',
+            'student__batch',
+            'student__current_semester',
+            'course_offering',
+            'course_offering__course',
+            'course_offering__batch',
+            'course_offering__semester',
+            'course_offering__faculty',
+            'requested_by',
+            'reviewed_by',
+        ),
+        id=request_id
+    )
+
+    if request.method == 'POST':
+        if correction_request.status != 'pending':
+            messages.warning(
+                request,
+                'This correction request has already been reviewed.'
+            )
+            return redirect(
+                'review_result_correction_request',
+                request_id=correction_request.id
+            )
+
+        action = request.POST.get('action')
+        admin_note = request.POST.get('admin_note', '').strip()
+
+        if action == 'approve':
+            correction_request.approve(request.user)
+
+            create_audit_log(
+                request,
+                action='APPROVE',
+                module='Result Corrections',
+                description=(
+                    f'Approved result correction request for '
+                    f'{correction_request.student.student_id} - '
+                    f'{correction_request.course_offering.course.code}'
+                ),
+                target_model='ResultCorrectionRequest',
+                target_id=correction_request.id,
+                target_repr=str(correction_request),
+            )
+
+            messages.success(
+                request,
+                'Result correction approved and marks updated successfully.'
+            )
+
+        elif action == 'reject':
+            correction_request.reject(
+                request.user,
+                admin_note
+            )
+
+            create_audit_log(
+                request,
+                action='REJECT',
+                module='Result Corrections',
+                description=(
+                    f'Rejected result correction request for '
+                    f'{correction_request.student.student_id} - '
+                    f'{correction_request.course_offering.course.code}'
+                ),
+                target_model='ResultCorrectionRequest',
+                target_id=correction_request.id,
+                target_repr=str(correction_request),
+            )
+
+            messages.warning(
+                request,
+                'Result correction request rejected.'
+            )
+
+        else:
+            messages.error(
+                request,
+                'Invalid review action.'
+            )
+
+        return redirect(
+            'review_result_correction_request',
+            request_id=correction_request.id
+        )
+
+    mark_changes = [
+        {
+            'label': 'Class Test',
+            'old': correction_request.old_class_test,
+            'new': correction_request.new_class_test,
+        },
+        {
+            'label': 'Assignment',
+            'old': correction_request.old_assignment,
+            'new': correction_request.new_assignment,
+        },
+        {
+            'label': 'Attendance',
+            'old': correction_request.old_attendance,
+            'new': correction_request.new_attendance,
+        },
+        {
+            'label': 'Midterm',
+            'old': correction_request.old_midterm,
+            'new': correction_request.new_midterm,
+        },
+        {
+            'label': 'Final',
+            'old': correction_request.old_final,
+            'new': correction_request.new_final,
+        },
+    ]
+
+    for item in mark_changes:
+        item['changed'] = item['old'] != item['new']
+        item['difference'] = item['new'] - item['old']
+
+    context = {
+        'correction_request': correction_request,
+        'mark_changes': mark_changes,
+        'is_pending': correction_request.status == 'pending',
+    }
+
+    return render(
+        request,
+        'dashboard/review_result_correction_request.html',
+        context
+    )
+
+
+@login_required
+def download_semester_transcript(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    student_id = request.GET.get('student')
+    semester_id = request.GET.get('semester')
+
+    if not student_id or not semester_id:
+        messages.error(request, 'Please select student and semester.')
+        return redirect('exam_publish_result')
+
+    return _generate_semester_transcript_response(student_id, semester_id)
+
+
+@login_required
+def download_semester_transcript_by_student(request, student_id, semester_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    return _generate_semester_transcript_response(student_id, semester_id)
+
+
+def _generate_semester_transcript_response(student_id, semester_id):
+    student = get_object_or_404(
+        StudentProfile.objects.select_related(
+            'user',
+            'department',
+            'batch',
+            'current_semester'
+        ),
+        id=student_id
+    )
+
+    marks = Mark.objects.filter(
+        student=student,
+        is_submitted=True,
+        course_offering__semester_id=semester_id,
+        course_offering__resultpublication__exam_type='final',
+        course_offering__resultpublication__is_published=True
+    ).select_related(
+        'course_offering',
+        'course_offering__course',
+        'course_offering__semester'
+    ).distinct().order_by(
+        'course_offering__course__code'
+    )
+
+    if not marks:
+        return HttpResponse('No published final result found for this student and semester.')
+
+    semester = marks.first().course_offering.semester
+
+    semester_total_credits = Decimal('0')
+    semester_weighted_points = Decimal('0')
+
+    for mark in marks:
+        credit = Decimal(str(mark.course_offering.course.credit or 0))
+        grade_point = Decimal(str(mark.grade_point or 0))
+
+        semester_total_credits += credit
+        semester_weighted_points += credit * grade_point
+
+    if semester_total_credits > 0:
+        semester_cgpa = round(semester_weighted_points / semester_total_credits, 2)
+    else:
+        semester_cgpa = Decimal('0.00')
+
+    all_final_marks = Mark.objects.filter(
+        student=student,
+        is_submitted=True,
+        course_offering__resultpublication__exam_type='final',
+        course_offering__resultpublication__is_published=True
+    ).select_related(
+        'course_offering',
+        'course_offering__course'
+    ).distinct()
+
+    total_credits = Decimal('0')
+    total_weighted_points = Decimal('0')
+
+    for mark in all_final_marks:
+        credit = Decimal(str(mark.course_offering.course.credit or 0))
+        grade_point = Decimal(str(mark.grade_point or 0))
+
+        total_credits += credit
+        total_weighted_points += credit * grade_point
+
+    if total_credits > 0:
+        overall_cgpa = round(total_weighted_points / total_credits, 2)
+    else:
+        overall_cgpa = Decimal('0.00')
+
+    safe_semester_name = str(semester).replace(' ', '_')
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = (
+        f'attachment; filename="UGV_Official_Transcript_{student.student_id}_{safe_semester_name}.pdf"'
+    )
+
+    p = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+
+    accent = colors.HexColor('#9f1c1c')
+    dark = colors.HexColor('#0f172a')
+    muted = colors.HexColor('#64748b')
+    border = colors.HexColor('#dbe3ef')
+    soft = colors.HexColor('#f8fafc')
+    table_head = colors.HexColor('#f1f5f9')
+
+    card_x = 34
+    card_y = 34
+    card_w = width - 68
+    card_h = height - 68
+
+    inner_x = 62
+    right_x = width - 62
+    table_x = inner_x
+    table_w = right_x - inner_x
+
+    logo_path = os.path.join(
+        settings.BASE_DIR,
+        'static',
+        'images',
+        'UGV-Logo-02.png'
+    )
+
+    def fit_text(text, max_width, font_name='Helvetica', font_size=8):
+        text = str(text or '-')
+
+        if p.stringWidth(text, font_name, font_size) <= max_width:
+            return text
+
+        ellipsis = '...'
+        available = max_width - p.stringWidth(ellipsis, font_name, font_size)
+
+        trimmed = ''
+
+        for char in text:
+            if p.stringWidth(trimmed + char, font_name, font_size) > available:
+                break
+
+            trimmed += char
+
+        return trimmed.rstrip() + ellipsis
+
+    def draw_page_background():
+        p.setFillColor(soft)
+        p.rect(0, 0, width, height, fill=1, stroke=0)
+
+        p.setFillColor(colors.white)
+        p.roundRect(card_x, card_y, card_w, card_h, 16, fill=1, stroke=0)
+
+        p.setStrokeColor(border)
+        p.setLineWidth(1)
+        p.roundRect(card_x, card_y, card_w, card_h, 16, fill=0, stroke=1)
+
+    def draw_header():
+        header_top = height - 64
+
+        if os.path.exists(logo_path):
+            p.drawImage(
+                logo_path,
+                inner_x,
+                header_top - 40,
+                width=38,
+                height=38,
+                preserveAspectRatio=True,
+                mask='auto'
+            )
+
+            title_x = inner_x + 48
+        else:
+            title_x = inner_x
+
+        p.setFillColor(dark)
+        p.setFont('Helvetica-Bold', 16)
+        p.drawString(title_x, header_top - 6, 'University of Global Village (UGV)')
+
+        p.setFillColor(muted)
+        p.setFont('Helvetica', 8.5)
+        p.drawString(title_x, header_top - 23, 'Office of the Exam Controller')
+
+        p.setFillColor(accent)
+        p.setFont('Helvetica-Bold', 13)
+        p.drawRightString(right_x, header_top - 6, 'OFFICIAL TRANSCRIPT')
+
+        p.setFillColor(muted)
+        p.setFont('Helvetica', 8)
+        p.drawRightString(right_x, header_top - 23, f'Issue Date: {timezone.localdate()}')
+
+        line_y = header_top - 46
+
+        p.setStrokeColor(accent)
+        p.setLineWidth(5)
+        p.line(inner_x, line_y, right_x, line_y)
+
+        p.setStrokeColor(border)
+        p.setLineWidth(1)
+        p.line(inner_x, line_y - 22, right_x, line_y - 22)
+
+        return line_y - 50
+
+    def draw_footer():
+        footer_y = 82
+
+        p.setStrokeColor(border)
+        p.setLineWidth(1)
+
+        p.line(inner_x + 16, footer_y + 24, inner_x + 116, footer_y + 24)
+        p.line(inner_x + 205, footer_y + 24, inner_x + 305, footer_y + 24)
+        p.line(right_x - 116, footer_y + 24, right_x - 16, footer_y + 24)
+
+        p.setFillColor(muted)
+        p.setFont('Helvetica', 8)
+        p.drawString(inner_x + 36, footer_y + 10, 'Prepared By')
+        p.drawString(inner_x + 226, footer_y + 10, 'Checked By')
+        p.drawString(right_x - 98, footer_y + 10, 'Exam Controller')
+
+        p.setFillColor(accent)
+        p.setFont('Helvetica-Bold', 8)
+        p.drawRightString(right_x, 54, 'UGV Smart University Portal')
+
+    def draw_label_value(x, y, label, value, value_width=190):
+        p.setFillColor(muted)
+        p.setFont('Helvetica', 8)
+        p.drawString(x, y, label)
+
+        p.setFillColor(dark)
+        p.setFont('Helvetica-Bold', 9.5)
+        p.drawString(x, y - 13, fit_text(value, value_width, 'Helvetica-Bold', 9.5))
+
+    def draw_table_header(y):
+        p.setFillColor(table_head)
+        p.roundRect(table_x, y - 8, table_w, 24, 8, fill=1, stroke=0)
+
+        p.setFillColor(muted)
+        p.setFont('Helvetica-Bold', 7.2)
+
+        p.drawString(table_x + 10, y, 'COURSE CODE')
+        p.drawString(table_x + 92, y, 'COURSE TITLE')
+        p.drawRightString(table_x + 320, y, 'CREDIT')
+        p.drawRightString(table_x + 370, y, 'GRADE')
+        p.drawRightString(table_x + 415, y, 'GP')
+        p.drawString(table_x + 430, y, 'REMARKS')
+
+        return y - 24
+
+    draw_page_background()
+    y = draw_header()
+
+    p.setFillColor(dark)
+    p.setFont('Helvetica-Bold', 12)
+    p.drawString(inner_x, y, 'Student Information')
+
+    y -= 26
+
+    draw_label_value(inner_x, y, 'Student Name', _user_display_name(student.user), 220)
+    draw_label_value(332, y, 'Student ID', student.student_id, 150)
+
+    y -= 42
+
+    draw_label_value(inner_x, y, 'Department', str(student.department or '-'), 220)
+    draw_label_value(332, y, 'Batch', str(student.batch or '-'), 150)
+
+    y -= 42
+
+    draw_label_value(inner_x, y, 'Semester', str(semester or '-'), 220)
+    draw_label_value(332, y, 'Current Semester', str(student.current_semester or '-'), 150)
+
+    y -= 36
+
+    p.setStrokeColor(border)
+    p.setLineWidth(1)
+    p.line(inner_x, y, right_x, y)
+
+    y -= 26
+
+    p.setFillColor(accent)
+    p.setFont('Helvetica-Bold', 12)
+    p.drawString(inner_x, y, 'Academic Record')
+
+    p.setFillColor(muted)
+    p.setFont('Helvetica', 8)
+    p.drawRightString(right_x, y, 'Final published results only')
+
+    y -= 24
+    y = draw_table_header(y)
+
+    p.setFont('Helvetica', 7.8)
+
+    for mark in marks:
+        if y < 170:
+            draw_footer()
+            p.showPage()
+
+            draw_page_background()
+            y = draw_header()
+
+            p.setFillColor(accent)
+            p.setFont('Helvetica-Bold', 12)
+            p.drawString(inner_x, y, 'Academic Record Continued')
+
+            y -= 24
+            y = draw_table_header(y)
+
+        course = mark.course_offering.course
+
+        if str(mark.grade).upper() == 'F':
+            remarks = 'Failed'
+        else:
+            remarks = 'Completed'
+
+        p.setFillColor(dark)
+        p.setFont('Helvetica', 7.8)
+
+        p.drawString(
+            table_x + 10,
+            y,
+            fit_text(course.code, 74, 'Helvetica', 7.8)
+        )
+
+        p.drawString(
+            table_x + 92,
+            y,
+            fit_text(course.title, 205, 'Helvetica', 7.8)
+        )
+
+        p.drawRightString(
+            table_x + 320,
+            y,
+            str(course.credit or '0')
+        )
+
+        p.drawRightString(
+            table_x + 370,
+            y,
+            str(mark.grade or '-')
+        )
+
+        p.drawRightString(
+            table_x + 415,
+            y,
+            str(mark.grade_point or '0')
+        )
+
+        p.drawString(
+            table_x + 430,
+            y,
+            fit_text(remarks, 55, 'Helvetica', 7.8)
+        )
+
+        p.setStrokeColor(border)
+        p.setLineWidth(1)
+        p.line(table_x, y - 9, table_x + table_w, y - 9)
+
+        y -= 20
+
+    y -= 20
+
+    if y < 210:
+        draw_footer()
+        p.showPage()
+
+        draw_page_background()
+        y = draw_header()
+
+    summary_h = 68
+
+    p.setFillColor(soft)
+    p.roundRect(table_x, y - summary_h, table_w, summary_h, 12, fill=1, stroke=0)
+
+    p.setStrokeColor(border)
+    p.setLineWidth(1)
+    p.roundRect(table_x, y - summary_h, table_w, summary_h, 12, fill=0, stroke=1)
+
+    summary_items = [
+        ('SEMESTER CREDITS', str(semester_total_credits)),
+        ('SEMESTER GPA', str(semester_cgpa)),
+        ('TOTAL COMPLETED CREDITS', str(total_credits)),
+        ('CUMULATIVE GPA', str(overall_cgpa)),
+    ]
+
+    summary_col_w = table_w / 4
+
+    for index, item in enumerate(summary_items):
+        label, value = item
+        x = table_x + 16 + (summary_col_w * index)
+
+        p.setFillColor(muted)
+        p.setFont('Helvetica-Bold', 7)
+        p.drawString(x, y - 22, label)
+
+        p.setFillColor(dark)
+        p.setFont('Helvetica-Bold', 13)
+        p.drawString(x, y - 44, value)
+
+    y -= summary_h + 18
+
+    note_text = (
+        'This transcript is generated from officially published final results. '
+        'Detailed component marks are shown in the official mark sheet, not in the transcript.'
+    )
+
+    p.setFillColor(muted)
+    p.setFont('Helvetica', 7)
+    p.drawString(
+        table_x,
+        y,
+        fit_text(note_text, table_w, 'Helvetica', 7)
+    )
+
+    draw_footer()
+
+    p.showPage()
+    p.save()
+
+    return response
+
+
+@login_required
+def download_semester_exam_routine_pdf(request):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    department_id = request.GET.get('department', '').strip()
+    semester_id = request.GET.get('semester', '').strip()
+    exam_type = request.GET.get('exam_type', '').strip()
+    section = request.GET.get('section', '').strip()
+
+    if not department_id or not semester_id or not exam_type:
+        messages.error(request, 'Please select department, semester, and exam type.')
+        return redirect('exam_create_routine')
+
+    department = get_object_or_404(Department, id=department_id)
+
+    course_offerings = _get_semester_routine_course_offerings(
+        department_id,
+        semester_id,
+        section
+    )
+
+    routines = ExamRoutine.objects.filter(
+        course_offering_id__in=course_offerings.values_list('id', flat=True),
+        exam_type=exam_type
+    ).select_related(
+        'course_offering',
+        'course_offering__course',
+        'course_offering__batch',
+        'course_offering__semester',
+        'course_offering__faculty'
+    ).order_by(
+        'exam_date',
+        'start_time',
+        'course_offering__course__code'
+    )
+
+    if not routines.exists():
+        messages.error(request, 'No routine found for this department, semester, section, and exam type.')
+        return redirect(
+            _routine_redirect_url(
+                department_id,
+                semester_id,
+                exam_type,
+                section
+            )
+        )
+
+    semester = routines.first().course_offering.semester
+    batch = routines.first().course_offering.batch
+
+    safe_semester = str(semester).replace(' ', '_')
+    safe_exam_type = str(exam_type).replace(' ', '_')
+    safe_section = str(section or 'All_Sections').replace(' ', '_')
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = (
+        f'attachment; filename="UGV_{safe_exam_type.title()}_Routine_{department.code}_{safe_semester}_{safe_section}.pdf"'
+    )
+
+    p = canvas.Canvas(response, pagesize=landscape(A4))
+    width, height = landscape(A4)
+
+    accent = colors.HexColor('#9f1c1c')
+    dark = colors.HexColor('#0f172a')
+    muted = colors.HexColor('#64748b')
+    border = colors.HexColor('#dbe3ef')
+    soft = colors.HexColor('#f8fafc')
+    table_head = colors.HexColor('#f1f5f9')
+
+    card_x = 30
+    card_y = 30
+    card_w = width - 60
+    card_h = height - 60
+
+    inner_x = 58
+    right_x = width - 58
+    table_x = inner_x
+    table_w = right_x - inner_x
+
+    logo_path = os.path.join(
+        settings.BASE_DIR,
+        'static',
+        'images',
+        'UGV-Logo-02.png'
+    )
+
+    def fit_text(text, max_width, font_name='Helvetica', font_size=8):
+        text = str(text or '-')
+
+        if p.stringWidth(text, font_name, font_size) <= max_width:
+            return text
+
+        ellipsis = '...'
+        available = max_width - p.stringWidth(ellipsis, font_name, font_size)
+        trimmed = ''
+
+        for char in text:
+            if p.stringWidth(trimmed + char, font_name, font_size) > available:
+                break
+
+            trimmed += char
+
+        return trimmed.rstrip() + ellipsis
+
+    def draw_page_background():
+        p.setFillColor(soft)
+        p.rect(0, 0, width, height, fill=1, stroke=0)
+
+        p.setFillColor(colors.white)
+        p.roundRect(card_x, card_y, card_w, card_h, 16, fill=1, stroke=0)
+
+        p.setStrokeColor(border)
+        p.setLineWidth(1)
+        p.roundRect(card_x, card_y, card_w, card_h, 16, fill=0, stroke=1)
+
+    def draw_header():
+        header_top = height - 58
+
+        if os.path.exists(logo_path):
+            p.drawImage(
+                logo_path,
+                inner_x,
+                header_top - 38,
+                width=36,
+                height=36,
+                preserveAspectRatio=True,
+                mask='auto'
+            )
+            title_x = inner_x + 46
+        else:
+            title_x = inner_x
+
+        p.setFillColor(dark)
+        p.setFont('Helvetica-Bold', 16)
+        p.drawString(title_x, header_top - 5, 'University of Global Village (UGV)')
+
+        p.setFillColor(muted)
+        p.setFont('Helvetica', 8.5)
+        p.drawString(title_x, header_top - 22, 'Office of the Exam Controller')
+
+        p.setFillColor(accent)
+        p.setFont('Helvetica-Bold', 14)
+        p.drawRightString(right_x, header_top - 5, f'{_exam_type_display(exam_type)} Examination Routine')
+
+        p.setFillColor(muted)
+        p.setFont('Helvetica', 8)
+        p.drawRightString(right_x, header_top - 22, f'Issue Date: {timezone.localdate()}')
+
+        line_y = header_top - 44
+
+        p.setStrokeColor(accent)
+        p.setLineWidth(4)
+        p.line(inner_x, line_y, right_x, line_y)
+
+        p.setStrokeColor(border)
+        p.setLineWidth(1)
+        p.line(inner_x, line_y - 18, right_x, line_y - 18)
+
+        return line_y - 42
+
+    def draw_footer():
+        footer_y = 56
+
+        p.setStrokeColor(border)
+        p.setLineWidth(1)
+
+        p.line(inner_x + 20, footer_y + 20, inner_x + 140, footer_y + 20)
+        p.line(width / 2 - 60, footer_y + 20, width / 2 + 60, footer_y + 20)
+        p.line(right_x - 140, footer_y + 20, right_x - 20, footer_y + 20)
+
+        p.setFillColor(muted)
+        p.setFont('Helvetica', 8)
+        p.drawString(inner_x + 52, footer_y + 7, 'Prepared By')
+        p.drawString(width / 2 - 24, footer_y + 7, 'Checked By')
+        p.drawString(right_x - 112, footer_y + 7, 'Exam Controller')
+
+    draw_page_background()
+    y = draw_header()
+
+    p.setFillColor(dark)
+    p.setFont('Helvetica-Bold', 11)
+    p.drawString(inner_x, y, f'Department: {department.code} - {department.name}')
+    p.drawString(inner_x + 285, y, f'Semester: {semester}')
+
+    if section:
+        p.drawString(inner_x + 485, y, f'Batch: {batch} · Section: {section}')
+    else:
+        p.drawString(inner_x + 485, y, f'Batch: {batch} · All Sections')
+
+    y -= 26
+
+    p.setFillColor(table_head)
+    p.roundRect(table_x, y - 8, table_w, 24, 8, fill=1, stroke=0)
+
+    p.setFillColor(muted)
+    p.setFont('Helvetica-Bold', 7.5)
+
+    p.drawString(table_x + 10, y, 'DATE')
+    p.drawString(table_x + 86, y, 'DAY')
+    p.drawString(table_x + 150, y, 'TIME')
+    p.drawString(table_x + 260, y, 'COURSE CODE')
+    p.drawString(table_x + 360, y, 'COURSE TITLE')
+    p.drawString(table_x + 590, y, 'SECTION')
+    p.drawString(table_x + 650, y, 'ROOM')
+
+    y -= 24
+
+    p.setFont('Helvetica', 8)
+
+    for routine in routines:
+        if y < 96:
+            draw_footer()
+            p.showPage()
+
+            draw_page_background()
+            y = draw_header()
+
+            p.setFillColor(accent)
+            p.setFont('Helvetica-Bold', 12)
+            p.drawString(inner_x, y, 'Routine Continued')
+
+            y -= 26
+
+            p.setFillColor(table_head)
+            p.roundRect(table_x, y - 8, table_w, 24, 8, fill=1, stroke=0)
+
+            p.setFillColor(muted)
+            p.setFont('Helvetica-Bold', 7.5)
+
+            p.drawString(table_x + 10, y, 'DATE')
+            p.drawString(table_x + 86, y, 'DAY')
+            p.drawString(table_x + 150, y, 'TIME')
+            p.drawString(table_x + 260, y, 'COURSE CODE')
+            p.drawString(table_x + 360, y, 'COURSE TITLE')
+            p.drawString(table_x + 590, y, 'SECTION')
+            p.drawString(table_x + 650, y, 'ROOM')
+
+            y -= 24
+
+        course = routine.course_offering.course
+        day_name = routine.exam_date.strftime('%A')
+        date_text = routine.exam_date.strftime('%d %b %Y')
+        time_text = f'{routine.start_time.strftime("%I:%M %p")} - {routine.end_time.strftime("%I:%M %p")}'
+
+        p.setFillColor(dark)
+        p.setFont('Helvetica', 8)
+
+        p.drawString(table_x + 10, y, date_text)
+        p.drawString(table_x + 86, y, day_name)
+        p.drawString(table_x + 150, y, time_text)
+        p.drawString(table_x + 260, y, fit_text(course.code, 84, 'Helvetica', 8))
+        p.drawString(table_x + 360, y, fit_text(course.title, 210, 'Helvetica', 8))
+        p.drawString(table_x + 590, y, str(routine.course_offering.section or '-'))
+        p.drawString(table_x + 650, y, fit_text(routine.room, 96, 'Helvetica', 8))
+
+        p.setStrokeColor(border)
+        p.setLineWidth(1)
+        p.line(table_x, y - 9, table_x + table_w, y - 9)
+
+        y -= 20
+
+    y -= 14
+
+    p.setFillColor(muted)
+    p.setFont('Helvetica', 8)
+    p.drawString(
+        table_x,
+        y,
+        'Note: Students must follow the published routine and arrive at the exam hall before the scheduled time.'
+    )
+
+    draw_footer()
+
+    p.showPage()
+    p.save()
+
+    return response
+
+
+@login_required
+def edit_exam_routine(request, routine_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    routine = get_object_or_404(
+        ExamRoutine.objects.select_related(
+            'course_offering',
+            'course_offering__course',
+            'course_offering__batch',
+            'course_offering__semester'
+        ),
+        id=routine_id
+    )
+
+    course_offerings = CourseOffering.objects.filter(
+        is_active=True
+    ).select_related(
+        'course',
+        'batch',
+        'semester'
+    ).order_by('course__code')
+
+    if request.method == 'POST':
+        course_offering_id = request.POST.get('course_offering')
+        exam_type = request.POST.get('exam_type')
+        exam_date = request.POST.get('exam_date')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+        room = request.POST.get('room')
+        is_published = request.POST.get('is_published') == 'on'
+
+        course_offering = CourseOffering.objects.filter(
+            id=course_offering_id
+        ).first()
+
+        if course_offering and exam_type and exam_date and start_time and end_time and room:
+            routine.course_offering = course_offering
+            routine.exam_type = exam_type
+            routine.exam_date = exam_date
+            routine.start_time = start_time
+            routine.end_time = end_time
+            routine.room = room
+            routine.is_published = is_published
+            routine.save()
+
+            messages.success(request, 'Exam routine updated successfully.')
+            return redirect('exam_create_routine')
+
+        messages.error(request, 'Please fill all exam routine fields.')
+
+    context = {
+        'routine': routine,
+        'course_offerings': course_offerings,
+    }
+
+    return render(request, 'dashboard/edit_exam_routine.html', context)
+
+
+@login_required
+def delete_exam_routine(request, routine_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    routine = get_object_or_404(ExamRoutine, id=routine_id)
+
+    if request.method == 'POST':
+        routine.delete()
+        messages.success(request, 'Exam routine deleted successfully.')
+    else:
+        messages.warning(request, 'Invalid delete request.')
+
+    return redirect('exam_create_routine')
+
+
+@login_required
+def edit_seat_plan(request, seat_plan_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    seat_plan = get_object_or_404(
+        SeatPlan.objects.select_related(
+            'student',
+            'student__user',
+            'course_offering',
+            'course_offering__course'
+        ),
+        id=seat_plan_id
+    )
+
+    students = StudentProfile.objects.select_related(
+        'user',
+        'department',
+        'batch',
+        'current_semester'
+    ).order_by('student_id')
+
+    course_offerings = CourseOffering.objects.filter(
+        is_active=True
+    ).select_related(
+        'course',
+        'batch',
+        'semester'
+    ).order_by('course__code')
+
+    if request.method == 'POST':
+        student_id = request.POST.get('student')
+        course_offering_id = request.POST.get('course_offering')
+        exam_type = request.POST.get('exam_type')
+        room = request.POST.get('room')
+        seat_number = request.POST.get('seat_number')
+        is_published = request.POST.get('is_published') == 'on'
+
+        student = StudentProfile.objects.filter(
+            id=student_id
+        ).first()
+
+        course_offering = CourseOffering.objects.filter(
+            id=course_offering_id
+        ).first()
+
+        if student and course_offering and exam_type and room and seat_number:
+            seat_plan.student = student
+            seat_plan.course_offering = course_offering
+            seat_plan.exam_type = exam_type
+            seat_plan.room = room
+            seat_plan.seat_number = seat_number
+            seat_plan.is_published = is_published
+            seat_plan.save()
+
+            messages.success(request, 'Seat plan updated successfully.')
+            return redirect('exam_create_seat_plan')
+
+        messages.error(request, 'Please fill all seat plan fields.')
+
+    context = {
+        'seat_plan': seat_plan,
+        'students': students,
+        'course_offerings': course_offerings,
+    }
+
+    return render(request, 'dashboard/edit_seat_plan.html', context)
+
+
+@login_required
+def delete_seat_plan(request, seat_plan_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    seat_plan = get_object_or_404(SeatPlan, id=seat_plan_id)
+
+    if request.method == 'POST':
+        seat_plan.delete()
+        messages.success(request, 'Seat plan deleted successfully.')
+    else:
+        messages.warning(request, 'Invalid delete request.')
+
+    return redirect('exam_create_seat_plan')
+
+
+@login_required
+def edit_hall_duty(request, hall_duty_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    hall_duty = get_object_or_404(
+        HallDuty.objects.select_related(
+            'faculty',
+            'exam_routine',
+            'exam_routine__course_offering',
+            'exam_routine__course_offering__course'
+        ),
+        id=hall_duty_id
+    )
+
+    faculty_users = User.objects.filter(
+        role='faculty',
+        is_active=True
+    ).order_by('username')
+
+    routines = ExamRoutine.objects.select_related(
+        'course_offering',
+        'course_offering__course'
+    ).order_by('-exam_date', 'start_time')
+
+    faculty_picker_rows = []
+
+    for faculty in faculty_users:
+        department_name = 'No Department'
+        department_id = ''
+
+        faculty_offering = CourseOffering.objects.filter(
+            faculty=faculty
+        ).select_related(
+            'course',
+            'course__department'
+        ).first()
+
+        if (
+            faculty_offering and
+            faculty_offering.course and
+            faculty_offering.course.department
+        ):
+            department_name = faculty_offering.course.department.name
+            department_id = faculty_offering.course.department.id
+
+        faculty_picker_rows.append({
+            'id': faculty.id,
+            'name': faculty.get_full_name() or faculty.username,
+            'username': faculty.username,
+            'email': faculty.email or '',
+            'phone': faculty.phone or '',
+            'department_id': department_id,
+            'department_name': department_name,
+        })
+
+    if request.method == 'POST':
+        faculty_id = request.POST.get('faculty')
+        routine_id = request.POST.get('exam_routine')
+        duty_room = request.POST.get('duty_room')
+        duty_note = request.POST.get('duty_note')
+
+        faculty = User.objects.filter(
+            id=faculty_id,
+            role='faculty'
+        ).first()
+
+        routine = ExamRoutine.objects.filter(
+            id=routine_id
+        ).first()
+
+        if faculty and routine and duty_room:
+            hall_duty.faculty = faculty
+            hall_duty.exam_routine = routine
+            hall_duty.duty_room = duty_room
+            hall_duty.duty_note = duty_note
+            hall_duty.save()
+
+            messages.success(request, 'Hall duty updated successfully.')
+            return redirect('exam_assign_hall_duty')
+
+        messages.error(request, 'Please select faculty, routine, and duty room.')
+
+    context = {
+        'hall_duty': hall_duty,
+        'faculty_users': faculty_users,
+        'faculty_picker_rows': faculty_picker_rows,
+        'routines': routines,
+    }
+
+    return render(request, 'dashboard/edit_hall_duty.html', context)
+
+
+@login_required
+def delete_hall_duty(request, hall_duty_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    hall_duty = get_object_or_404(HallDuty, id=hall_duty_id)
+
+    if request.method == 'POST':
+        hall_duty.delete()
+        messages.success(request, 'Hall duty deleted successfully.')
+    else:
+        messages.warning(request, 'Invalid delete request.')
+
+    return redirect('exam_assign_hall_duty')
+
+
+@login_required
+def delete_result_publication(request, publication_id):
+    if request.user.role != 'exam_controller':
+        return redirect('dashboard')
+
+    publication = get_object_or_404(ResultPublication, id=publication_id)
+
+    if request.method == 'POST':
+        publication.delete()
+        messages.success(request, 'Result publication deleted successfully.')
+    else:
+        messages.warning(request, 'Invalid delete request.')
+
+    return redirect('exam_publish_result')

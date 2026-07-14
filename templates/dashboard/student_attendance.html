@@ -1,0 +1,1387 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .attendance-page {
+        width: 100%;
+        display: grid;
+        gap: 28px;
+    }
+
+    .attendance-page,
+    .attendance-page * {
+        box-sizing: border-box;
+    }
+
+    /* =========================
+       HERO
+    ========================= */
+
+    .attendance-hero {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 36px;
+        align-items: center;
+        padding: 38px;
+        border-radius: 34px;
+        border: 1px solid #e2e8f0;
+        background:
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.78),
+                transparent 36%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.72),
+                transparent 34%
+            ),
+            #ffffff;
+    }
+
+    .attendance-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 13px;
+        border-radius: 999px;
+        background: #fff1f2;
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .attendance-hero h1 {
+        margin: 18px 0 0;
+        color: #020617;
+        font-size: clamp(34px, 4.5vw, 52px);
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.055em;
+    }
+
+    .attendance-hero-description {
+        max-width: 750px;
+        margin: 14px 0 0;
+        color: #64748b;
+        font-size: 16px;
+        line-height: 1.65;
+    }
+
+    .hero-meta {
+        margin-top: 19px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .hero-meta-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 34px;
+        padding: 0 12px;
+        border-radius: 999px;
+        border: 1px solid #dbe3ef;
+        background: rgba(248, 250, 252, 0.88);
+        color: #475569;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .hero-meta-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #94a3b8;
+    }
+
+    .hero-meta-pill.is-success .hero-meta-dot {
+        background: #10b981;
+    }
+
+    .hero-meta-pill.is-danger .hero-meta-dot {
+        background: #ef4444;
+    }
+
+    .hero-action {
+        margin-top: 22px;
+    }
+
+    .hero-back-button {
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 12px;
+        border: 1px solid #dbe3ef;
+        background: #ffffff;
+        color: #0f172a;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 800;
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .hero-back-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    /* =========================
+       HERO CIRCLE
+    ========================= */
+
+    .attendance-ring {
+        --attendance-value: 0;
+        width: 174px;
+        height: 174px;
+        border-radius: 50%;
+        padding: 12px;
+        flex-shrink: 0;
+        background:
+            conic-gradient(
+                #9f1c1c calc(var(--attendance-value) * 1%),
+                #e2e8f0 0
+            );
+    }
+
+    .attendance-ring-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .attendance-ring-value {
+        color: #020617;
+        font-size: 34px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+    }
+
+    .attendance-ring-label {
+        margin-top: 9px;
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    .attendance-ring-status {
+        margin-top: 5px;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    /* =========================
+       STATS
+    ========================= */
+
+    .attendance-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .attendance-stat {
+        min-width: 0;
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+        padding: 21px;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+    }
+
+    .attendance-stat-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dbe3ef;
+        background: #f8fafc;
+        color: #475569;
+    }
+
+    .attendance-stat-icon.blue {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #2563eb;
+    }
+
+    .attendance-stat-icon.purple {
+        background: #faf5ff;
+        border-color: #e9d5ff;
+        color: #7c3aed;
+    }
+
+    .attendance-stat-icon.cyan {
+        background: #ecfeff;
+        border-color: #a5f3fc;
+        color: #0891b2;
+    }
+
+    .attendance-stat-icon svg {
+        width: 21px;
+        height: 21px;
+    }
+
+    .attendance-stat-label {
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .attendance-stat-value {
+        margin-top: 4px;
+        color: #0f172a;
+        font-size: 25px;
+        line-height: 1.12;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    .attendance-stat-value.success {
+        color: #047857;
+    }
+
+    .attendance-stat-value.danger {
+        color: #dc2626;
+    }
+
+    .attendance-stat-value.pending {
+        color: #64748b;
+    }
+
+    .attendance-stat-text {
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    /* =========================
+       MAIN OVERVIEW CARD
+    ========================= */
+
+    .attendance-overview {
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 30px;
+        background: #ffffff;
+    }
+
+    .attendance-overview-header {
+        padding: 28px 30px;
+        border-bottom: 1px solid #f1f5f9;
+        background:
+            linear-gradient(
+                120deg,
+                rgba(255, 241, 242, 0.82),
+                #ffffff 42%
+            );
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: center;
+    }
+
+    .overview-kicker {
+        color: #be123c;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    .attendance-overview-header h2 {
+        margin: 11px 0 0;
+        color: #020617;
+        font-size: 31px;
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: -0.045em;
+    }
+
+    .attendance-overview-header p {
+        max-width: 690px;
+        margin: 10px 0 0;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .overview-mini-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(82px, 1fr));
+        gap: 10px;
+    }
+
+    .overview-mini-stat {
+        min-width: 82px;
+        padding: 15px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.94);
+    }
+
+    .overview-mini-label {
+        color: #94a3b8;
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .overview-mini-value {
+        margin-top: 8px;
+        color: #0f172a;
+        font-size: 21px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    .overview-body {
+        padding: 28px 30px 30px;
+    }
+
+    /* =========================
+       DESKTOP TABLE
+    ========================= */
+
+    .attendance-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .attendance-table {
+        width: 100%;
+        min-width: 940px;
+        border: none;
+        border-radius: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .attendance-table th {
+        padding: 15px 17px;
+        background: #f8fafc;
+        color: #475569;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .attendance-table td {
+        padding: 16px 17px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #475569;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .attendance-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .attendance-table tr:hover td {
+        background: #fcfcfd;
+    }
+
+    .course-code {
+        color: #334155;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .course-title {
+        color: #475569;
+        min-width: 230px;
+    }
+
+    .attendance-center {
+        text-align: center;
+    }
+
+    .attendance-number-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        min-height: 36px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .attendance-number-pill.present {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #bbf7d0;
+    }
+
+    .attendance-number-pill.absent {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .attendance-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .attendance-badge.success {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #bbf7d0;
+    }
+
+    .attendance-badge.danger {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .attendance-badge.pending {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* =========================
+       MOBILE COURSE CARDS
+    ========================= */
+
+    .attendance-mobile-list {
+        display: none;
+        gap: 14px;
+    }
+
+    .attendance-course-card {
+        padding: 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 22px;
+        background: #ffffff;
+    }
+
+    .attendance-course-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .attendance-course-code {
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 900;
+    }
+
+    .attendance-course-title {
+        margin-top: 4px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .attendance-course-stats {
+        margin-top: 17px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .attendance-course-stat {
+        padding: 12px 8px;
+        border-radius: 15px;
+        background: #f8fafc;
+        text-align: center;
+    }
+
+    .attendance-course-stat-label {
+        color: #94a3b8;
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .attendance-course-stat-value {
+        margin-top: 5px;
+        color: #0f172a;
+        font-size: 19px;
+        font-weight: 900;
+    }
+
+    .attendance-progress {
+        margin-top: 17px;
+    }
+
+    .attendance-progress-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .attendance-progress-track {
+        margin-top: 9px;
+        height: 9px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e2e8f0;
+    }
+
+    .attendance-progress-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: #10b981;
+    }
+
+    .attendance-progress-fill.danger {
+        background: #ef4444;
+    }
+
+    .attendance-progress-fill.pending {
+        background: #cbd5e1;
+    }
+
+    /* =========================
+       EMPTY STATE
+    ========================= */
+
+    .attendance-empty {
+        min-height: 278px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 24px;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 36px;
+    }
+
+    .attendance-empty-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+    }
+
+    .attendance-empty-icon svg {
+        width: 26px;
+        height: 26px;
+    }
+
+    .attendance-empty h3 {
+        margin: 20px 0 0;
+        color: #1e293b;
+        font-size: 21px;
+        font-weight: 900;
+    }
+
+    .attendance-empty p {
+        max-width: 540px;
+        margin: 10px 0 0;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    /* =========================
+       QUICK LINKS
+    ========================= */
+
+    .attendance-links {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .attendance-link-card {
+        min-height: 110px;
+        padding: 22px;
+        border-radius: 22px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        transition:
+            transform 0.16s ease,
+            border-color 0.16s ease,
+            background 0.16s ease;
+    }
+
+    .attendance-link-card:hover {
+        transform: translateY(-2px);
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+
+    .attendance-link-card.primary {
+        border-color: #fecdd3;
+        background: #fff1f2;
+    }
+
+    .attendance-link-kicker {
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+
+    .attendance-link-title {
+        margin-top: 7px;
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .attendance-link-arrow {
+        color: #2563eb;
+        font-size: 30px;
+        line-height: 1;
+        font-weight: 900;
+    }
+
+    .attendance-link-card.primary .attendance-link-arrow {
+        color: #e11d48;
+    }
+
+    .attendance-link-card.success .attendance-link-arrow {
+        color: #059669;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 1100px) {
+        .attendance-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .attendance-overview-header {
+            grid-template-columns: 1fr;
+        }
+
+        .overview-mini-stats {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 820px) {
+        .attendance-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .attendance-ring {
+            width: 150px;
+            height: 150px;
+        }
+
+        .attendance-links {
+            grid-template-columns: 1fr;
+        }
+
+        .overview-mini-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .attendance-table-wrap {
+            display: none;
+        }
+
+        .attendance-mobile-list {
+            display: grid;
+        }
+    }
+
+    @media (max-width: 620px) {
+        .attendance-page {
+            gap: 20px;
+        }
+
+        .attendance-hero {
+            padding: 26px 22px;
+            border-radius: 26px;
+        }
+
+        .attendance-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .attendance-overview {
+            border-radius: 24px;
+        }
+
+        .attendance-overview-header,
+        .overview-body {
+            padding: 22px;
+        }
+
+        .overview-mini-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .attendance-course-stats {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 420px) {
+        .overview-mini-stats {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .attendance-course-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="attendance-page">
+
+    <!-- HERO -->
+    <section class="attendance-hero">
+
+        <div>
+            <span class="attendance-eyebrow">
+                Attendance Record
+            </span>
+
+            <h1>
+                Attendance Summary
+            </h1>
+
+            <p class="attendance-hero-description">
+                Monitor your course-wise attendance, track your eligibility,
+                and stay informed about your overall academic attendance progress.
+            </p>
+
+            <div class="hero-meta">
+
+                <span class="hero-meta-pill">
+                    Current Semester:
+                    <strong>{{ current_semester|default:"Not assigned" }}</strong>
+                </span>
+
+                {% if has_attendance_data %}
+                    {% if average_attendance >= 60 %}
+                        <span class="hero-meta-pill is-success">
+                            <span class="hero-meta-dot"></span>
+                            Attendance Eligible
+                        </span>
+                    {% else %}
+                        <span class="hero-meta-pill is-danger">
+                            <span class="hero-meta-dot"></span>
+                            Attendance At Risk
+                        </span>
+                    {% endif %}
+                {% else %}
+                    <span class="hero-meta-pill">
+                        <span class="hero-meta-dot"></span>
+                        No Attendance Data
+                    </span>
+                {% endif %}
+
+            </div>
+
+            <div class="hero-action">
+                <a href="{% url 'student_dashboard' %}" class="hero-back-button">
+                    ← Back to Overview
+                </a>
+            </div>
+        </div>
+
+        <div
+            class="attendance-ring"
+            style="--attendance-value:{% if has_attendance_data %}{{ average_attendance }}{% else %}0{% endif %};"
+        >
+            <div class="attendance-ring-inner">
+
+                {% if has_attendance_data %}
+                    <div class="attendance-ring-value">
+                        {{ average_attendance }}%
+                    </div>
+                {% else %}
+                    <div class="attendance-ring-value">
+                        %
+                    </div>
+                {% endif %}
+
+                <div class="attendance-ring-label">
+                    Overall
+                </div>
+
+                <div class="attendance-ring-status">
+                    {{ attendance_status }}
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- MAIN STATS -->
+    <section class="attendance-stats">
+
+        <article class="attendance-stat">
+            <div class="attendance-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4"></path>
+                    <path d="M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+
+            <div>
+                <div class="attendance-stat-label">
+                    Average Attendance
+                </div>
+
+                <div class="attendance-stat-value">
+                    {% if has_attendance_data %}
+                        {{ average_attendance }}%
+                    {% else %}
+                        %
+                    {% endif %}
+                </div>
+
+                <div class="attendance-stat-text">
+                    {% if has_attendance_data %}
+                        Your current semester attendance average.
+                    {% else %}
+                        Attendance records have not been added yet.
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+
+
+        <article class="attendance-stat">
+            <div class="attendance-stat-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3"></path>
+                    <path d="M12 6.3A9 9 0 0121 4.5v13a9 9 0 01-9 1.8"></path>
+                </svg>
+            </div>
+
+            <div>
+                <div class="attendance-stat-label">
+                    Enrolled Courses
+                </div>
+
+                <div class="attendance-stat-value">
+                    {{ current_course_count }}
+                </div>
+
+                <div class="attendance-stat-text">
+                    Approved courses in your current semester.
+                </div>
+            </div>
+        </article>
+
+
+        <article class="attendance-stat">
+            <div class="attendance-stat-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="5" width="18" height="16" rx="3"></rect>
+                    <path d="M3 10h18"></path>
+                    <path d="M8 3v4"></path>
+                    <path d="M16 3v4"></path>
+                </svg>
+            </div>
+
+            <div>
+                <div class="attendance-stat-label">
+                    Requirement
+                </div>
+
+                <div class="attendance-stat-value">
+                    {{ attendance_requirement }}%
+                </div>
+
+                <div class="attendance-stat-text">
+                    Minimum attendance threshold currently used for eligibility.
+                </div>
+            </div>
+        </article>
+
+
+        <article class="attendance-stat">
+            <div class="attendance-stat-icon cyan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19V5"></path>
+                    <path d="M8 19v-6"></path>
+                    <path d="M12 19V9"></path>
+                    <path d="M16 19v-3"></path>
+                    <path d="M20 19V7"></path>
+                </svg>
+            </div>
+
+            <div>
+                <div class="attendance-stat-label">
+                    Current Status
+                </div>
+
+                <div class="
+                    attendance-stat-value
+                    {% if attendance_status_class == 'eligible' %}
+                        success
+                    {% elif attendance_status_class == 'risk' %}
+                        danger
+                    {% else %}
+                        pending
+                    {% endif %}
+                ">
+                    {{ attendance_status }}
+                </div>
+
+                <div class="attendance-stat-text">
+                    {% if has_attendance_data %}
+                        Based on your current semester attendance.
+                    {% else %}
+                        Status will update after attendance records are added.
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+
+    </section>
+
+
+    <!-- ATTENDANCE OVERVIEW -->
+    <section class="attendance-overview">
+
+        <header class="attendance-overview-header">
+
+            <div>
+                <div class="overview-kicker">
+                    Attendance Overview
+                </div>
+
+                <h2>
+                    {{ current_semester|default:"Current Semester" }}
+                </h2>
+
+                <p>
+                    Review total classes, attended classes, absences,
+                    percentage, and current attendance eligibility for each course.
+                </p>
+            </div>
+
+            <div class="overview-mini-stats">
+
+                <div class="overview-mini-stat">
+                    <div class="overview-mini-label">
+                        Average
+                    </div>
+
+                    <div class="overview-mini-value">
+                        {% if has_attendance_data %}
+                            {{ average_attendance }}%
+                        {% else %}
+                            %
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="overview-mini-stat">
+                    <div class="overview-mini-label">
+                        Courses
+                    </div>
+
+                    <div class="overview-mini-value">
+                        {{ current_course_count }}
+                    </div>
+                </div>
+
+                <div class="overview-mini-stat">
+                    <div class="overview-mini-label">
+                        Required
+                    </div>
+
+                    <div class="overview-mini-value">
+                        {{ attendance_requirement }}%
+                    </div>
+                </div>
+
+                <div class="overview-mini-stat">
+                    <div class="overview-mini-label">
+                        Status
+                    </div>
+
+                    <div class="overview-mini-value" style="font-size:17px;">
+                        {{ attendance_status }}
+                    </div>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <div class="overview-body">
+
+            {% if attendance_summary %}
+
+                <!-- DESKTOP TABLE -->
+                <div class="attendance-table-wrap">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Title</th>
+                                <th class="attendance-center">Total Classes</th>
+                                <th class="attendance-center">Present</th>
+                                <th class="attendance-center">Absent</th>
+                                <th class="attendance-center">Attendance</th>
+                                <th class="attendance-center">Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for item in attendance_summary %}
+                                <tr>
+
+                                    <td>
+                                        <span class="course-code">
+                                            {{ item.course_code }}
+                                        </span>
+                                    </td>
+
+                                    <td class="course-title">
+                                        {{ item.course_title }}
+                                    </td>
+
+                                    <td class="attendance-center">
+                                        {{ item.total_classes }}
+                                    </td>
+
+                                    <td class="attendance-center">
+                                        <span class="attendance-number-pill present">
+                                            {{ item.present_classes }}
+                                        </span>
+                                    </td>
+
+                                    <td class="attendance-center">
+                                        <span class="attendance-number-pill absent">
+                                            {{ item.absent_classes }}
+                                        </span>
+                                    </td>
+
+                                    <td class="attendance-center">
+
+                                        {% if item.total_classes == 0 %}
+                                            <span class="attendance-badge pending">
+                                                No class yet
+                                            </span>
+
+                                        {% elif item.attendance_percent >= 60 %}
+                                            <span class="attendance-badge success">
+                                                {{ item.attendance_percent }}%
+                                            </span>
+
+                                        {% else %}
+                                            <span class="attendance-badge danger">
+                                                {{ item.attendance_percent }}%
+                                            </span>
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td class="attendance-center">
+
+                                        {% if item.total_classes == 0 %}
+                                            <span class="attendance-badge pending">
+                                                Pending
+                                            </span>
+
+                                        {% elif item.attendance_percent >= 60 %}
+                                            <span class="attendance-badge success">
+                                                Eligible
+                                            </span>
+
+                                        {% else %}
+                                            <span class="attendance-badge danger">
+                                                At Risk
+                                            </span>
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <!-- MOBILE CARDS -->
+                <div class="attendance-mobile-list">
+
+                    {% for item in attendance_summary %}
+
+                        <article class="attendance-course-card">
+
+                            <div class="attendance-course-head">
+
+                                <div>
+                                    <div class="attendance-course-code">
+                                        {{ item.course_code }}
+                                    </div>
+
+                                    <div class="attendance-course-title">
+                                        {{ item.course_title }}
+                                    </div>
+                                </div>
+
+                                {% if item.total_classes == 0 %}
+                                    <span class="attendance-badge pending">
+                                        Pending
+                                    </span>
+
+                                {% elif item.attendance_percent >= 60 %}
+                                    <span class="attendance-badge success">
+                                        Eligible
+                                    </span>
+
+                                {% else %}
+                                    <span class="attendance-badge danger">
+                                        At Risk
+                                    </span>
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="attendance-course-stats">
+
+                                <div class="attendance-course-stat">
+                                    <div class="attendance-course-stat-label">
+                                        Total
+                                    </div>
+
+                                    <div class="attendance-course-stat-value">
+                                        {{ item.total_classes }}
+                                    </div>
+                                </div>
+
+                                <div class="attendance-course-stat">
+                                    <div class="attendance-course-stat-label">
+                                        Present
+                                    </div>
+
+                                    <div class="attendance-course-stat-value">
+                                        {{ item.present_classes }}
+                                    </div>
+                                </div>
+
+                                <div class="attendance-course-stat">
+                                    <div class="attendance-course-stat-label">
+                                        Absent
+                                    </div>
+
+                                    <div class="attendance-course-stat-value">
+                                        {{ item.absent_classes }}
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="attendance-progress">
+
+                                <div class="attendance-progress-head">
+                                    <span>Attendance Progress</span>
+
+                                    {% if item.total_classes == 0 %}
+                                        <span>0%</span>
+                                    {% else %}
+                                        <span>{{ item.attendance_percent }}%</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="attendance-progress-track">
+
+                                    {% if item.total_classes == 0 %}
+
+                                        <div
+                                            class="attendance-progress-fill pending"
+                                            style="width:0%;"
+                                        ></div>
+
+                                    {% elif item.attendance_percent >= 60 %}
+
+                                        <div
+                                            class="attendance-progress-fill"
+                                            style="width:{{ item.attendance_percent }}%;"
+                                        ></div>
+
+                                    {% else %}
+
+                                        <div
+                                            class="attendance-progress-fill danger"
+                                            style="width:{{ item.attendance_percent }}%;"
+                                        ></div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="attendance-empty">
+
+                    <div class="attendance-empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4"></path>
+                            <path d="M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+
+                    <h3>
+                        No attendance records found
+                    </h3>
+
+                    <p>
+                        Your attendance information will appear here after faculty
+                        members begin recording attendance for your current semester courses.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- QUICK LINKS -->
+    <section class="attendance-links">
+
+        <a
+            href="{% url 'student_courses_page' %}"
+            class="attendance-link-card primary"
+        >
+            <div>
+                <div class="attendance-link-kicker">
+                    Courses
+                </div>
+
+                <div class="attendance-link-title">
+                    My Courses
+                </div>
+            </div>
+
+            <div class="attendance-link-arrow">
+                →
+            </div>
+        </a>
+
+
+        <a
+            href="{% url 'student_results_page' %}"
+            class="attendance-link-card"
+        >
+            <div>
+                <div class="attendance-link-kicker">
+                    Academic
+                </div>
+
+                <div class="attendance-link-title">
+                    Results
+                </div>
+            </div>
+
+            <div class="attendance-link-arrow">
+                →
+            </div>
+        </a>
+
+
+        <a
+            href="{% url 'student_course_summary_page' %}"
+            class="attendance-link-card success"
+        >
+            <div>
+                <div class="attendance-link-kicker">
+                    Performance
+                </div>
+
+                <div class="attendance-link-title">
+                    Course Summary
+                </div>
+            </div>
+
+            <div class="attendance-link-arrow">
+                →
+            </div>
+        </a>
+
+    </section>
+
+</div>
+
+{% endblock %}

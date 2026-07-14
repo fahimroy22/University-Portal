@@ -1,0 +1,1479 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .user-detail-page {
+        --ud-ink: #0f172a;
+        --ud-text: #334155;
+        --ud-muted: #64748b;
+        --ud-faint: #94a3b8;
+        --ud-line: #e2e8f0;
+        --ud-soft: #f8fafc;
+
+        --ud-accent: #9f1c1c;
+        --ud-accent-dark: #7f1717;
+        --ud-accent-soft: #fff1f2;
+        --ud-accent-line: #fecaca;
+
+        --ud-green: #047857;
+        --ud-green-soft: #ecfdf5;
+        --ud-green-line: #bbf7d0;
+
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        display: grid;
+        gap: 20px;
+    }
+
+    .user-detail-page,
+    .user-detail-page * {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .user-detail-page a {
+        text-decoration: none;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .ud-hero {
+        position: relative;
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+
+        padding: 30px;
+
+        border-radius: 28px;
+        border: 1px solid var(--ud-line);
+
+        background:
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.5),
+                transparent 34%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.76),
+                transparent 36%
+            ),
+            #ffffff;
+    }
+
+    .ud-hero-main {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .ud-avatar {
+        width: 78px;
+        height: 78px;
+        flex: none;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        overflow: hidden;
+
+        border-radius: 24px;
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--ud-accent),
+                #c71f1f
+            );
+
+        color: #ffffff;
+
+        font-size: 28px;
+        font-weight: 950;
+    }
+
+    .ud-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .ud-eyebrow {
+        color: var(--ud-accent);
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+    }
+
+    .ud-title {
+        margin: 7px 0 0;
+
+        color: var(--ud-ink);
+
+        font-size: clamp(30px, 4vw, 42px);
+        line-height: 1.04;
+        font-weight: 950;
+        letter-spacing: -0.05em;
+    }
+
+    .ud-subtitle {
+        margin-top: 8px;
+
+        color: var(--ud-muted);
+
+        font-size: 13.5px;
+        line-height: 1.55;
+        font-weight: 650;
+    }
+
+    .ud-hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    /* =========================================================
+       BUTTONS / BADGES
+    ========================================================= */
+
+    .ud-button {
+        min-height: 44px;
+        padding: 0 16px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+
+        border-radius: 13px;
+        border: 1px solid var(--ud-line);
+
+        background: #ffffff;
+        color: var(--ud-text);
+
+        font-family: inherit;
+        font-size: 12.5px;
+        font-weight: 850;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .ud-button:hover {
+        background: var(--ud-soft);
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    .ud-button.primary {
+        background: var(--ud-accent);
+        border-color: var(--ud-accent);
+        color: #ffffff;
+    }
+
+    .ud-button.primary:hover {
+        background: var(--ud-accent-dark);
+        border-color: var(--ud-accent-dark);
+    }
+
+    .ud-button.soft {
+        background: var(--ud-accent-soft);
+        border-color: var(--ud-accent-line);
+        color: var(--ud-accent-dark);
+    }
+
+    .ud-button.danger {
+        background: #fff7f7;
+        border-color: var(--ud-accent-line);
+        color: #b91c1c;
+    }
+
+    .ud-button.disabled {
+        background: #f8fafc;
+        color: var(--ud-faint);
+        cursor: not-allowed;
+    }
+
+    .ud-status {
+        min-height: 34px;
+        padding: 0 13px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px;
+
+        font-size: 11.5px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .ud-status.active {
+        background: var(--ud-green-soft);
+        border: 1px solid var(--ud-green-line);
+        color: var(--ud-green);
+    }
+
+    .ud-status.inactive {
+        background: #fef2f2;
+        border: 1px solid var(--ud-accent-line);
+        color: #b91c1c;
+    }
+
+    /* =========================================================
+       LAYOUT
+    ========================================================= */
+
+    .ud-layout {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1.7fr)
+            minmax(290px, 0.8fr);
+
+        gap: 20px;
+        align-items: start;
+    }
+
+    .ud-card {
+        padding: 24px;
+
+        border-radius: 24px;
+        border: 1px solid var(--ud-line);
+
+        background: #ffffff;
+    }
+
+    .ud-card + .ud-card {
+        margin-top: 16px;
+    }
+
+    .ud-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+
+        margin-bottom: 20px;
+    }
+
+    .ud-card-title {
+        margin: 0;
+
+        color: var(--ud-ink);
+
+        font-size: 22px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .ud-card-text {
+        margin: 6px 0 0;
+
+        color: var(--ud-muted);
+
+        font-size: 13px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       INFO GRID
+    ========================================================= */
+
+    .ud-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .ud-info-box {
+        padding: 14px;
+
+        border-radius: 15px;
+        border: 1px solid var(--ud-line);
+
+        background: #f8fafc;
+    }
+
+    .ud-info-label {
+        color: var(--ud-faint);
+
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .ud-info-value {
+        margin-top: 5px;
+
+        color: var(--ud-ink);
+
+        font-size: 12.5px;
+        line-height: 1.45;
+        font-weight: 800;
+
+        overflow-wrap: anywhere;
+    }
+
+    /* =========================================================
+       FORM
+    ========================================================= */
+
+    .ud-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .ud-form-grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .ud-field {
+        margin: 0;
+    }
+
+    .ud-field label {
+        display: block;
+
+        margin-bottom: 7px;
+
+        color: var(--ud-text);
+
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .ud-control {
+        width: 100%;
+        min-height: 44px;
+
+        padding: 10px 12px;
+
+        border-radius: 12px;
+        border: 1px solid #cbd5e1;
+
+        background: #ffffff;
+        color: var(--ud-ink);
+
+        font-family: inherit;
+        font-size: 13px;
+    }
+
+    .ud-control:focus {
+        outline: none;
+        border-color: var(--ud-accent);
+
+        box-shadow:
+            0 0 0 3px rgba(159, 28, 28, 0.1);
+    }
+
+    textarea.ud-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .ud-profile-section {
+        margin-top: 18px;
+        padding: 18px;
+
+        border-radius: 18px;
+        border: 1px solid var(--ud-accent-line);
+
+        background:
+            linear-gradient(
+                135deg,
+                #fffafa,
+                #ffffff
+            );
+    }
+
+    .ud-profile-title {
+        margin: 0 0 16px;
+
+        color: var(--ud-ink);
+
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    .ud-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+
+        margin-top: 18px;
+    }
+
+    /* =========================================================
+       SIDE PANEL
+    ========================================================= */
+
+    .ud-side-stack {
+        display: grid;
+        gap: 16px;
+    }
+
+    .ud-account-summary {
+        display: grid;
+        gap: 10px;
+    }
+
+    .ud-summary-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--ud-line);
+    }
+
+    .ud-summary-row:last-child {
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .ud-summary-key {
+        color: var(--ud-muted);
+
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .ud-summary-value {
+        color: var(--ud-ink);
+
+        font-size: 12px;
+        font-weight: 850;
+
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    .ud-security-form {
+        display: grid;
+        gap: 10px;
+    }
+
+    .ud-security-divider {
+        margin: 18px 0;
+
+        border-top: 1px solid var(--ud-line);
+    }
+
+    .ud-permission-note {
+        padding: 14px;
+
+        border-radius: 14px;
+
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+
+        color: var(--ud-muted);
+
+        font-size: 12px;
+        line-height: 1.55;
+        font-weight: 650;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1050px) {
+        .ud-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .ud-side-stack {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .user-detail-page {
+            gap: 14px;
+        }
+
+        .ud-hero {
+            padding: 22px 18px;
+
+            flex-direction: column;
+            align-items: stretch;
+
+            border-radius: 22px;
+        }
+
+        .ud-hero-main {
+            align-items: flex-start;
+        }
+
+        .ud-avatar {
+            width: 64px;
+            height: 64px;
+
+            border-radius: 19px;
+
+            font-size: 22px;
+        }
+
+        .ud-title {
+            font-size: 30px;
+        }
+
+        .ud-hero-actions {
+            justify-content: stretch;
+        }
+
+        .ud-hero-actions .ud-button {
+            flex: 1 1 0;
+        }
+
+        .ud-card {
+            padding: 18px 16px;
+
+            border-radius: 20px;
+        }
+
+        .ud-form-grid,
+        .ud-form-grid.three,
+        .ud-info-grid,
+        .ud-side-stack {
+            grid-template-columns: 1fr;
+        }
+
+        .ud-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .ud-actions .ud-button {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 430px) {
+        .ud-hero-main {
+            flex-direction: column;
+        }
+
+        .ud-hero-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+<div class="user-detail-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="ud-hero">
+
+        <div class="ud-hero-main">
+
+            <div class="ud-avatar">
+                {% if selected_row.user.profile_photo %}
+                    <img
+                        src="{{ selected_row.user.profile_photo.url }}"
+                        alt="{{ selected_row.user.username }}"
+                    >
+                {% else %}
+                    {{ selected_row.user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+
+
+            <div>
+                <div class="ud-eyebrow">
+                    Account Management
+                </div>
+
+                <h1 class="ud-title">
+                    {{ selected_row.user.username }}
+                </h1>
+
+                <div class="ud-subtitle">
+                    {{ selected_row.user.get_role_display }}
+
+                    ·
+
+                    {% if selected_row.user.role == 'student' %}
+                        Student ID:
+                    {% else %}
+                        Employee ID:
+                    {% endif %}
+
+                    {{ selected_row.display_id }}
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="ud-hero-actions">
+
+            {% if selected_row.user.is_active %}
+                <span class="ud-status active">
+                    Active
+                </span>
+            {% else %}
+                <span class="ud-status inactive">
+                    Inactive
+                </span>
+            {% endif %}
+
+
+            <a
+                href="{% url 'user_management' %}"
+                class="ud-button"
+            >
+                ← Back to User Directory
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <div class="ud-layout">
+
+        <!-- =================================================
+             MAIN COLUMN
+        ================================================== -->
+
+        <main>
+
+            <!-- Overview -->
+            <section class="ud-card">
+
+                <div class="ud-card-header">
+                    <div>
+                        <h2 class="ud-card-title">
+                            Account Overview
+                        </h2>
+
+                        <p class="ud-card-text">
+                            Review the account identity, role, and linked academic or staff information.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="ud-info-grid">
+
+                    <div class="ud-info-box">
+                        <div class="ud-info-label">
+                            Username
+                        </div>
+
+                        <div class="ud-info-value">
+                            {{ selected_row.user.username }}
+                        </div>
+                    </div>
+
+
+                    <div class="ud-info-box">
+                        <div class="ud-info-label">
+                            Role
+                        </div>
+
+                        <div class="ud-info-value">
+                            {{ selected_row.user.get_role_display }}
+                        </div>
+                    </div>
+
+
+                    <div class="ud-info-box">
+                        <div class="ud-info-label">
+                            Full Name
+                        </div>
+
+                        <div class="ud-info-value">
+                            {% if selected_row.user.get_full_name %}
+                                {{ selected_row.user.get_full_name }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+                    <div class="ud-info-box">
+                        <div class="ud-info-label">
+                            Email
+                        </div>
+
+                        <div class="ud-info-value">
+                            {{ selected_row.user.email|default:"-" }}
+                        </div>
+                    </div>
+
+
+                    <div class="ud-info-box">
+                        <div class="ud-info-label">
+                            Phone
+                        </div>
+
+                        <div class="ud-info-value">
+                            {{ selected_row.user.phone|default:"-" }}
+                        </div>
+                    </div>
+
+
+                    <div class="ud-info-box">
+                        <div class="ud-info-label">
+                            Department
+                        </div>
+
+                        <div class="ud-info-value">
+                            {{ selected_row.department_label }}
+                        </div>
+                    </div>
+
+
+                    {% if selected_row.user.role == 'student' %}
+
+                        <div class="ud-info-box">
+                            <div class="ud-info-label">
+                                Batch
+                            </div>
+
+                            <div class="ud-info-value">
+                                {{ selected_row.batch_label }}
+                            </div>
+                        </div>
+
+
+                        <div class="ud-info-box">
+                            <div class="ud-info-label">
+                                Current Semester
+                            </div>
+
+                            <div class="ud-info-value">
+                                {{ selected_row.semester_label }}
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- Edit form -->
+            <section class="ud-card">
+
+                <div class="ud-card-header">
+                    <div>
+                        <h2 class="ud-card-title">
+                            Profile Information
+                        </h2>
+
+                        <p class="ud-card-text">
+                            Update the user's contact and profile information.
+                        </p>
+                    </div>
+                </div>
+
+
+                {% if selected_row.can_edit %}
+
+                    <form
+                        method="POST"
+                        enctype="multipart/form-data"
+                    >
+
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="action"
+                            value="update_user"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="user_id"
+                            value="{{ selected_row.user.id }}"
+                        >
+
+
+                        <div class="ud-form-grid three">
+
+                            <p class="ud-field">
+                                <label>
+                                    First Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="first_name"
+                                    value="{{ selected_row.user.first_name }}"
+                                    class="ud-control"
+                                >
+                            </p>
+
+
+                            <p class="ud-field">
+                                <label>
+                                    Last Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="last_name"
+                                    value="{{ selected_row.user.last_name }}"
+                                    class="ud-control"
+                                >
+                            </p>
+
+
+                            <p class="ud-field">
+                                <label>
+                                    Email
+                                </label>
+
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value="{{ selected_row.user.email }}"
+                                    class="ud-control"
+                                >
+                            </p>
+
+
+                            <p class="ud-field">
+                                <label>
+                                    Phone
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    value="{{ selected_row.user.phone|default:'' }}"
+                                    class="ud-control"
+                                >
+                            </p>
+
+
+                            <p class="ud-field">
+                                <label>
+                                    Gender
+                                </label>
+
+                                <select
+                                    name="gender"
+                                    class="ud-control"
+                                >
+
+                                    <option value="">
+                                        Select Gender
+                                    </option>
+
+                                    {% for value, label in gender_choices %}
+                                        <option
+                                            value="{{ value }}"
+                                            {% if selected_row.user.gender == value %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+
+                                </select>
+                            </p>
+
+
+                            <p class="ud-field">
+                                <label>
+                                    Date of Birth
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="date_of_birth"
+                                    value="{{ selected_row.user.date_of_birth|date:'Y-m-d' }}"
+                                    class="ud-control"
+                                >
+                            </p>
+
+
+                            <p class="ud-field">
+                                <label>
+                                    Profile Photo
+                                </label>
+
+                                <input
+                                    type="file"
+                                    name="profile_photo"
+                                    class="ud-control"
+                                >
+                            </p>
+
+                        </div>
+
+
+                        <div style="margin-top: 14px;">
+
+                            <p class="ud-field">
+                                <label>
+                                    Address
+                                </label>
+
+                                <textarea
+                                    name="address"
+                                    class="ud-control"
+                                >{{ selected_row.user.address|default:'' }}</textarea>
+                            </p>
+
+                        </div>
+
+
+                        {% if selected_row.user.role == 'student' %}
+
+                            <section class="ud-profile-section">
+
+                                <h3 class="ud-profile-title">
+                                    Student Profile
+                                </h3>
+
+
+                                <div class="ud-form-grid three">
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Student ID
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="student_id"
+                                            value="{% if selected_row.profile %}{{ selected_row.profile.student_id }}{% endif %}"
+                                            required
+                                            class="ud-control"
+                                        >
+                                    </p>
+
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Department
+                                        </label>
+
+                                        <select
+                                            name="department"
+                                            class="ud-control"
+                                        >
+
+                                            <option value="">
+                                                Select Department
+                                            </option>
+
+                                            {% for department in departments %}
+
+                                                <option
+                                                    value="{{ department.id }}"
+                                                    {% if selected_row.profile and selected_row.profile.department and selected_row.profile.department.id == department.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ department.code }}
+                                                    -
+                                                    {{ department.name }}
+                                                </option>
+
+                                            {% endfor %}
+
+                                        </select>
+                                    </p>
+
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Batch
+                                        </label>
+
+                                        <select
+                                            name="batch"
+                                            class="ud-control"
+                                        >
+
+                                            <option value="">
+                                                Select Batch
+                                            </option>
+
+                                            {% for batch in batches %}
+
+                                                <option
+                                                    value="{{ batch.id }}"
+                                                    {% if selected_row.profile and selected_row.profile.batch and selected_row.profile.batch.id == batch.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ batch.department.code }}
+                                                    -
+                                                    {{ batch.batch_name }}
+                                                </option>
+
+                                            {% endfor %}
+
+                                        </select>
+                                    </p>
+
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Current Semester
+                                        </label>
+
+                                        <select
+                                            name="current_semester"
+                                            class="ud-control"
+                                        >
+
+                                            <option value="">
+                                                Select Semester
+                                            </option>
+
+                                            {% for semester in semesters %}
+
+                                                <option
+                                                    value="{{ semester.id }}"
+                                                    {% if selected_row.profile and selected_row.profile.current_semester and selected_row.profile.current_semester.id == semester.id %}
+                                                        selected
+                                                    {% endif %}
+                                                >
+                                                    {{ semester.name }}
+                                                </option>
+
+                                            {% endfor %}
+
+                                        </select>
+                                    </p>
+
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Admission Session
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="admission_session"
+                                            value="{% if selected_row.profile %}{{ selected_row.profile.admission_session|default:'' }}{% endif %}"
+                                            class="ud-control"
+                                        >
+                                    </p>
+
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Guardian Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="guardian_name"
+                                            value="{% if selected_row.profile %}{{ selected_row.profile.guardian_name|default:'' }}{% endif %}"
+                                            class="ud-control"
+                                        >
+                                    </p>
+
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Guardian Phone
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="guardian_phone"
+                                            value="{% if selected_row.profile %}{{ selected_row.profile.guardian_phone|default:'' }}{% endif %}"
+                                            class="ud-control"
+                                        >
+                                    </p>
+
+                                </div>
+
+                            </section>
+
+
+                        {% else %}
+
+                            <section class="ud-profile-section">
+
+                                <h3 class="ud-profile-title">
+                                    Faculty / Staff / Admin Profile
+                                </h3>
+
+
+                                <div class="ud-form-grid three">
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Employee ID
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="employee_id"
+                                            value="{{ selected_row.user.employee_id|default:'' }}"
+                                            required
+                                            class="ud-control"
+                                        >
+                                    </p>
+
+
+                                    {% if selected_row.user.role == 'faculty' or selected_row.user.role == 'dept_head' %}
+
+                                        <p class="ud-field">
+                                            <label>
+                                                Department
+                                            </label>
+
+                                            <select
+                                                name="staff_department"
+                                                class="ud-control"
+                                            >
+
+                                                <option value="">
+                                                    Select Department
+                                                </option>
+
+                                                {% for department in departments %}
+
+                                                    <option
+                                                        value="{{ department.id }}"
+                                                        {% if selected_row.user.staff_department and selected_row.user.staff_department.id == department.id %}
+                                                            selected
+                                                        {% endif %}
+                                                    >
+                                                        {{ department.code }}
+                                                        -
+                                                        {{ department.name }}
+                                                    </option>
+
+                                                {% endfor %}
+
+                                            </select>
+                                        </p>
+
+                                    {% endif %}
+
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Designation
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="designation"
+                                            value="{{ selected_row.user.designation|default:'' }}"
+                                            class="ud-control"
+                                        >
+                                    </p>
+
+
+                                    <p class="ud-field">
+                                        <label>
+                                            Office Room
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="office_room"
+                                            value="{{ selected_row.user.office_room|default:'' }}"
+                                            class="ud-control"
+                                        >
+                                    </p>
+
+                                </div>
+
+                            </section>
+
+                        {% endif %}
+
+
+                        <div class="ud-actions">
+
+                            <button
+                                type="submit"
+                                class="ud-button primary"
+                            >
+                                Save Changes
+                            </button>
+
+                        </div>
+
+                    </form>
+
+
+                {% else %}
+
+                    <div class="ud-permission-note">
+                        You do not have permission to edit this user.
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        </main>
+
+
+        <!-- =================================================
+             SIDE COLUMN
+        ================================================== -->
+
+        <aside class="ud-side-stack">
+
+            <!-- Account summary -->
+            <section class="ud-card">
+
+                <div class="ud-card-header">
+                    <div>
+                        <h2 class="ud-card-title">
+                            Account Details
+                        </h2>
+                    </div>
+                </div>
+
+
+                <div class="ud-account-summary">
+
+                    <div class="ud-summary-row">
+                        <div class="ud-summary-key">
+                            Username
+                        </div>
+
+                        <div class="ud-summary-value">
+                            {{ selected_row.user.username }}
+                        </div>
+                    </div>
+
+
+                    <div class="ud-summary-row">
+                        <div class="ud-summary-key">
+                            Role
+                        </div>
+
+                        <div class="ud-summary-value">
+                            {{ selected_row.user.get_role_display }}
+                        </div>
+                    </div>
+
+
+                    <div class="ud-summary-row">
+                        <div class="ud-summary-key">
+                            Account ID
+                        </div>
+
+                        <div class="ud-summary-value">
+                            {{ selected_row.display_id }}
+                        </div>
+                    </div>
+
+
+                    <div class="ud-summary-row">
+                        <div class="ud-summary-key">
+                            Status
+                        </div>
+
+                        <div class="ud-summary-value">
+                            {% if selected_row.user.is_active %}
+                                Active
+                            {% else %}
+                                Inactive
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Security -->
+            <section class="ud-card">
+
+                <div class="ud-card-header">
+                    <div>
+                        <h2 class="ud-card-title">
+                            Security & Access
+                        </h2>
+
+                        <p class="ud-card-text">
+                            Reset the password or manage login access.
+                        </p>
+                    </div>
+                </div>
+
+
+                {% if selected_row.can_edit %}
+
+                    <form
+                        method="POST"
+                        class="ud-security-form"
+                    >
+
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="action"
+                            value="reset_password"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="user_id"
+                            value="{{ selected_row.user.id }}"
+                        >
+
+
+                        <p class="ud-field">
+                            <label>
+                                New Password
+                            </label>
+
+                            <input
+                                type="password"
+                                name="new_password"
+                                required
+                                class="ud-control"
+                            >
+                        </p>
+
+
+                        <p class="ud-field">
+                            <label>
+                                Confirm Password
+                            </label>
+
+                            <input
+                                type="password"
+                                name="confirm_password"
+                                required
+                                class="ud-control"
+                            >
+                        </p>
+
+
+                        <button
+                            type="submit"
+                            class="ud-button soft"
+                        >
+                            Reset Password
+                        </button>
+
+                    </form>
+
+
+                    <div class="ud-security-divider"></div>
+
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="action"
+                            value="toggle_user_status"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="user_id"
+                            value="{{ selected_row.user.id }}"
+                        >
+
+
+                        {% if selected_row.can_toggle_status %}
+
+                            {% if selected_row.user.is_active %}
+
+                                <button
+                                    type="submit"
+                                    class="ud-button danger"
+                                    style="width: 100%;"
+                                >
+                                    Deactivate Access
+                                </button>
+
+                            {% else %}
+
+                                <button
+                                    type="submit"
+                                    class="ud-button primary"
+                                    style="width: 100%;"
+                                >
+                                    Activate Access
+                                </button>
+
+                            {% endif %}
+
+
+                        {% else %}
+
+                            <button
+                                type="button"
+                                class="ud-button disabled"
+                                style="width: 100%;"
+                                disabled
+                            >
+                                Super Admin Only
+                            </button>
+
+                        {% endif %}
+
+                    </form>
+
+
+                {% else %}
+
+                    <div class="ud-permission-note">
+                        You do not have permission to manage this account's security settings.
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+{% endblock %}

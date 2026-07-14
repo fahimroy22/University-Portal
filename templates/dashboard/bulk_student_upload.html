@@ -1,0 +1,790 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .bulk-page {
+        display: grid;
+        gap: 22px;
+        contain: layout paint;
+    }
+
+    .bulk-hero,
+    .panel-card,
+    .upload-box,
+    .summary-card {
+        transform: translateZ(0);
+    }
+
+    .bulk-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #fffafa 0%, #fff1f2 48%, #ffffff 100%);
+        border: 1px solid rgba(254, 202, 202, 0.8);
+        box-shadow: 0 10px 28px rgba(127, 29, 29, 0.07);
+    }
+
+    .bulk-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .bulk-hero h2 {
+        font-size: clamp(32px, 4vw, 50px);
+        line-height: 1.02;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+        color: var(--navy);
+        margin: 0 0 10px;
+    }
+
+    .bulk-hero p {
+        max-width: 720px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .soft-back-button,
+    .soft-download-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 15px;
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        font-weight: 900;
+        box-shadow: 0 6px 16px rgba(127, 29, 29, 0.06);
+        transition: background 0.14s ease, color 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .soft-back-button:hover {
+        background: var(--accent-soft);
+    }
+
+    .soft-download-button {
+        background: #ecfdf5;
+        border-color: #bbf7d0;
+        color: #15803d;
+    }
+
+    .soft-download-button:hover {
+        background: #dcfce7;
+    }
+
+    .panel-card {
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .panel-card h3 {
+        margin: 0 0 8px;
+        color: var(--navy);
+        font-size: 27px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .panel-card p {
+        color: var(--muted);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .upload-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+        gap: 20px;
+        align-items: stretch;
+    }
+
+    .upload-box {
+        padding: 22px;
+        border-radius: 24px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+        display: grid;
+        gap: 16px;
+    }
+
+    .upload-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 20px;
+        background: var(--accent);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: none;
+    }
+
+    .upload-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .upload-title {
+        color: var(--navy);
+        font-size: 22px;
+        font-weight: 950;
+        letter-spacing: -0.03em;
+        margin-bottom: 6px;
+    }
+
+    .upload-note {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    .step-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .step-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 14px;
+        border-radius: 18px;
+        background: white;
+        border: 1px solid var(--border);
+    }
+
+    .step-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 950;
+        flex-shrink: 0;
+    }
+
+    .step-title {
+        color: var(--navy);
+        font-weight: 950;
+        margin-bottom: 3px;
+    }
+
+    .step-text {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .form-field {
+        margin: 0;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid #cbd5e1;
+        background: white;
+        color: var(--navy);
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    input[type="file"].input-control {
+        padding: 10px 12px;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(127, 29, 29, 0.10);
+    }
+
+    .primary-button {
+        min-height: 48px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 16px;
+        background: var(--accent);
+        color: white;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: none;
+        transition: background 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .primary-button:hover {
+        background: var(--accent-dark);
+    }
+
+    .columns-table-wrap,
+    .error-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 22px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .columns-table,
+    .error-table {
+        width: 100%;
+        min-width: 720px;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        background: white;
+    }
+
+    .columns-table th,
+    .error-table th {
+        background: #f8fafc;
+        color: #475569;
+        text-transform: uppercase;
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.10em;
+        padding: 15px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .columns-table td,
+    .error-table td {
+        padding: 15px;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: top;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .columns-table tr:last-child td,
+    .error-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .columns-table tr:hover td,
+    .error-table tr:hover td {
+        background: #fffafa;
+    }
+
+    .code-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        white-space: nowrap;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 24px;
+        background: white;
+        border: 1px solid var(--border);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        background: var(--accent);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: none;
+    }
+
+    .summary-icon.green {
+        background: #16a34a;
+    }
+
+    .summary-icon.amber {
+        background: #d97706;
+    }
+
+    .summary-icon.red {
+        background: #dc2626;
+    }
+
+    .summary-icon svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    .summary-label {
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        color: var(--soft-muted);
+        margin-bottom: 5px;
+    }
+
+    .summary-value {
+        font-size: 27px;
+        line-height: 1;
+        font-weight: 950;
+        color: var(--navy);
+        letter-spacing: -0.04em;
+    }
+
+    .error-row-number {
+        color: var(--accent);
+        font-weight: 950;
+    }
+
+    .empty-state {
+        padding: 28px;
+        border-radius: 22px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        color: var(--muted);
+        font-weight: 800;
+        text-align: center;
+    }
+
+    @media (max-width: 1180px) {
+        .summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .upload-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .bulk-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 26px;
+        }
+
+        .hero-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .soft-back-button,
+        .soft-download-button,
+        .primary-button {
+            width: 100%;
+        }
+
+        .panel-card {
+            padding: 20px;
+            border-radius: 22px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+        }
+
+        .panel-header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .bulk-hero {
+            padding: 20px;
+            border-radius: 24px;
+        }
+
+        .bulk-hero h2 {
+            font-size: 32px;
+        }
+
+        .upload-box {
+            padding: 18px;
+            border-radius: 20px;
+        }
+
+        .summary-card {
+            padding: 16px;
+        }
+
+        .summary-value {
+            font-size: 25px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            transition: none !important;
+            animation: none !important;
+        }
+    }
+</style>
+<div class="bulk-page">
+
+    <section class="bulk-hero">
+        <div>
+            <div class="bulk-pill">Bulk Import</div>
+            <h2>Bulk Student Upload</h2>
+            <p>
+                Upload a CSV file to create multiple student user accounts and student profiles at once.
+            </p>
+        </div>
+
+        <div class="hero-actions">
+            <a href="{% url 'super_admin_dashboard' %}" class="soft-back-button">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-header">
+            <div>
+                <h3>Upload CSV File</h3>
+                <p>Download the sample file, fill in student data, then upload the completed CSV.</p>
+            </div>
+            <span class="section-chip">CSV Upload</span>
+        </div>
+
+        <div class="upload-grid">
+            <div class="upload-box">
+                <div class="upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <div class="upload-title">Select student CSV</div>
+                    <div class="upload-note">
+                        Only upload a properly formatted <strong>.csv</strong> file. Existing username, email, or student ID will be skipped.
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <p class="form-field">
+                        <label>Select CSV File</label>
+                        <input type="file" name="csv_file" accept=".csv" required class="input-control">
+                    </p>
+
+                    <div style="margin-top: 18px;">
+                        <button type="submit" class="primary-button">Upload Students</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="upload-box">
+                <div>
+                    <div class="upload-title">Before uploading</div>
+                    <div class="upload-note">Follow these steps to avoid failed rows.</div>
+                </div>
+
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div>
+                            <div class="step-title">Download sample</div>
+                            <div class="step-text">Use the official column format.</div>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div>
+                            <div class="step-title">Fill records</div>
+                            <div class="step-text">Keep username and student ID unique.</div>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div>
+                            <div class="step-title">Upload CSV</div>
+                            <div class="step-text">Review the upload summary after import.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{% url 'bulk_student_upload' %}?sample=1" class="soft-download-button">
+                    Download Sample CSV
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-header">
+            <div>
+                <h3>Required CSV Columns</h3>
+                <p>Your CSV file must contain these exact column names.</p>
+            </div>
+            <span class="section-chip">{{ required_columns|length }} Columns</span>
+        </div>
+
+        <div class="columns-table-wrap">
+            <table class="columns-table">
+                <tr>
+                    <th>Column Name</th>
+                    <th>Notes</th>
+                </tr>
+
+                {% for column in required_columns %}
+                    <tr>
+                        <td>
+                            <span class="code-pill">{{ column }}</span>
+                        </td>
+
+                        <td>
+                            {% if column == 'date_of_birth' %}
+                                Use format YYYY-MM-DD, for example 2005-01-15.
+                            {% elif column == 'gender' %}
+                                Use male, female, or other.
+                            {% elif column == 'department_code' %}
+                                Must match an existing department code, for example 001.
+                            {% elif column == 'batch_name' %}
+                                Must match an existing batch name under that department.
+                            {% elif column == 'current_semester_number' %}
+                                Must match an existing semester number, for example 1, 2, 3.
+                            {% elif column == 'student_id' %}
+                                Must be unique.
+                            {% elif column == 'username' %}
+                                Must be unique.
+                            {% elif column == 'password' %}
+                                Required. This will be the student’s initial login password.
+                            {% else %}
+                                Optional unless your university requires it.
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </section>
+
+    {% if upload_result %}
+        <section class="panel-card">
+            <div class="panel-header">
+                <div>
+                    <h3>Upload Summary</h3>
+                    <p>Review how many records were created or skipped.</p>
+                </div>
+                <span class="section-chip">Result</span>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-icon green">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="summary-label">Created</div>
+                        <div class="summary-value">{{ upload_result.created_count }}</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon amber">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="summary-label">Duplicate Username</div>
+                        <div class="summary-value">{{ upload_result.skipped_username_count }}</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon amber">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="summary-label">Duplicate Student ID</div>
+                        <div class="summary-value">{{ upload_result.skipped_student_id_count }}</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon amber">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="summary-label">Duplicate Email</div>
+                        <div class="summary-value">{{ upload_result.skipped_email_count }}</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon red">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="summary-label">Invalid Department</div>
+                        <div class="summary-value">{{ upload_result.invalid_department_count }}</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon red">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="summary-label">Invalid Batch</div>
+                        <div class="summary-value">{{ upload_result.invalid_batch_count }}</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon red">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="summary-label">Invalid Semester</div>
+                        <div class="summary-value">{{ upload_result.invalid_semester_count }}</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon red">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="summary-label">Other Errors</div>
+                        <div class="summary-value">{{ upload_result.error_count }}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if error_rows %}
+        <section class="panel-card">
+            <div class="panel-header">
+                <div>
+                    <h3>Skipped Rows / Errors</h3>
+                    <p>Fix these rows in your CSV and upload again if needed.</p>
+                </div>
+                <span class="section-chip">{{ error_rows|length }} Errors</span>
+            </div>
+
+            <div class="error-table-wrap">
+                <table class="error-table">
+                    <tr>
+                        <th>CSV Row Number</th>
+                        <th>Reason</th>
+                    </tr>
+
+                    {% for error in error_rows %}
+                        <tr>
+                            <td>
+                                <span class="error-row-number">Row {{ error.row_number }}</span>
+                            </td>
+                            <td>{{ error.reason }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </section>
+    {% endif %}
+
+</div>
+
+{% endblock %}

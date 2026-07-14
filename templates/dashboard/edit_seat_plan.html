@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Edit Seat Plan</h2>
+
+    <p>
+        <a href="{% url 'exam_controller_dashboard' %}"
+           style="background:#555; color:white; padding:8px 12px; text-decoration:none; border-radius:5px;">
+            Back to Exam Controller Dashboard
+        </a>
+    </p>
+</div>
+
+
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+
+        <p>
+            <label><strong>Student:</strong></label><br>
+            <select name="student" required style="width:100%; padding:10px;">
+                {% for student in students %}
+                    <option value="{{ student.id }}"
+                        {% if student.id == seat_plan.student.id %}selected{% endif %}>
+                        {{ student.student_id }} - {{ student.user.get_full_name|default:student.user.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </p>
+
+        <p>
+            <label><strong>Course Offering:</strong></label><br>
+            <select name="course_offering" required style="width:100%; padding:10px;">
+                {% for offering in course_offerings %}
+                    <option value="{{ offering.id }}"
+                        {% if offering.id == seat_plan.course_offering.id %}selected{% endif %}>
+                        {{ offering.course.code }} - {{ offering.course.title }}
+                        | {{ offering.batch }} | {{ offering.semester }} | Section {{ offering.section }}
+                    </option>
+                {% endfor %}
+            </select>
+        </p>
+
+        <p>
+            <label><strong>Exam Type:</strong></label><br>
+            <select name="exam_type" required style="width:100%; padding:10px;">
+                <option value="midterm" {% if seat_plan.exam_type == 'midterm' %}selected{% endif %}>Midterm</option>
+                <option value="final" {% if seat_plan.exam_type == 'final' %}selected{% endif %}>Final</option>
+            </select>
+        </p>
+
+        <p>
+            <label><strong>Room:</strong></label><br>
+            <input type="text"
+                   name="room"
+                   value="{{ seat_plan.room }}"
+                   required
+                   style="width:100%; padding:10px;">
+        </p>
+
+        <p>
+            <label><strong>Seat Number:</strong></label><br>
+            <input type="text"
+                   name="seat_number"
+                   value="{{ seat_plan.seat_number }}"
+                   required
+                   style="width:100%; padding:10px;">
+        </p>
+
+        <p>
+            <label>
+                <input type="checkbox"
+                       name="is_published"
+                       {% if seat_plan.is_published %}checked{% endif %}>
+                Published
+            </label>
+        </p>
+
+        <button type="submit"
+                style="background:#0b3d91; color:white; padding:10px 18px; border:none; border-radius:6px; cursor:pointer;">
+            Update Seat Plan
+        </button>
+    </form>
+</div>
+
+{% endblock %}

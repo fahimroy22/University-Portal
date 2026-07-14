@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UGV Smart University Portal</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .navbar {
+            background: #0b3d91;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .module {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: 0.2s;
+        }
+
+        .module:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .module h3 {
+            margin: 0;
+            color: #0b3d91;
+        }
+
+        .module p {
+            margin-bottom: 0;
+            color: #555;
+        }
+
+        .btn {
+            background: #0b3d91;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #082d6b;
+        }
+
+        table {
+            background: white;
+        }
+
+        th {
+            color: #333;
+        }
+
+        .message-wrapper {
+            width: 95%;
+            margin: 20px auto 0 auto;
+        }
+
+        .message {
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .message-success {
+            background: #e8f5e9;
+            color: green;
+            border: 1px solid #b7dfb9;
+        }
+
+        .message-error {
+            background: #ffebee;
+            color: red;
+            border: 1px solid #f5b5b5;
+        }
+
+        .message-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffe08a;
+        }
+
+        .message-info {
+            background: #e3f2fd;
+            color: #0b3d91;
+            border: 1px solid #b6d4fe;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div>
+        <strong>UGV Smart University Portal</strong>
+    </div>
+
+    <div>
+        {% if user.is_authenticated %}
+            {{ user.username }} | {{ user.get_role_display }}
+            <a href="{% url 'logout' %}">Logout</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if messages %}
+    <div class="message-wrapper">
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <div class="message message-success">
+                    {{ message }}
+                </div>
+            {% elif message.tags == 'error' %}
+                <div class="message message-error">
+                    {{ message }}
+                </div>
+            {% elif message.tags == 'warning' %}
+                <div class="message message-warning">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="message message-info">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+
+</body>
+</html>

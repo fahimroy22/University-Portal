@@ -1,0 +1,674 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .ecr-page {
+        display: grid;
+        gap: 22px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .ecr-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 30px 32px;
+        border: 1px solid #fecaca;
+        border-radius: 28px;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(254, 226, 226, 0.8),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #fffafa 0%,
+                #fff1f2 52%,
+                #ffffff 100%
+            );
+    }
+
+    .ecr-kicker {
+        margin-bottom: 10px;
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .ecr-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(32px, 4vw, 46px);
+        font-weight: 950;
+        letter-spacing: -0.05em;
+        line-height: 1.05;
+    }
+
+    .ecr-description {
+        max-width: 800px;
+        margin: 10px 0 0;
+        color: #64748b;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.65;
+    }
+
+    .ecr-back {
+        min-height: 46px;
+        padding: 0 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border: 1px solid #fecaca;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #9f1c1c;
+        font-size: 13px;
+        font-weight: 900;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .ecr-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 22px;
+        background: #ffffff;
+    }
+
+    .ecr-summary-item {
+        padding: 22px 24px;
+        border-right: 1px solid #eef2f7;
+    }
+
+    .ecr-summary-item:last-child {
+        border-right: 0;
+    }
+
+    .ecr-summary-label {
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .ecr-summary-value {
+        margin-top: 8px;
+        color: #0f172a;
+        font-size: 30px;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .ecr-summary-text {
+        margin-top: 4px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .ecr-card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        background: #ffffff;
+    }
+
+    .ecr-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 24px 26px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .ecr-card-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 24px;
+        font-weight: 950;
+        letter-spacing: -0.035em;
+    }
+
+    .ecr-card-text {
+        margin: 7px 0 0;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.55;
+    }
+
+    .ecr-filter-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .ecr-filter-select {
+        min-height: 42px;
+        padding: 0 38px 0 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 13px;
+        background: #ffffff;
+        color: #334155;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 800;
+        outline: none;
+    }
+
+    .ecr-filter-button {
+        min-height: 42px;
+        padding: 0 15px;
+        border: 1px solid #9f1c1c;
+        border-radius: 13px;
+        background: #9f1c1c;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .ecr-table-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .ecr-table {
+        width: 100%;
+        min-width: 1120px;
+        border-collapse: collapse;
+    }
+
+    .ecr-table th {
+        padding: 14px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.09em;
+        text-align: left;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .ecr-table td {
+        padding: 17px 16px;
+        border-bottom: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+        vertical-align: middle;
+    }
+
+    .ecr-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .ecr-table tbody tr:hover {
+        background: #fcfcfd;
+    }
+
+    .ecr-student-id {
+        color: #9f1c1c;
+        font-size: 13px;
+        font-weight: 950;
+    }
+
+    .ecr-student-name {
+        margin-top: 4px;
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 850;
+    }
+
+    .ecr-course-code {
+        color: #0f172a;
+        font-weight: 900;
+    }
+
+    .ecr-course-name {
+        max-width: 230px;
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .ecr-reason {
+        max-width: 260px;
+        color: #475569;
+        line-height: 1.5;
+    }
+
+    .ecr-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 30px;
+        padding: 0 11px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .ecr-status-pending {
+        border: 1px solid #fde68a;
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    .ecr-status-verified {
+        border: 1px solid #bbf7d0;
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .ecr-status-rejected {
+        border: 1px solid #fecaca;
+        background: #fff1f2;
+        color: #b91c1c;
+    }
+
+    .ecr-action {
+        min-height: 38px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #9f1c1c;
+        border-radius: 11px;
+        background: #9f1c1c;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 900;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .ecr-empty {
+        padding: 48px 24px;
+        text-align: center;
+    }
+
+    .ecr-empty-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 18px;
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .ecr-empty-icon svg {
+        width: 27px;
+        height: 27px;
+    }
+
+    .ecr-empty-title {
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .ecr-empty-text {
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    @media (max-width: 900px) {
+        .ecr-hero,
+        .ecr-card-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .ecr-back {
+            width: 100%;
+        }
+
+        .ecr-filter-form {
+            width: 100%;
+        }
+
+        .ecr-filter-select,
+        .ecr-filter-button {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .ecr-hero {
+            padding: 24px 21px;
+        }
+
+        .ecr-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .ecr-summary-item {
+            border-right: 0;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .ecr-summary-item:last-child {
+            border-bottom: 0;
+        }
+
+        .ecr-card-header {
+            padding: 20px;
+        }
+
+        .ecr-filter-form {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="ecr-page">
+
+    <section class="ecr-hero">
+        <div>
+            <div class="ecr-kicker">
+                Exam Controller
+            </div>
+
+            <h1 class="ecr-title">
+                Result Correction Requests
+            </h1>
+
+            <p class="ecr-description">
+                Review faculty-submitted result corrections, compare current and
+                proposed marks, examine supporting records, and verify valid
+                requests before forwarding them to the Super Admin.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'exam_controller_dashboard' %}"
+            class="ecr-back"
+        >
+            ← Back to Dashboard
+        </a>
+    </section>
+
+    <section class="ecr-summary">
+
+        <div class="ecr-summary-item">
+            <div class="ecr-summary-label">
+                Pending Verification
+            </div>
+
+            <div class="ecr-summary-value">
+                {{ pending_count }}
+            </div>
+
+            <div class="ecr-summary-text">
+                Submitted by faculty
+            </div>
+        </div>
+
+        <div class="ecr-summary-item">
+            <div class="ecr-summary-label">
+                Verified
+            </div>
+
+            <div class="ecr-summary-value">
+                {{ verified_count }}
+            </div>
+
+            <div class="ecr-summary-text">
+                Forwarded to Super Admin
+            </div>
+        </div>
+
+        <div class="ecr-summary-item">
+            <div class="ecr-summary-label">
+                Rejected
+            </div>
+
+            <div class="ecr-summary-value">
+                {{ rejected_count }}
+            </div>
+
+            <div class="ecr-summary-text">
+                Closed by Exam Controller
+            </div>
+        </div>
+
+    </section>
+
+    <section class="ecr-card">
+
+        <div class="ecr-card-header">
+            <div>
+                <h2 class="ecr-card-title">
+                    Correction Request Queue
+                </h2>
+
+                <p class="ecr-card-text">
+                    Open a request to review the faculty proposal and make an
+                    Exam Controller decision.
+                </p>
+            </div>
+
+            <form method="GET" class="ecr-filter-form">
+
+                <select
+                    name="status"
+                    class="ecr-filter-select"
+                    aria-label="Filter correction requests"
+                >
+                    <option
+                        value="faculty_submitted"
+                        {% if status_filter == 'faculty_submitted' %}selected{% endif %}
+                    >
+                        Pending Verification
+                    </option>
+
+                    <option
+                        value="exam_verified"
+                        {% if status_filter == 'exam_verified' %}selected{% endif %}
+                    >
+                        Verified
+                    </option>
+
+                    <option
+                        value="exam_rejected"
+                        {% if status_filter == 'exam_rejected' %}selected{% endif %}
+                    >
+                        Rejected
+                    </option>
+
+                    <option
+                        value="all"
+                        {% if status_filter == 'all' %}selected{% endif %}
+                    >
+                        All Requests
+                    </option>
+                </select>
+
+                <button
+                    type="submit"
+                    class="ecr-filter-button"
+                >
+                    Apply Filter
+                </button>
+
+            </form>
+        </div>
+
+        {% if correction_requests %}
+
+            <div class="ecr-table-wrap">
+
+                <table class="ecr-table">
+
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Semester</th>
+                            <th>Submitted By</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in correction_requests %}
+
+                            <tr>
+
+                                <td>
+                                    <div class="ecr-student-id">
+                                        {{ item.student.student_id|default:"-" }}
+                                    </div>
+
+                                    <div class="ecr-student-name">
+                                        {{ item.student.user.get_full_name|default:item.student.user.username }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="ecr-course-code">
+                                        {{ item.course_offering.course.code|default:"-" }}
+                                    </div>
+
+                                    <div class="ecr-course-name">
+                                        {{ item.course_offering.course.title|default:"-" }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {{ item.course_offering.semester|default:"-" }}
+                                </td>
+
+                                <td>
+                                    {% if item.requested_by %}
+                                        {{ item.requested_by.get_full_name|default:item.requested_by.username }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="ecr-reason">
+                                        {{ item.reason|default:"-"|truncatechars:100 }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if item.status == 'faculty_submitted' %}
+
+                                        <span class="ecr-status ecr-status-pending">
+                                            Awaiting Verification
+                                        </span>
+
+                                    {% elif item.status == 'exam_verified' %}
+
+                                        <span class="ecr-status ecr-status-verified">
+                                            Verified
+                                        </span>
+
+                                    {% elif item.status == 'exam_rejected' %}
+
+                                        <span class="ecr-status ecr-status-rejected">
+                                            Rejected
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="ecr-status ecr-status-pending">
+                                            {{ item.get_status_display }}
+                                        </span>
+
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ item.created_at|date:"d M Y, h:i A" }}
+                                </td>
+
+                                <td>
+                                    <a
+                                        href="{% url 'exam_correction_request_detail' item.id %}"
+                                        class="ecr-action"
+                                    >
+                                        Review
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="ecr-empty">
+
+                <div class="ecr-empty-icon">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M9 12h6m-6 4h6M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                        />
+                    </svg>
+                </div>
+
+                <div class="ecr-empty-title">
+                    No correction requests found
+                </div>
+
+                <div class="ecr-empty-text">
+                    Requests matching the selected status will appear here.
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

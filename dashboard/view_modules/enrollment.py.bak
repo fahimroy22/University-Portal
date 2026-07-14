@@ -1,0 +1,1018 @@
+from urllib.parse import urlencode
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import render, redirect
+
+from academics.models import Department, Batch, Semester, CourseOffering
+from students.models import StudentProfile, CourseRegistration
+from dashboard.view_modules.audit import create_audit_log
+
+
+@login_required
+def course_enrollment(request):
+    if request.user.role not in ['super_admin', 'admin', 'dept_head']:
+        return redirect('dashboard')
+
+    # =========================================================
+    # MAIN ENROLLMENT FILTERS
+    # Used for:
+    # - student selection
+    # - course offering selection
+    # - semester-wide enrollment
+    # =========================================================
+
+    selected_department_id = request.GET.get('department', '').strip()
+    selected_batch_id = request.GET.get('batch', '').strip()
+    selected_semester_id = request.GET.get('semester', '').strip()
+
+    # =========================================================
+    # EXISTING REGISTRATION FILTERS
+    # Separate from the enrollment workspace filters.
+    # =========================================================
+
+    registration_search = request.GET.get(
+        'registration_search',
+        ''
+    ).strip()
+
+    registration_department_id = request.GET.get(
+        'registration_department',
+        ''
+    ).strip()
+
+    registration_batch_id = request.GET.get(
+        'registration_batch',
+        ''
+    ).strip()
+
+    registration_semester_id = request.GET.get(
+        'registration_semester',
+        ''
+    ).strip()
+
+    registration_status = request.GET.get(
+        'registration_status',
+        ''
+    ).strip()
+
+    registration_page_number = request.GET.get(
+        'registration_page',
+        '1'
+    )
+
+    # =========================================================
+    # REDIRECT HELPER
+    # Preserves:
+    # - enrollment workspace filters
+    # - registration filters
+    # - current registration page
+    #
+    # This is especially useful after:
+    # - updating registration status
+    # - removing a registration
+    # - manual enrollment
+    # - semester-wide enrollment
+    # =========================================================
+
+    def redirect_with_filters_from_post():
+        params = {}
+
+        # Main enrollment filters.
+        department_id = request.POST.get(
+            'selected_department_id',
+            ''
+        ).strip()
+
+        batch_id = request.POST.get(
+            'selected_batch_id',
+            ''
+        ).strip()
+
+        semester_id = request.POST.get(
+            'selected_semester_id',
+            ''
+        ).strip()
+
+        # Registration filters.
+        registration_search_value = request.POST.get(
+            'registration_search',
+            ''
+        ).strip()
+
+        registration_department_value = request.POST.get(
+            'registration_department',
+            ''
+        ).strip()
+
+        registration_batch_value = request.POST.get(
+            'registration_batch',
+            ''
+        ).strip()
+
+        registration_semester_value = request.POST.get(
+            'registration_semester',
+            ''
+        ).strip()
+
+        registration_status_value = request.POST.get(
+            'registration_status',
+            ''
+        ).strip()
+
+        registration_page_value = request.POST.get(
+            'registration_page',
+            ''
+        ).strip()
+
+        if department_id:
+            params['department'] = department_id
+
+        if batch_id:
+            params['batch'] = batch_id
+
+        if semester_id:
+            params['semester'] = semester_id
+
+        if registration_search_value:
+            params['registration_search'] = (
+                registration_search_value
+            )
+
+        if registration_department_value:
+            params['registration_department'] = (
+                registration_department_value
+            )
+
+        if registration_batch_value:
+            params['registration_batch'] = (
+                registration_batch_value
+            )
+
+        if registration_semester_value:
+            params['registration_semester'] = (
+                registration_semester_value
+            )
+
+        if registration_status_value:
+            params['registration_status'] = (
+                registration_status_value
+            )
+
+        if registration_page_value:
+            params['registration_page'] = (
+                registration_page_value
+            )
+
+        if params:
+            return redirect(
+                f"/course-enrollment/?{urlencode(params)}"
+            )
+
+        return redirect('course_enrollment')
+
+    # =========================================================
+    # POST ACTIONS
+    # =========================================================
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        # =====================================================
+        # MANUAL ENROLLMENT
+        # =====================================================
+
+        if action == 'enroll_selected':
+            student_ids = request.POST.getlist('students')
+            course_offering_ids = request.POST.getlist(
+                'course_offerings'
+            )
+
+            status = request.POST.get(
+                'status'
+            ) or 'approved'
+
+            valid_statuses = [
+                'pending',
+                'approved',
+                'rejected',
+            ]
+
+            if status not in valid_statuses:
+                status = 'approved'
+
+            if not student_ids:
+                messages.error(
+                    request,
+                    "Please select at least one student."
+                )
+                return redirect_with_filters_from_post()
+
+            if not course_offering_ids:
+                messages.error(
+                    request,
+                    "Please select at least one course offering."
+                )
+                return redirect_with_filters_from_post()
+
+            students = StudentProfile.objects.filter(
+                id__in=student_ids,
+                is_active=True,
+                user__is_active=True
+            )
+
+            course_offerings = CourseOffering.objects.filter(
+                id__in=course_offering_ids,
+                is_active=True
+            )
+
+            created_count = 0
+            updated_count = 0
+            skipped_count = 0
+
+            for student in students:
+                for offering in course_offerings:
+
+                    # A student can only be enrolled in offerings
+                    # belonging to their own batch.
+                    if student.batch_id != offering.batch_id:
+                        skipped_count += 1
+                        continue
+
+                    registration, created = (
+                        CourseRegistration.objects.update_or_create(
+                            student=student,
+                            course_offering=offering,
+                            defaults={
+                                'status': status
+                            }
+                        )
+                    )
+
+                    if created:
+                        created_count += 1
+                    else:
+                        updated_count += 1
+
+            create_audit_log(
+                request,
+                action='ENROLL',
+                module='Course Enrollment',
+                description=(
+                    f'Manual course enrollment completed. '
+                    f'Students selected: {len(student_ids)}, '
+                    f'Course offerings selected: '
+                    f'{len(course_offering_ids)}, '
+                    f'Created: {created_count}, '
+                    f'Updated: {updated_count}, '
+                    f'Skipped: {skipped_count}, '
+                    f'Status: {status}.'
+                ),
+                target_model='CourseRegistration',
+                target_id='bulk',
+                target_repr='Manual course enrollment',
+            )
+
+            messages.success(
+                request,
+                (
+                    f"Enrollment completed. "
+                    f"Created: {created_count}, "
+                    f"Updated: {updated_count}, "
+                    f"Skipped: {skipped_count}."
+                )
+            )
+
+            return redirect_with_filters_from_post()
+
+        # =====================================================
+        # WHOLE SEMESTER ENROLLMENT
+        # =====================================================
+
+        elif action == 'enroll_entire_semester':
+            department_id = request.POST.get(
+                'selected_department_id'
+            )
+
+            batch_id = request.POST.get(
+                'selected_batch_id'
+            )
+
+            semester_id = request.POST.get(
+                'selected_semester_id'
+            )
+
+            course_offering_ids = request.POST.getlist(
+                'semester_course_offerings'
+            )
+
+            status = request.POST.get(
+                'status'
+            ) or 'approved'
+
+            valid_statuses = [
+                'pending',
+                'approved',
+                'rejected',
+            ]
+
+            if status not in valid_statuses:
+                status = 'approved'
+
+            if not department_id:
+                messages.error(
+                    request,
+                    "Please select a department first."
+                )
+                return redirect_with_filters_from_post()
+
+            if not batch_id:
+                messages.error(
+                    request,
+                    "Please select a batch first."
+                )
+                return redirect_with_filters_from_post()
+
+            if not semester_id:
+                messages.error(
+                    request,
+                    "Please select a semester first."
+                )
+                return redirect_with_filters_from_post()
+
+            if not course_offering_ids:
+                messages.error(
+                    request,
+                    (
+                        "Please select at least one course "
+                        "offering for semester enrollment."
+                    )
+                )
+                return redirect_with_filters_from_post()
+
+            semester_students = (
+                StudentProfile.objects.select_related(
+                    'user',
+                    'department',
+                    'batch',
+                    'current_semester'
+                ).filter(
+                    is_active=True,
+                    user__is_active=True,
+                    department_id=department_id,
+                    batch_id=batch_id,
+                    current_semester_id=semester_id
+                )
+            )
+
+            semester_course_offerings = (
+                CourseOffering.objects.select_related(
+                    'course',
+                    'batch',
+                    'semester'
+                ).filter(
+                    id__in=course_offering_ids,
+                    is_active=True,
+                    batch_id=batch_id,
+                    semester_id=semester_id
+                )
+            )
+
+            created_count = 0
+            updated_count = 0
+            skipped_count = 0
+
+            for student in semester_students:
+                for offering in semester_course_offerings:
+
+                    if student.batch_id != offering.batch_id:
+                        skipped_count += 1
+                        continue
+
+                    if (
+                        student.current_semester_id
+                        != offering.semester_id
+                    ):
+                        skipped_count += 1
+                        continue
+
+                    registration, created = (
+                        CourseRegistration.objects.update_or_create(
+                            student=student,
+                            course_offering=offering,
+                            defaults={
+                                'status': status
+                            }
+                        )
+                    )
+
+                    if created:
+                        created_count += 1
+                    else:
+                        updated_count += 1
+
+            semester_student_count_for_log = (
+                semester_students.count()
+            )
+
+            semester_offering_count_for_log = (
+                semester_course_offerings.count()
+            )
+
+            create_audit_log(
+                request,
+                action='BULK_ENROLL_SEMESTER',
+                module='Course Enrollment',
+                description=(
+                    f'Entire semester enrollment completed. '
+                    f'Department ID: {department_id}, '
+                    f'Batch ID: {batch_id}, '
+                    f'Semester ID: {semester_id}, '
+                    f'Students found: '
+                    f'{semester_student_count_for_log}, '
+                    f'Course offerings selected: '
+                    f'{semester_offering_count_for_log}, '
+                    f'Created: {created_count}, '
+                    f'Updated: {updated_count}, '
+                    f'Skipped: {skipped_count}, '
+                    f'Status: {status}.'
+                ),
+                target_model='CourseRegistration',
+                target_id='semester_bulk',
+                target_repr=(
+                    'Entire semester course enrollment'
+                ),
+            )
+
+            messages.success(
+                request,
+                (
+                    f"Semester enrollment completed. "
+                    f"Students: "
+                    f"{semester_student_count_for_log}, "
+                    f"Created: {created_count}, "
+                    f"Updated: {updated_count}, "
+                    f"Skipped: {skipped_count}."
+                )
+            )
+
+            return redirect_with_filters_from_post()
+
+        # =====================================================
+        # UPDATE REGISTRATION STATUS
+        # =====================================================
+
+        elif action == 'update_registration':
+            registration_id = request.POST.get(
+                'registration_id'
+            )
+
+            status = request.POST.get(
+                'status'
+            )
+
+            registration = (
+                CourseRegistration.objects.select_related(
+                    'student',
+                    'course_offering',
+                    'course_offering__course'
+                ).filter(
+                    id=registration_id
+                ).first()
+            )
+
+            valid_statuses = [
+                'pending',
+                'approved',
+                'rejected',
+            ]
+
+            if (
+                registration
+                and status in valid_statuses
+            ):
+                registration.status = status
+                registration.save()
+
+                create_audit_log(
+                    request,
+                    action='UPDATE',
+                    module='Course Enrollment',
+                    description=(
+                        f'Updated registration status to '
+                        f'{status} for '
+                        f'{registration.student.student_id} - '
+                        f'{registration.course_offering.course.code}.'
+                    ),
+                    target_model='CourseRegistration',
+                    target_id=registration.id,
+                    target_repr=(
+                        f'{registration.student.student_id} - '
+                        f'{registration.course_offering.course.code}'
+                    ),
+                )
+
+                messages.success(
+                    request,
+                    "Course registration status updated."
+                )
+
+            else:
+                messages.error(
+                    request,
+                    "Invalid registration update request."
+                )
+
+            return redirect_with_filters_from_post()
+
+        # =====================================================
+        # REMOVE REGISTRATION
+        # =====================================================
+
+        elif action == 'remove_registration':
+            registration_id = request.POST.get(
+                'registration_id'
+            )
+
+            registration = (
+                CourseRegistration.objects.select_related(
+                    'student',
+                    'course_offering',
+                    'course_offering__course'
+                ).filter(
+                    id=registration_id
+                ).first()
+            )
+
+            if registration:
+                registration_id_value = registration.id
+
+                registration_repr = (
+                    f'{registration.student.student_id} - '
+                    f'{registration.course_offering.course.code}'
+                )
+
+                create_audit_log(
+                    request,
+                    action='REMOVE',
+                    module='Course Enrollment',
+                    description=(
+                        f'Removed course registration: '
+                        f'{registration_repr}.'
+                    ),
+                    target_model='CourseRegistration',
+                    target_id=registration_id_value,
+                    target_repr=registration_repr,
+                )
+
+                registration.delete()
+
+                messages.success(
+                    request,
+                    "Course registration removed successfully."
+                )
+
+            else:
+                messages.error(
+                    request,
+                    "Course registration not found."
+                )
+
+            return redirect_with_filters_from_post()
+
+    # =========================================================
+    # MASTER FILTER DATA
+    # =========================================================
+
+    departments = Department.objects.all().order_by(
+        'code'
+    )
+
+    all_batches = Batch.objects.select_related(
+        'department'
+    ).order_by(
+        'department__code',
+        'batch_name'
+    )
+
+    semesters = Semester.objects.all().order_by(
+        'number'
+    )
+
+    # This queryset is used for the main enrollment filter.
+    batches = all_batches
+
+    # =========================================================
+    # MANUAL ENROLLMENT DATA
+    # =========================================================
+
+    students = (
+        StudentProfile.objects.select_related(
+            'user',
+            'department',
+            'batch',
+            'current_semester'
+        ).filter(
+            is_active=True,
+            user__is_active=True
+        )
+    )
+
+    course_offerings = (
+        CourseOffering.objects.select_related(
+            'course',
+            'course__department',
+            'faculty',
+            'batch',
+            'batch__department',
+            'semester'
+        ).filter(
+            is_active=True
+        )
+    )
+
+    # Department filter.
+    if selected_department_id:
+        students = students.filter(
+            department_id=selected_department_id
+        )
+
+        course_offerings = course_offerings.filter(
+            Q(
+                course__department_id=
+                selected_department_id
+            ) |
+            Q(
+                batch__department_id=
+                selected_department_id
+            )
+        )
+
+        batches = batches.filter(
+            department_id=selected_department_id
+        )
+
+    # Batch filter.
+    if selected_batch_id:
+        students = students.filter(
+            batch_id=selected_batch_id
+        )
+
+        course_offerings = course_offerings.filter(
+            batch_id=selected_batch_id
+        )
+
+    # Semester filter.
+    if selected_semester_id:
+        course_offerings = course_offerings.filter(
+            semester_id=selected_semester_id
+        )
+
+    students = students.order_by(
+        'department__code',
+        'batch__batch_name',
+        'student_id'
+    )
+
+    course_offerings = course_offerings.order_by(
+        'batch__department__code',
+        'batch__batch_name',
+        'semester__number',
+        'course__code'
+    )
+
+    # =========================================================
+    # WHOLE SEMESTER ENROLLMENT DATA
+    # =========================================================
+
+    semester_students = (
+        StudentProfile.objects.select_related(
+            'user',
+            'department',
+            'batch',
+            'current_semester'
+        ).filter(
+            is_active=True,
+            user__is_active=True
+        )
+    )
+
+    semester_course_offerings = (
+        CourseOffering.objects.select_related(
+            'course',
+            'course__department',
+            'faculty',
+            'batch',
+            'batch__department',
+            'semester'
+        ).filter(
+            is_active=True
+        )
+    )
+
+    if selected_department_id:
+        semester_students = semester_students.filter(
+            department_id=selected_department_id
+        )
+
+        semester_course_offerings = (
+            semester_course_offerings.filter(
+                Q(
+                    course__department_id=
+                    selected_department_id
+                ) |
+                Q(
+                    batch__department_id=
+                    selected_department_id
+                )
+            )
+        )
+
+    if selected_batch_id:
+        semester_students = semester_students.filter(
+            batch_id=selected_batch_id
+        )
+
+        semester_course_offerings = (
+            semester_course_offerings.filter(
+                batch_id=selected_batch_id
+            )
+        )
+
+    if selected_semester_id:
+        semester_students = semester_students.filter(
+            current_semester_id=selected_semester_id
+        )
+
+        semester_course_offerings = (
+            semester_course_offerings.filter(
+                semester_id=selected_semester_id
+            )
+        )
+
+    semester_students = semester_students.order_by(
+        'department__code',
+        'batch__batch_name',
+        'student_id'
+    )
+
+    semester_course_offerings = (
+        semester_course_offerings.order_by(
+            'batch__department__code',
+            'batch__batch_name',
+            'semester__number',
+            'course__code'
+        )
+    )
+
+    # =========================================================
+    # EXISTING COURSE REGISTRATIONS
+    #
+    # This section has its own independent filters and
+    # server-side pagination.
+    # =========================================================
+
+    registrations = (
+        CourseRegistration.objects.select_related(
+            'student',
+            'student__user',
+            'student__department',
+            'student__batch',
+            'student__current_semester',
+            'course_offering',
+            'course_offering__course',
+            'course_offering__course__department',
+            'course_offering__batch',
+            'course_offering__batch__department',
+            'course_offering__semester',
+            'course_offering__faculty'
+        )
+    )
+
+    # ---------------------------------------------------------
+    # REGISTRATION SEARCH
+    #
+    # Searches:
+    # - student ID
+    # - username
+    # - first name
+    # - last name
+    # - course code
+    # - course title
+    # - section
+    # ---------------------------------------------------------
+
+    if registration_search:
+        registrations = registrations.filter(
+            Q(
+                student__student_id__icontains=
+                registration_search
+            ) |
+            Q(
+                student__user__username__icontains=
+                registration_search
+            ) |
+            Q(
+                student__user__first_name__icontains=
+                registration_search
+            ) |
+            Q(
+                student__user__last_name__icontains=
+                registration_search
+            ) |
+            Q(
+                course_offering__course__code__icontains=
+                registration_search
+            ) |
+            Q(
+                course_offering__course__title__icontains=
+                registration_search
+            ) |
+            Q(
+                course_offering__section__icontains=
+                registration_search
+            )
+        )
+
+    # ---------------------------------------------------------
+    # REGISTRATION DEPARTMENT FILTER
+    # ---------------------------------------------------------
+
+    if registration_department_id:
+        registrations = registrations.filter(
+            Q(
+                student__department_id=
+                registration_department_id
+            ) |
+            Q(
+                course_offering__course__department_id=
+                registration_department_id
+            ) |
+            Q(
+                course_offering__batch__department_id=
+                registration_department_id
+            )
+        )
+
+    # ---------------------------------------------------------
+    # REGISTRATION BATCH FILTER
+    # ---------------------------------------------------------
+
+    if registration_batch_id:
+        registrations = registrations.filter(
+            course_offering__batch_id=
+            registration_batch_id
+        )
+
+    # ---------------------------------------------------------
+    # REGISTRATION SEMESTER FILTER
+    # ---------------------------------------------------------
+
+    if registration_semester_id:
+        registrations = registrations.filter(
+            course_offering__semester_id=
+            registration_semester_id
+        )
+
+    # ---------------------------------------------------------
+    # REGISTRATION STATUS FILTER
+    # ---------------------------------------------------------
+
+    if registration_status in [
+        'pending',
+        'approved',
+        'rejected',
+    ]:
+        registrations = registrations.filter(
+            status=registration_status
+        )
+
+    registrations = registrations.order_by(
+        'student__student_id',
+        'course_offering__semester__number',
+        'course_offering__course__code'
+    )
+
+    # Count after applying registration filters,
+    # but before pagination.
+    registration_count = registrations.count()
+
+    # =========================================================
+    # SERVER-SIDE PAGINATION
+    #
+    # Only 25 registration records are rendered per page.
+    # =========================================================
+
+    registration_paginator = Paginator(
+        registrations,
+        25
+    )
+
+    registration_page = (
+        registration_paginator.get_page(
+            registration_page_number
+        )
+    )
+
+    # =========================================================
+    # COUNTS
+    # =========================================================
+
+    student_count = students.count()
+
+    course_offering_count = (
+        course_offerings.count()
+    )
+
+    semester_student_count = (
+        semester_students.count()
+    )
+
+    semester_course_offering_count = (
+        semester_course_offerings.count()
+    )
+
+    # =========================================================
+    # CONTEXT
+    # =========================================================
+
+    context = {
+        # Master filter data.
+        'departments': departments,
+        'batches': batches,
+        'all_batches': all_batches,
+        'semesters': semesters,
+
+        # Manual enrollment data.
+        'students': students,
+        'course_offerings': course_offerings,
+
+        # Existing registrations.
+        #
+        # "registrations" remains available so your existing
+        # template loop can continue using:
+        #
+        # {% for registration in registrations %}
+        #
+        # It now contains only the current paginated page.
+        'registrations': registration_page,
+        'registration_page': registration_page,
+        'registration_paginator': (
+            registration_paginator
+        ),
+
+        # Semester-wide enrollment data.
+        'semester_students': semester_students,
+        'semester_course_offerings': (
+            semester_course_offerings
+        ),
+
+        # Main enrollment filters.
+        'selected_department_id': (
+            selected_department_id
+        ),
+        'selected_batch_id': selected_batch_id,
+        'selected_semester_id': (
+            selected_semester_id
+        ),
+
+        # Registration-specific filters.
+        'registration_search': (
+            registration_search
+        ),
+        'registration_department_id': (
+            registration_department_id
+        ),
+        'registration_batch_id': (
+            registration_batch_id
+        ),
+        'registration_semester_id': (
+            registration_semester_id
+        ),
+        'registration_status': (
+            registration_status
+        ),
+
+        # Counts.
+        'student_count': student_count,
+        'course_offering_count': (
+            course_offering_count
+        ),
+        'registration_count': (
+            registration_count
+        ),
+        'semester_student_count': (
+            semester_student_count
+        ),
+        'semester_course_offering_count': (
+            semester_course_offering_count
+        ),
+    }
+
+    return render(
+        request,
+        'dashboard/course_enrollment.html',
+        context
+    )

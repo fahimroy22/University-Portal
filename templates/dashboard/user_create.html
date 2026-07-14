@@ -1,0 +1,2083 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .create-user-page {
+        --cu-ink: #0f172a;
+        --cu-text: #334155;
+        --cu-muted: #64748b;
+        --cu-faint: #94a3b8;
+
+        --cu-line: #e2e8f0;
+        --cu-line-soft: #f1f5f9;
+        --cu-surface: #ffffff;
+        --cu-canvas: #f8fafc;
+
+        --cu-accent: #b91c1c;
+        --cu-accent-dark: #991b1b;
+        --cu-accent-soft: #fff1f2;
+        --cu-accent-line: #fecaca;
+
+        --cu-blue: #2563eb;
+        --cu-blue-soft: #eff6ff;
+        --cu-blue-line: #bfdbfe;
+
+        --cu-green: #047857;
+        --cu-green-soft: #ecfdf5;
+        --cu-green-line: #bbf7d0;
+
+        width: 100%;
+        min-width: 0;
+
+        display: grid;
+        gap: 20px;
+    }
+
+    .create-user-page,
+    .create-user-page * {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .create-user-page a {
+        text-decoration: none;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .cu-hero {
+        position: relative;
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+
+        padding: 32px;
+        border-radius: 28px;
+
+        background:
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.55),
+                transparent 34%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.78),
+                transparent 35%
+            ),
+            #ffffff;
+
+        border: 1px solid var(--cu-line);
+    }
+
+    .cu-eyebrow {
+        display: inline-flex;
+        align-items: center;
+
+        min-height: 30px;
+        padding: 0 12px;
+
+        border-radius: 999px;
+        background: var(--cu-accent-soft);
+        border: 1px solid var(--cu-accent-line);
+
+        color: var(--cu-accent-dark);
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .cu-title {
+        margin: 14px 0 0;
+
+        color: var(--cu-ink);
+
+        font-size: clamp(32px, 4vw, 46px);
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+    }
+
+    .cu-description {
+        max-width: 760px;
+        margin: 12px 0 0;
+
+        color: var(--cu-muted);
+
+        font-size: 14px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .cu-back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 46px;
+        padding: 0 18px;
+
+        border: 1px solid var(--cu-accent-line);
+        border-radius: 14px;
+
+        background: #ffffff;
+        color: var(--cu-accent-dark);
+
+        font-size: 13px;
+        font-weight: 850;
+        white-space: nowrap;
+
+        transition:
+            background 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .cu-back-button:hover {
+        background: var(--cu-accent-soft);
+        transform: translateY(-1px);
+    }
+
+    /* =========================================================
+       PROGRESS
+    ========================================================= */
+
+    .cu-progress {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+
+        padding: 9px;
+
+        border: 1px solid var(--cu-line);
+        border-radius: 20px;
+        background: #ffffff;
+    }
+
+    .cu-progress-item {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+
+        min-height: 54px;
+        padding: 10px 14px;
+
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .cu-progress-item.active {
+        background: var(--cu-accent-soft);
+        border: 1px solid var(--cu-accent-line);
+    }
+
+    .cu-progress-number {
+        width: 32px;
+        height: 32px;
+        flex: none;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 10px;
+
+        background: #ffffff;
+        border: 1px solid var(--cu-line);
+
+        color: var(--cu-text);
+
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .cu-progress-item.active .cu-progress-number {
+        background: var(--cu-accent);
+        border-color: var(--cu-accent);
+        color: #ffffff;
+    }
+
+    .cu-progress-label {
+        color: var(--cu-text);
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .cu-progress-meta {
+        margin-top: 2px;
+
+        color: var(--cu-faint);
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    /* =========================================================
+       LAYOUT
+    ========================================================= */
+
+    .cu-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .cu-form-shell,
+    .cu-side-card {
+        border: 1px solid var(--cu-line);
+        border-radius: 26px;
+        background: var(--cu-surface);
+    }
+
+    .cu-form-shell {
+        overflow: hidden;
+    }
+
+    .cu-side-column {
+        display: grid;
+        gap: 16px;
+
+        position: sticky;
+        top: 98px;
+    }
+
+    .cu-side-card {
+        padding: 20px;
+    }
+
+    .cu-side-title {
+        margin: 0;
+
+        color: var(--cu-ink);
+        font-size: 17px;
+        font-weight: 900;
+        letter-spacing: -0.025em;
+    }
+
+    .cu-side-text {
+        margin: 7px 0 0;
+
+        color: var(--cu-muted);
+        font-size: 12.5px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    .cu-guideline-list {
+        display: grid;
+        gap: 11px;
+
+        margin-top: 16px;
+    }
+
+    .cu-guideline {
+        display: grid;
+        grid-template-columns: 26px minmax(0, 1fr);
+        gap: 9px;
+        align-items: start;
+    }
+
+    .cu-guideline-icon {
+        width: 26px;
+        height: 26px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 8px;
+
+        background: var(--cu-green-soft);
+        border: 1px solid var(--cu-green-line);
+
+        color: var(--cu-green);
+        font-size: 11px;
+        font-weight: 950;
+    }
+
+    .cu-guideline-text {
+        padding-top: 4px;
+
+        color: var(--cu-text);
+        font-size: 11.5px;
+        line-height: 1.45;
+        font-weight: 700;
+    }
+
+    .cu-security-card {
+        background:
+            linear-gradient(
+                135deg,
+                #fffafa 0%,
+                #ffffff 100%
+            );
+        border-color: var(--cu-accent-line);
+    }
+
+    /* =========================================================
+       FORM SECTIONS
+    ========================================================= */
+
+    .cu-section {
+        padding: 25px;
+    }
+
+    .cu-section + .cu-section {
+        border-top: 1px solid var(--cu-line-soft);
+    }
+
+    .cu-section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+
+        margin-bottom: 20px;
+    }
+
+    .cu-section-heading {
+        display: flex;
+        gap: 13px;
+        align-items: flex-start;
+    }
+
+    .cu-section-icon {
+        width: 42px;
+        height: 42px;
+        flex: none;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 13px;
+
+        background: var(--cu-accent-soft);
+        border: 1px solid var(--cu-accent-line);
+        color: var(--cu-accent);
+    }
+
+    .cu-section-icon svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .cu-section-title {
+        margin: 0;
+
+        color: var(--cu-ink);
+        font-size: 20px;
+        line-height: 1.15;
+        font-weight: 920;
+        letter-spacing: -0.035em;
+    }
+
+    .cu-section-text {
+        margin: 5px 0 0;
+
+        color: var(--cu-muted);
+        font-size: 12.5px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .cu-required-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 29px;
+        padding: 0 10px;
+
+        border-radius: 999px;
+
+        background: #f8fafc;
+        border: 1px solid var(--cu-line);
+
+        color: var(--cu-muted);
+        font-size: 10px;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+       FIELDS
+    ========================================================= */
+
+    .cu-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .cu-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cu-field {
+        margin: 0;
+    }
+
+    .cu-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .cu-field label {
+        display: block;
+        margin-bottom: 7px;
+
+        color: var(--cu-text);
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .cu-required {
+        color: var(--cu-accent);
+    }
+
+    .cu-hint {
+        display: block;
+        margin-top: 6px;
+
+        color: var(--cu-faint);
+        font-size: 10.5px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    .cu-control {
+        width: 100%;
+        min-height: 46px;
+
+        padding: 10px 13px;
+
+        border: 1px solid #cbd5e1;
+        border-radius: 13px;
+
+        background: #ffffff;
+        color: var(--cu-ink);
+
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 650;
+
+        transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .cu-control::placeholder {
+        color: #94a3b8;
+    }
+
+    .cu-control:focus {
+        outline: none;
+        border-color: var(--cu-accent);
+        box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.1);
+    }
+
+    textarea.cu-control {
+        min-height: 108px;
+        resize: vertical;
+    }
+
+    input[type="file"].cu-control {
+        padding: 9px 11px;
+    }
+
+    .cu-password-wrap {
+        position: relative;
+    }
+
+    .cu-password-wrap .cu-control {
+        padding-right: 86px;
+    }
+
+    .cu-password-toggle {
+        position: absolute;
+        right: 7px;
+        top: 7px;
+
+        min-height: 32px;
+        padding: 0 10px;
+
+        border: 1px solid var(--cu-line);
+        border-radius: 9px;
+
+        background: #f8fafc;
+        color: var(--cu-text);
+
+        font-size: 10.5px;
+        font-weight: 850;
+
+        cursor: pointer;
+    }
+
+    /* =========================================================
+       ACCOUNT TYPE
+    ========================================================= */
+
+    .cu-role-note {
+        display: none;
+
+        margin-top: 15px;
+        padding: 14px 15px;
+
+        border-radius: 14px;
+
+        background: var(--cu-blue-soft);
+        border: 1px solid var(--cu-blue-line);
+
+        color: #1d4ed8;
+        font-size: 11.5px;
+        line-height: 1.55;
+        font-weight: 700;
+    }
+
+    .cu-role-note.visible {
+        display: block;
+    }
+
+    .cu-dynamic-section {
+        display: none;
+    }
+
+    .cu-dynamic-section.visible {
+        display: block;
+    }
+
+    .cu-dynamic-inner {
+        padding: 20px;
+
+        border: 1px solid var(--cu-accent-line);
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #fffafa 0%,
+                #ffffff 100%
+            );
+    }
+
+    .cu-dynamic-title {
+        margin: 0 0 5px;
+
+        color: var(--cu-ink);
+        font-size: 16px;
+        font-weight: 900;
+    }
+
+    .cu-dynamic-text {
+        margin: 0 0 17px;
+
+        color: var(--cu-muted);
+        font-size: 11.5px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       STATUS
+    ========================================================= */
+
+    .cu-status-option {
+        min-height: 48px;
+        padding: 10px 13px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+
+        border: 1px solid #cbd5e1;
+        border-radius: 13px;
+
+        background: #ffffff;
+    }
+
+    .cu-status-label {
+        color: var(--cu-ink);
+        font-size: 12.5px;
+        font-weight: 850;
+    }
+
+    .cu-status-description {
+        margin-top: 3px;
+
+        color: var(--cu-muted);
+        font-size: 10.5px;
+        line-height: 1.4;
+        font-weight: 600;
+    }
+
+    .cu-switch {
+        position: relative;
+
+        width: 44px;
+        height: 24px;
+        flex: none;
+    }
+
+    .cu-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .cu-switch-slider {
+        position: absolute;
+        inset: 0;
+
+        border-radius: 999px;
+        background: #cbd5e1;
+
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .cu-switch-slider::before {
+        content: "";
+
+        position: absolute;
+        left: 3px;
+        top: 3px;
+
+        width: 18px;
+        height: 18px;
+
+        border-radius: 50%;
+        background: #ffffff;
+
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+
+        transition: 0.2s ease;
+    }
+
+    .cu-switch input:checked + .cu-switch-slider {
+        background: var(--cu-green);
+    }
+
+    .cu-switch input:checked + .cu-switch-slider::before {
+        transform: translateX(20px);
+    }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+
+    .cu-form-footer {
+        padding: 20px 25px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+
+        border-top: 1px solid var(--cu-line);
+        background: #f8fafc;
+    }
+
+    .cu-footer-note {
+        color: var(--cu-muted);
+        font-size: 11.5px;
+        line-height: 1.5;
+        font-weight: 650;
+    }
+
+    .cu-footer-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .cu-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 44px;
+        padding: 0 17px;
+
+        border-radius: 13px;
+
+        font-family: inherit;
+        font-size: 12.5px;
+        font-weight: 850;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .cu-button.primary {
+        border: 1px solid var(--cu-accent);
+        background: var(--cu-accent);
+        color: #ffffff;
+    }
+
+    .cu-button.primary:hover {
+        background: var(--cu-accent-dark);
+        border-color: var(--cu-accent-dark);
+        transform: translateY(-1px);
+    }
+
+    .cu-button.secondary {
+        border: 1px solid var(--cu-line);
+        background: #ffffff;
+        color: var(--cu-text);
+    }
+
+    .cu-button.secondary:hover {
+        background: #f1f5f9;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1150px) {
+        .cu-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .cu-side-column {
+            position: static;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .cu-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .cu-progress {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .create-user-page {
+            gap: 14px;
+        }
+
+        .cu-hero {
+            padding: 22px 18px;
+            border-radius: 22px;
+
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .cu-title {
+            font-size: 32px;
+        }
+
+        .cu-back-button {
+            width: 100%;
+        }
+
+        .cu-side-column {
+            grid-template-columns: 1fr;
+        }
+
+        .cu-grid,
+        .cu-grid.two {
+            grid-template-columns: 1fr;
+        }
+
+        .cu-section {
+            padding: 20px 16px;
+        }
+
+        .cu-section-header {
+            flex-direction: column;
+        }
+
+        .cu-form-footer {
+            padding: 16px;
+
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .cu-footer-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .cu-button {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="create-user-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="cu-hero">
+
+        <div>
+            <div class="cu-eyebrow">
+                Access Control
+            </div>
+
+            <h1 class="cu-title">
+                Create User
+            </h1>
+
+            <p class="cu-description">
+                Create a secure university account and attach the correct
+                academic, faculty, staff, or administrative profile information.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'user_management' %}"
+            class="cu-back-button"
+        >
+            ← Back to User Directory
+        </a>
+
+    </section>
+
+
+    <!-- =====================================================
+         PROGRESS GUIDE
+    ====================================================== -->
+
+    <section class="cu-progress">
+
+        <div class="cu-progress-item active">
+            <div class="cu-progress-number">1</div>
+
+            <div>
+                <div class="cu-progress-label">
+                    Account Identity
+                </div>
+
+                <div class="cu-progress-meta">
+                    Role and login information
+                </div>
+            </div>
+        </div>
+
+        <div class="cu-progress-item">
+            <div class="cu-progress-number">2</div>
+
+            <div>
+                <div class="cu-progress-label">
+                    Personal Profile
+                </div>
+
+                <div class="cu-progress-meta">
+                    Contact and identity details
+                </div>
+            </div>
+        </div>
+
+        <div class="cu-progress-item">
+            <div class="cu-progress-number">3</div>
+
+            <div>
+                <div class="cu-progress-label">
+                    University Information
+                </div>
+
+                <div class="cu-progress-meta">
+                    Student or employee profile
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <div class="cu-layout">
+
+        <!-- =================================================
+             FORM
+        ================================================== -->
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="cu-form-shell"
+            id="create-user-form"
+        >
+
+            {% csrf_token %}
+
+            <!-- =================================================
+                 ACCOUNT IDENTITY
+            ================================================== -->
+
+            <section class="cu-section">
+
+                <div class="cu-section-header">
+
+                    <div class="cu-section-heading">
+
+                        <div class="cu-section-icon">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M12 14a4 4 0 100-8 4 4 0 000 8zm7 7a7 7 0 00-14 0"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <h2 class="cu-section-title">
+                                Account Identity
+                            </h2>
+
+                            <p class="cu-section-text">
+                                Choose the account role and enter unique login credentials.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <span class="cu-required-chip">
+                        Required information
+                    </span>
+
+                </div>
+
+
+                <div class="cu-grid">
+
+                    <p class="cu-field">
+                        <label for="create-role">
+                            Account Role
+                            <span class="cu-required">*</span>
+                        </label>
+
+                        <select
+                            name="role"
+                            id="create-role"
+                            class="cu-control"
+                            required
+                        >
+                            <option value="">
+                                Select account role
+                            </option>
+
+                            {% for value, label in role_choices %}
+                                <option value="{{ value }}">
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <span class="cu-hint">
+                            The selected role controls portal permissions and profile fields.
+                        </span>
+                    </p>
+
+
+                    <p class="cu-field">
+                        <label for="username">
+                            Username
+                            <span class="cu-required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="username"
+                            id="username"
+                            class="cu-control"
+                            placeholder="Example: cse.faculty3"
+                            autocomplete="off"
+                            required
+                        >
+
+                        <span class="cu-hint">
+                            Use a unique and recognizable username.
+                        </span>
+                    </p>
+
+
+                    <p class="cu-field">
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            class="cu-control"
+                            placeholder="name@ugv.edu.bd"
+                            autocomplete="off"
+                        >
+                    </p>
+
+
+                    <p class="cu-field">
+                        <label for="password">
+                            Password
+                            <span class="cu-required">*</span>
+                        </label>
+
+                        <div class="cu-password-wrap">
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                class="cu-control"
+                                placeholder="Enter a secure password"
+                                autocomplete="new-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cu-password-toggle"
+                                data-password-target="password"
+                            >
+                                Show
+                            </button>
+                        </div>
+                    </p>
+
+
+                    <p class="cu-field">
+                        <label for="confirm-password">
+                            Confirm Password
+                            <span class="cu-required">*</span>
+                        </label>
+
+                        <div class="cu-password-wrap">
+                            <input
+                                type="password"
+                                name="confirm_password"
+                                id="confirm-password"
+                                class="cu-control"
+                                placeholder="Re-enter the password"
+                                autocomplete="new-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cu-password-toggle"
+                                data-password-target="confirm-password"
+                            >
+                                Show
+                            </button>
+                        </div>
+
+                        <span
+                            id="password-match-message"
+                            class="cu-hint"
+                        ></span>
+                    </p>
+
+
+                    <div class="cu-field">
+                        <label>
+                            Account Status
+                        </label>
+
+                        <div class="cu-status-option">
+
+                            <div>
+                                <div class="cu-status-label">
+                                    Active Account
+                                </div>
+
+                                <div class="cu-status-description">
+                                    Allow the user to sign in immediately.
+                                </div>
+                            </div>
+
+                            <label class="cu-switch">
+                                <input
+                                    type="checkbox"
+                                    name="is_active"
+                                    checked
+                                >
+
+                                <span class="cu-switch-slider"></span>
+                            </label>
+
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="role-note"
+                    class="cu-role-note"
+                ></div>
+
+            </section>
+
+
+            <!-- =================================================
+                 PERSONAL PROFILE
+            ================================================== -->
+
+            <section class="cu-section">
+
+                <div class="cu-section-header">
+
+                    <div class="cu-section-heading">
+
+                        <div class="cu-section-icon">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <h2 class="cu-section-title">
+                                Personal Information
+                            </h2>
+
+                            <p class="cu-section-text">
+                                Add the user's name, contact details, and optional profile photo.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <span class="cu-required-chip">
+                        Profile details
+                    </span>
+
+                </div>
+
+
+                <div class="cu-grid">
+
+                    <p class="cu-field">
+                        <label for="first-name">
+                            First Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="first_name"
+                            id="first-name"
+                            class="cu-control"
+                            placeholder="First name"
+                        >
+                    </p>
+
+
+                    <p class="cu-field">
+                        <label for="last-name">
+                            Last Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="last_name"
+                            id="last-name"
+                            class="cu-control"
+                            placeholder="Last name"
+                        >
+                    </p>
+
+
+                    <p class="cu-field">
+                        <label for="phone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="text"
+                            name="phone"
+                            id="phone"
+                            class="cu-control"
+                            placeholder="01XXXXXXXXX"
+                        >
+                    </p>
+
+
+                    <p class="cu-field">
+                        <label for="gender">
+                            Gender
+                        </label>
+
+                        <select
+                            name="gender"
+                            id="gender"
+                            class="cu-control"
+                        >
+                            <option value="">
+                                Select gender
+                            </option>
+
+                            {% for value, label in gender_choices %}
+                                <option value="{{ value }}">
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+
+                    <p class="cu-field">
+                        <label for="date-of-birth">
+                            Date of Birth
+                        </label>
+
+                        <input
+                            type="date"
+                            name="date_of_birth"
+                            id="date-of-birth"
+                            class="cu-control"
+                        >
+                    </p>
+
+
+                    <p class="cu-field">
+                        <label for="profile-photo">
+                            Profile Photo
+                        </label>
+
+                        <input
+                            type="file"
+                            name="profile_photo"
+                            id="profile-photo"
+                            class="cu-control"
+                            accept="image/*"
+                        >
+
+                        <span class="cu-hint">
+                            Recommended: a clear square JPG or PNG image.
+                        </span>
+                    </p>
+
+
+                    <p class="cu-field full">
+                        <label for="address">
+                            Address
+                        </label>
+
+                        <textarea
+                            name="address"
+                            id="address"
+                            class="cu-control"
+                            placeholder="Enter the user's current address"
+                        ></textarea>
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 STUDENT PROFILE
+            ================================================== -->
+
+            <section
+                id="student-profile-section"
+                class="cu-section cu-dynamic-section"
+            >
+
+                <div class="cu-section-header">
+
+                    <div class="cu-section-heading">
+
+                        <div class="cu-section-icon">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M3 10l9-5 9 5-9 5-9-5zm3 3v4c3 2 9 2 12 0v-4"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <h2 class="cu-section-title">
+                                Student Academic Profile
+                            </h2>
+
+                            <p class="cu-section-text">
+                                Connect the new student account to the correct department,
+                                batch, semester, and admission session.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <span class="cu-required-chip">
+                        Student only
+                    </span>
+
+                </div>
+
+
+                <div class="cu-dynamic-inner">
+
+                    <h3 class="cu-dynamic-title">
+                        Academic Information
+                    </h3>
+
+                    <p class="cu-dynamic-text">
+                        Student ID, department, batch, and current semester are required.
+                    </p>
+
+
+                    <div class="cu-grid">
+
+                        <p class="cu-field">
+                            <label for="student-id">
+                                Student ID
+                                <span class="cu-required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="student_id"
+                                id="student-id"
+                                class="cu-control student-required"
+                                placeholder="Example: UGV-CSE-2026-001"
+                            >
+                        </p>
+
+
+                        <p class="cu-field">
+                            <label for="student-department">
+                                Department
+                                <span class="cu-required">*</span>
+                            </label>
+
+                            <select
+                                name="department"
+                                id="student-department"
+                                class="cu-control student-required"
+                            >
+                                <option value="">
+                                    Select department
+                                </option>
+
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">
+                                        {{ department.code }} - {{ department.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+
+                        <p class="cu-field">
+                            <label for="student-batch">
+                                Batch
+                                <span class="cu-required">*</span>
+                            </label>
+
+                            <select
+                                name="batch"
+                                id="student-batch"
+                                class="cu-control student-required"
+                            >
+                                <option value="">
+                                    Select batch
+                                </option>
+
+                                {% for batch in batches %}
+                                    <option
+                                        value="{{ batch.id }}"
+                                        data-department="{{ batch.department_id }}"
+                                    >
+                                        {{ batch.department.code }} -
+                                        {{ batch.batch_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+
+                        <p class="cu-field">
+                            <label for="current-semester">
+                                Current Semester
+                                <span class="cu-required">*</span>
+                            </label>
+
+                            <select
+                                name="current_semester"
+                                id="current-semester"
+                                class="cu-control student-required"
+                            >
+                                <option value="">
+                                    Select semester
+                                </option>
+
+                                {% for semester in semesters %}
+                                    <option value="{{ semester.id }}">
+                                        {{ semester.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+
+                        <p class="cu-field">
+                            <label for="admission-session">
+                                Admission Session
+                            </label>
+
+                            <input
+                                type="text"
+                                name="admission_session"
+                                id="admission-session"
+                                class="cu-control"
+                                placeholder="Example: Summer 2026"
+                            >
+                        </p>
+
+
+                        <p class="cu-field">
+                            <label for="guardian-name">
+                                Guardian Name
+                            </label>
+
+                            <input
+                                type="text"
+                                name="guardian_name"
+                                id="guardian-name"
+                                class="cu-control"
+                                placeholder="Guardian's full name"
+                            >
+                        </p>
+
+
+                        <p class="cu-field">
+                            <label for="guardian-phone">
+                                Guardian Phone
+                            </label>
+
+                            <input
+                                type="text"
+                                name="guardian_phone"
+                                id="guardian-phone"
+                                class="cu-control"
+                                placeholder="01XXXXXXXXX"
+                            >
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 STAFF PROFILE
+            ================================================== -->
+
+            <section
+                id="staff-profile-section"
+                class="cu-section cu-dynamic-section"
+            >
+
+                <div class="cu-section-header">
+
+                    <div class="cu-section-heading">
+
+                        <div class="cu-section-icon">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M9 7V5a3 3 0 016 0v2m-9 0h12a2 2 0 012 2v10H4V9a2 2 0 012-2zm6 5v3"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <h2 class="cu-section-title">
+                                Employee Profile
+                            </h2>
+
+                            <p class="cu-section-text">
+                                Add the employee identifier, designation, department,
+                                and office information for university personnel.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <span class="cu-required-chip">
+                        Non-student users
+                    </span>
+
+                </div>
+
+
+                <div class="cu-dynamic-inner">
+
+                    <h3 class="cu-dynamic-title">
+                        Staff Information
+                    </h3>
+
+                    <p class="cu-dynamic-text">
+                        An employee ID is required for every faculty, staff, and administrative account.
+                    </p>
+
+
+                    <div class="cu-grid">
+
+                        <p class="cu-field">
+                            <label for="employee-id">
+                                Employee ID
+                                <span class="cu-required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="employee_id"
+                                id="employee-id"
+                                class="cu-control staff-required"
+                                placeholder="Example: CSE-2026-001"
+                            >
+                        </p>
+
+
+                        <p
+                            id="staff-department-field"
+                            class="cu-field"
+                        >
+                            <label for="staff-department">
+                                Department
+                                <span class="cu-required">*</span>
+                            </label>
+
+                            <select
+                                name="staff_department"
+                                id="staff-department"
+                                class="cu-control"
+                            >
+                                <option value="">
+                                    Select department
+                                </option>
+
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">
+                                        {{ department.code }} - {{ department.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <span class="cu-hint">
+                                Required for Faculty and Department Head accounts.
+                            </span>
+                        </p>
+
+
+                        <p class="cu-field">
+                            <label for="designation">
+                                Designation
+                            </label>
+
+                            <input
+                                type="text"
+                                name="designation"
+                                id="designation"
+                                class="cu-control"
+                                placeholder="Example: Lecturer or Accounts Officer"
+                            >
+                        </p>
+
+
+                        <p class="cu-field">
+                            <label for="office-room">
+                                Office Room
+                            </label>
+
+                            <input
+                                type="text"
+                                name="office_room"
+                                id="office-room"
+                                class="cu-control"
+                                placeholder="Example: Academic Building 302"
+                            >
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 FOOTER
+            ================================================== -->
+
+            <footer class="cu-form-footer">
+
+                <div class="cu-footer-note">
+                    Review the information carefully before creating the account.
+                    Username, Student ID, Employee ID, and email must be unique.
+                </div>
+
+                <div class="cu-footer-actions">
+
+                    <a
+                        href="{% url 'user_management' %}"
+                        class="cu-button secondary"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="cu-button primary"
+                    >
+                        Create User Account
+                    </button>
+
+                </div>
+
+            </footer>
+
+        </form>
+
+
+        <!-- =================================================
+             SIDE INFORMATION
+        ================================================== -->
+
+        <aside class="cu-side-column">
+
+            <section class="cu-side-card">
+
+                <h2 class="cu-side-title">
+                    Account Checklist
+                </h2>
+
+                <p class="cu-side-text">
+                    Confirm these details before submitting the form.
+                </p>
+
+
+                <div class="cu-guideline-list">
+
+                    <div class="cu-guideline">
+                        <div class="cu-guideline-icon">✓</div>
+
+                        <div class="cu-guideline-text">
+                            Select the correct portal role and permission level.
+                        </div>
+                    </div>
+
+
+                    <div class="cu-guideline">
+                        <div class="cu-guideline-icon">✓</div>
+
+                        <div class="cu-guideline-text">
+                            Use a username that is unique and easy to identify.
+                        </div>
+                    </div>
+
+
+                    <div class="cu-guideline">
+                        <div class="cu-guideline-icon">✓</div>
+
+                        <div class="cu-guideline-text">
+                            Verify the Student ID or Employee ID before submission.
+                        </div>
+                    </div>
+
+
+                    <div class="cu-guideline">
+                        <div class="cu-guideline-icon">✓</div>
+
+                        <div class="cu-guideline-text">
+                            Assign the correct department, batch, and semester.
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="cu-side-card cu-security-card">
+
+                <h2 class="cu-side-title">
+                    Security Reminder
+                </h2>
+
+                <p class="cu-side-text">
+                    Use a strong temporary password and instruct the user to
+                    protect their login credentials. Access can be deactivated
+                    later from the user's dedicated management page.
+                </p>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const roleSelect = document.getElementById('create-role');
+
+        const studentSection = document.getElementById(
+            'student-profile-section'
+        );
+
+        const staffSection = document.getElementById(
+            'staff-profile-section'
+        );
+
+        const staffDepartmentField = document.getElementById(
+            'staff-department-field'
+        );
+
+        const staffDepartmentSelect = document.getElementById(
+            'staff-department'
+        );
+
+        const roleNote = document.getElementById('role-note');
+
+        const studentRequiredFields = document.querySelectorAll(
+            '.student-required'
+        );
+
+        const staffRequiredFields = document.querySelectorAll(
+            '.staff-required'
+        );
+
+
+        const roleMessages = {
+            student:
+                'Student accounts require a Student ID, department, batch, and current semester.',
+
+            faculty:
+                'Faculty accounts require an Employee ID and academic department.',
+
+            dept_head:
+                'Department Head accounts require an Employee ID and academic department.',
+
+            exam_controller:
+                'Exam Controller accounts receive access to examination management tools.',
+
+            accounts:
+                'Accounts Officer accounts receive access to financial and payment management tools.',
+
+            admin:
+                'Admin accounts receive broad administrative access. Create this role carefully.',
+
+            super_admin:
+                'Super Admin accounts receive the highest level of portal access.'
+        };
+
+
+        function updateRoleFields() {
+            if (!roleSelect) {
+                return;
+            }
+
+            const role = roleSelect.value;
+
+            const isStudent = role === 'student';
+
+            const isStaff = role && role !== 'student';
+
+            const needsDepartment =
+                role === 'faculty' ||
+                role === 'dept_head';
+
+
+            studentSection.classList.toggle(
+                'visible',
+                isStudent
+            );
+
+            staffSection.classList.toggle(
+                'visible',
+                Boolean(isStaff)
+            );
+
+
+            studentRequiredFields.forEach(function (field) {
+                field.required = isStudent;
+            });
+
+
+            staffRequiredFields.forEach(function (field) {
+                field.required = Boolean(isStaff);
+            });
+
+
+            if (staffDepartmentField) {
+                staffDepartmentField.style.display = needsDepartment
+                    ? ''
+                    : 'none';
+            }
+
+
+            if (staffDepartmentSelect) {
+                staffDepartmentSelect.required = needsDepartment;
+
+                if (!needsDepartment) {
+                    staffDepartmentSelect.value = '';
+                }
+            }
+
+
+            if (roleNote) {
+                if (role && roleMessages[role]) {
+                    roleNote.textContent = roleMessages[role];
+                    roleNote.classList.add('visible');
+
+                } else {
+                    roleNote.textContent = '';
+                    roleNote.classList.remove('visible');
+                }
+            }
+        }
+
+
+        if (roleSelect) {
+            roleSelect.addEventListener(
+                'change',
+                updateRoleFields
+            );
+
+            updateRoleFields();
+        }
+
+
+        /* =====================================================
+           PASSWORD VISIBILITY
+        ====================================================== */
+
+        document
+            .querySelectorAll('.cu-password-toggle')
+            .forEach(function (button) {
+
+                button.addEventListener('click', function () {
+
+                    const targetId = button.dataset.passwordTarget;
+
+                    const input = document.getElementById(targetId);
+
+                    if (!input) {
+                        return;
+                    }
+
+                    const shouldShow = input.type === 'password';
+
+                    input.type = shouldShow
+                        ? 'text'
+                        : 'password';
+
+                    button.textContent = shouldShow
+                        ? 'Hide'
+                        : 'Show';
+                });
+            });
+
+
+        /* =====================================================
+           PASSWORD MATCH
+        ====================================================== */
+
+        const password = document.getElementById('password');
+
+        const confirmPassword = document.getElementById(
+            'confirm-password'
+        );
+
+        const passwordMessage = document.getElementById(
+            'password-match-message'
+        );
+
+
+        function updatePasswordMessage() {
+            if (
+                !password ||
+                !confirmPassword ||
+                !passwordMessage
+            ) {
+                return;
+            }
+
+            if (!confirmPassword.value) {
+                passwordMessage.textContent = '';
+                passwordMessage.style.color = '';
+                return;
+            }
+
+            if (password.value === confirmPassword.value) {
+                passwordMessage.textContent =
+                    'Passwords match.';
+
+                passwordMessage.style.color =
+                    '#047857';
+
+            } else {
+                passwordMessage.textContent =
+                    'Passwords do not match.';
+
+                passwordMessage.style.color =
+                    '#b91c1c';
+            }
+        }
+
+
+        if (password && confirmPassword) {
+            password.addEventListener(
+                'input',
+                updatePasswordMessage
+            );
+
+            confirmPassword.addEventListener(
+                'input',
+                updatePasswordMessage
+            );
+        }
+
+
+        /* =====================================================
+           FILTER BATCHES BY DEPARTMENT
+        ====================================================== */
+
+        const studentDepartment = document.getElementById(
+            'student-department'
+        );
+
+        const studentBatch = document.getElementById(
+            'student-batch'
+        );
+
+
+        function filterStudentBatches() {
+            if (!studentDepartment || !studentBatch) {
+                return;
+            }
+
+            const departmentId = studentDepartment.value;
+
+            const options = studentBatch.querySelectorAll(
+                'option[data-department]'
+            );
+
+
+            options.forEach(function (option) {
+                const matches =
+                    !departmentId ||
+                    option.dataset.department === departmentId;
+
+                option.hidden = !matches;
+            });
+
+
+            const selectedOption =
+                studentBatch.options[studentBatch.selectedIndex];
+
+            if (
+                selectedOption &&
+                selectedOption.hidden
+            ) {
+                studentBatch.value = '';
+            }
+        }
+
+
+        if (studentDepartment) {
+            studentDepartment.addEventListener(
+                'change',
+                filterStudentBatches
+            );
+
+            filterStudentBatches();
+        }
+
+
+        /* =====================================================
+           SUBMISSION CHECK
+        ====================================================== */
+
+        const createUserForm = document.getElementById(
+            'create-user-form'
+        );
+
+
+        if (createUserForm) {
+            createUserForm.addEventListener(
+                'submit',
+                function (event) {
+
+                    if (
+                        password &&
+                        confirmPassword &&
+                        password.value !== confirmPassword.value
+                    ) {
+                        event.preventDefault();
+
+                        confirmPassword.focus();
+
+                        updatePasswordMessage();
+
+                        alert(
+                            'Password and confirm password do not match.'
+                        );
+                    }
+                }
+            );
+        }
+
+    });
+</script>
+
+{% endblock %}

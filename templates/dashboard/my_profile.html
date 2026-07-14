@@ -1,0 +1,599 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .profile-page {
+        --pp-ink: #0f172a;
+        --pp-text: #334155;
+        --pp-muted: #64748b;
+        --pp-faint: #94a3b8;
+        --pp-line: #e2e8f0;
+        --pp-line-soft: #eef2f7;
+        --pp-canvas: #f8fafc;
+        --pp-surface: #ffffff;
+
+        --pp-accent: #9f1c1c;
+        --pp-accent-dark: #7f1717;
+        --pp-accent-soft: #fff1f2;
+
+        --pp-success: #047857;
+        --pp-success-soft: #ecfdf5;
+        --pp-success-line: #bbf7d0;
+
+        --pp-danger: #dc2626;
+        --pp-danger-soft: #fef2f2;
+        --pp-danger-line: #fecaca;
+
+        width: 100%;
+        display: grid;
+        gap: 16px;
+    }
+
+    .profile-page,
+    .profile-page * {
+        box-sizing: border-box;
+    }
+
+    .pp-surface {
+        background: var(--pp-surface);
+        border: 1px solid var(--pp-line);
+        border-radius: 14px;
+        box-shadow: none;
+    }
+
+    .pp-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .pp-chip.brand {
+        background: var(--pp-accent-soft);
+        color: var(--pp-accent-dark);
+        border-color: #fecaca;
+    }
+
+    .pp-chip.success {
+        background: var(--pp-success-soft);
+        color: var(--pp-success);
+        border-color: var(--pp-success-line);
+    }
+
+    .pp-chip.danger {
+        background: var(--pp-danger-soft);
+        color: var(--pp-danger);
+        border-color: var(--pp-danger-line);
+    }
+
+    .pp-kicker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        color: var(--pp-accent);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .pp-title {
+        margin: 0;
+        color: var(--pp-ink);
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .pp-subtitle {
+        margin: 8px auto 0;
+        max-width: 720px;
+        color: var(--pp-muted);
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .pp-section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .pp-section-title {
+        margin: 0;
+        color: var(--pp-ink);
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .pp-section-subtitle {
+        margin-top: 5px;
+        color: var(--pp-muted);
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .pp-hero {
+        padding: 24px 24px 0;
+    }
+
+    .pp-hero-main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--pp-line-soft);
+    }
+
+    .pp-avatar {
+        position: relative;
+        width: 96px;
+        height: 96px;
+        border-radius: 999px;
+        border: 1px solid var(--pp-line);
+        background: #f1f5f9;
+        margin-bottom: 16px;
+    }
+
+    .pp-avatar-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        overflow: hidden;
+        display: block;
+        background: #f1f5f9;
+    }
+
+    .pp-avatar-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
+
+    .pp-avatar-fallback {
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--pp-accent);
+        color: #ffffff;
+        font-size: 32px;
+        font-weight: 800;
+    }
+
+    .pp-active-dot {
+        position: absolute;
+        right: 4px;
+        bottom: 4px;
+        width: 25px;
+        height: 25px;
+        border-radius: 999px;
+        border: 3px solid #ffffff;
+        background: var(--pp-success);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        z-index: 2;
+    }
+
+    .pp-active-dot.inactive {
+        background: var(--pp-danger);
+    }
+
+    .pp-tags {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .pp-summary-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border-top: 0;
+    }
+
+    .pp-summary-item {
+        padding: 18px;
+        border-right: 1px solid var(--pp-line-soft);
+    }
+
+    .pp-summary-item:last-child {
+        border-right: none;
+    }
+
+    .pp-label {
+        color: var(--pp-faint);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .pp-value {
+        margin-top: 7px;
+        color: var(--pp-ink);
+        font-size: 17px;
+        line-height: 1.3;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .pp-note {
+        margin-top: 4px;
+        color: var(--pp-muted);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .pp-shell {
+        padding: 20px 22px;
+    }
+
+    .pp-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        border: 1px solid var(--pp-line);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    .pp-info-item {
+        padding: 16px;
+        border-right: 1px solid var(--pp-line-soft);
+        border-bottom: 1px solid var(--pp-line-soft);
+        min-height: 92px;
+    }
+
+    .pp-info-item:nth-child(2n) {
+        border-right: none;
+    }
+
+    .pp-info-item:nth-last-child(1),
+    .pp-info-item:nth-last-child(2) {
+        border-bottom: none;
+    }
+
+    .pp-info-item.wide {
+        grid-column: 1 / -1;
+        border-right: none;
+    }
+
+    .pp-info-label {
+        color: var(--pp-faint);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .pp-info-value {
+        margin-top: 7px;
+        color: var(--pp-ink);
+        font-size: 15px;
+        line-height: 1.4;
+        font-weight: 750;
+        word-break: break-word;
+    }
+
+    .pp-info-desc {
+        margin-top: 4px;
+        color: var(--pp-muted);
+        font-size: 13px;
+        line-height: 1.4;
+        font-weight: 600;
+    }
+
+    .pp-section {
+        display: grid;
+        gap: 16px;
+    }
+
+    .pp-section + .pp-section {
+        padding-top: 20px;
+        border-top: 1px solid var(--pp-line-soft);
+        margin-top: 20px;
+    }
+
+    @media (max-width: 900px) {
+        .pp-summary-row {
+            grid-template-columns: 1fr;
+        }
+
+        .pp-summary-item {
+            border-right: none;
+            border-bottom: 1px solid var(--pp-line-soft);
+        }
+
+        .pp-summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .pp-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pp-info-item,
+        .pp-info-item:nth-child(2n),
+        .pp-info-item:nth-last-child(1),
+        .pp-info-item:nth-last-child(2) {
+            border-right: none;
+            border-bottom: 1px solid var(--pp-line-soft);
+        }
+
+        .pp-info-item:last-child {
+            border-bottom: none;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .pp-hero {
+            padding: 20px 18px 0;
+        }
+
+        .pp-shell {
+            padding: 18px;
+        }
+
+        .pp-avatar {
+            width: 82px;
+            height: 82px;
+        }
+
+        .pp-title {
+            font-size: 30px;
+        }
+
+        .pp-section-header {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="profile-page">
+
+    <section class="pp-surface pp-hero">
+        <div class="pp-hero-main">
+            <div class="pp-avatar">
+                <span class="pp-avatar-inner">
+                    {% if profile_user.profile_photo %}
+                        <img src="{{ profile_user.profile_photo.url }}" alt="Profile Photo">
+                    {% else %}
+                        <span class="pp-avatar-fallback">
+                            {{ profile_user.username|slice:":1"|upper }}
+                        </span>
+                    {% endif %}
+                </span>
+
+                {% if profile_user.is_active %}
+                    <span class="pp-active-dot">✓</span>
+                {% else %}
+                    <span class="pp-active-dot inactive">!</span>
+                {% endif %}
+            </div>
+
+            <div>
+                <div class="pp-kicker">My Profile</div>
+
+                <h1 class="pp-title">
+                    {% if profile_user.get_full_name %}
+                        {{ profile_user.get_full_name }}
+                    {% else %}
+                        {{ profile_user.username }}
+                    {% endif %}
+                </h1>
+
+                <p class="pp-subtitle">
+                    Official identity details used across the UGV Smart University Portal.
+                </p>
+
+                <div class="pp-tags">
+                    <span class="pp-chip brand">{{ profile_user.get_role_display }}</span>
+
+                    {% if profile_user.is_active %}
+                        <span class="pp-chip success">Active Account</span>
+                    {% else %}
+                        <span class="pp-chip danger">Inactive Account</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="pp-summary-row">
+            <div class="pp-summary-item">
+                <div class="pp-label">
+                    {% if profile_user.role == 'student' %}
+                        Student ID
+                    {% else %}
+                        Employee ID
+                    {% endif %}
+                </div>
+
+                <div class="pp-value">
+                    {% if profile_user.role == 'student' %}
+                        {% if profile_user.studentprofile %}
+                            {{ profile_user.studentprofile.student_id }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    {% else %}
+                        {{ profile_user.employee_id|default:"-" }}
+                    {% endif %}
+                </div>
+
+                <div class="pp-note">Unique identification number</div>
+            </div>
+
+            <div class="pp-summary-item">
+                <div class="pp-label">Username</div>
+                <div class="pp-value">{{ profile_user.username }}</div>
+                <div class="pp-note">Login account name</div>
+            </div>
+
+            <div class="pp-summary-item">
+                <div class="pp-label">Role</div>
+                <div class="pp-value">{{ profile_user.get_role_display }}</div>
+                <div class="pp-note">Portal access category</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pp-surface pp-shell">
+
+        <div class="pp-section">
+            <div class="pp-section-header">
+                <div>
+                    <h2 class="pp-section-title">Personal Information</h2>
+                    <p class="pp-section-subtitle">Basic personal information connected with this account.</p>
+                </div>
+
+                <span class="pp-chip">Identity</span>
+            </div>
+
+            <div class="pp-info-grid">
+                <div class="pp-info-item">
+                    <div class="pp-info-label">Full Name</div>
+                    <div class="pp-info-value">
+                        {% if profile_user.get_full_name %}
+                            {{ profile_user.get_full_name }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="pp-info-item">
+                    <div class="pp-info-label">Gender</div>
+                    <div class="pp-info-value">{{ profile_user.get_gender_display|default:"-" }}</div>
+                </div>
+
+                <div class="pp-info-item">
+                    <div class="pp-info-label">Date of Birth</div>
+                    <div class="pp-info-value">{{ profile_user.date_of_birth|default:"-" }}</div>
+                </div>
+
+                <div class="pp-info-item">
+                    <div class="pp-info-label">Account Role</div>
+                    <div class="pp-info-value">{{ profile_user.get_role_display }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% if profile_user.role != 'student' %}
+            <div class="pp-section">
+                <div class="pp-section-header">
+                    <div>
+                        <h2 class="pp-section-title">Workplace Information</h2>
+                        <p class="pp-section-subtitle">University workplace and staff information.</p>
+                    </div>
+
+                    <span class="pp-chip">Staff</span>
+                </div>
+
+                <div class="pp-info-grid">
+                    <div class="pp-info-item">
+                        <div class="pp-info-label">Employee ID</div>
+                        <div class="pp-info-value">{{ profile_user.employee_id|default:"-" }}</div>
+                    </div>
+
+                    <div class="pp-info-item">
+                        <div class="pp-info-label">Designation</div>
+                        <div class="pp-info-value">{{ profile_user.designation|default:"-" }}</div>
+                    </div>
+
+                    <div class="pp-info-item">
+                        <div class="pp-info-label">Department</div>
+                        <div class="pp-info-value">{{ profile_user.staff_department|default:"-" }}</div>
+                    </div>
+
+                    <div class="pp-info-item">
+                        <div class="pp-info-label">Office Room</div>
+                        <div class="pp-info-value">{{ profile_user.office_room|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="pp-section">
+            <div class="pp-section-header">
+                <div>
+                    <h2 class="pp-section-title">Contact Information</h2>
+                    <p class="pp-section-subtitle">Email, phone, and address information.</p>
+                </div>
+
+                <span class="pp-chip">Contact</span>
+            </div>
+
+            <div class="pp-info-grid">
+                <div class="pp-info-item">
+                    <div class="pp-info-label">Email</div>
+                    <div class="pp-info-value">{{ profile_user.email|default:"-" }}</div>
+                </div>
+
+                <div class="pp-info-item">
+                    <div class="pp-info-label">Phone</div>
+                    <div class="pp-info-value">{{ profile_user.phone|default:"-" }}</div>
+                </div>
+
+                <div class="pp-info-item wide">
+                    <div class="pp-info-label">Address</div>
+                    <div class="pp-info-value">{{ profile_user.address|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pp-section">
+            <div class="pp-section-header">
+                <div>
+                    <h2 class="pp-section-title">Account Activity</h2>
+                    <p class="pp-section-subtitle">Account creation and recent login information.</p>
+                </div>
+
+                <span class="pp-chip">Activity</span>
+            </div>
+
+            <div class="pp-info-grid">
+                <div class="pp-info-item">
+                    <div class="pp-info-label">Date Joined</div>
+                    <div class="pp-info-value">{{ profile_user.date_joined }}</div>
+                </div>
+
+                <div class="pp-info-item">
+                    <div class="pp-info-label">Last Login</div>
+                    <div class="pp-info-value">{{ profile_user.last_login|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

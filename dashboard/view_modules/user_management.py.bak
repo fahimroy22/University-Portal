@@ -1,0 +1,621 @@
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.shortcuts import render, redirect
+
+from accounts.models import User
+from academics.models import Department, Batch, Semester
+from students.models import StudentProfile
+from dashboard.view_modules.audit import create_audit_log
+
+
+STAFF_ROLES = [
+    'faculty',
+    'dept_head',
+    'exam_controller',
+    'accounts',
+    'admin',
+    'super_admin',
+]
+
+
+def user_can_manage_target(current_user, target_user):
+    if current_user.role == 'super_admin':
+        return True
+
+    if current_user.role == 'admin':
+        if target_user.role == 'super_admin':
+            return False
+
+        if target_user == current_user:
+            return False
+
+        return True
+
+    return False
+
+
+def user_can_change_status(current_user, target_user):
+    if current_user.role != 'super_admin':
+        return False
+
+    if target_user == current_user:
+        return False
+
+    return True
+
+
+def normalize_empty(value):
+    value = value.strip() if value else ''
+    return value or None
+
+
+def build_user_row(user, current_user):
+    profile = None
+    display_id = user.employee_id or '-'
+    department_label = user.staff_department or '-'
+    batch_label = '-'
+    semester_label = '-'
+
+    if user.role == 'student':
+        profile = StudentProfile.objects.filter(
+            user=user
+        ).select_related(
+            'department',
+            'batch',
+            'current_semester'
+        ).first()
+
+        if profile:
+            display_id = profile.student_id
+            department_label = profile.department or '-'
+            batch_label = profile.batch or '-'
+            semester_label = profile.current_semester or '-'
+        else:
+            display_id = '-'
+
+    return {
+        'user': user,
+        'profile': profile,
+        'display_id': display_id,
+        'department_label': department_label,
+        'batch_label': batch_label,
+        'semester_label': semester_label,
+        'can_edit': user_can_manage_target(current_user, user),
+        'can_toggle_status': user_can_change_status(current_user, user),
+    }
+
+
+@login_required
+def user_management(request):
+    if request.user.role not in ['admin', 'super_admin']:
+        return redirect('dashboard')
+
+    departments = Department.objects.all().order_by('code')
+
+    batches = Batch.objects.select_related(
+        'department'
+    ).order_by(
+        'department__code',
+        'batch_name'
+    )
+
+    semesters = Semester.objects.all().order_by('number')
+
+    role_choices = User.ROLE_CHOICES
+
+    if request.user.role == 'admin':
+        role_choices = [
+            item for item in User.ROLE_CHOICES
+            if item[0] != 'super_admin'
+        ]
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'create_user':
+            username = normalize_empty(request.POST.get('username'))
+            password = request.POST.get('password')
+            confirm_password = request.POST.get('confirm_password')
+            role = normalize_empty(request.POST.get('role'))
+
+            first_name = normalize_empty(request.POST.get('first_name'))
+            last_name = normalize_empty(request.POST.get('last_name'))
+            email = normalize_empty(request.POST.get('email'))
+            phone = normalize_empty(request.POST.get('phone'))
+            gender = normalize_empty(request.POST.get('gender'))
+            date_of_birth = normalize_empty(request.POST.get('date_of_birth'))
+            address = normalize_empty(request.POST.get('address'))
+            profile_photo = request.FILES.get('profile_photo')
+            is_active = request.POST.get('is_active') == 'on'
+
+            employee_id = normalize_empty(request.POST.get('employee_id'))
+            staff_department_id = normalize_empty(request.POST.get('staff_department'))
+            designation = normalize_empty(request.POST.get('designation'))
+            office_room = normalize_empty(request.POST.get('office_room'))
+
+            student_id = normalize_empty(request.POST.get('student_id'))
+            department_id = normalize_empty(request.POST.get('department'))
+            batch_id = normalize_empty(request.POST.get('batch'))
+            current_semester_id = normalize_empty(request.POST.get('current_semester'))
+            admission_session = normalize_empty(request.POST.get('admission_session'))
+            guardian_name = normalize_empty(request.POST.get('guardian_name'))
+            guardian_phone = normalize_empty(request.POST.get('guardian_phone'))
+
+            if not username or not password or not confirm_password or not role:
+                messages.error(
+                    request,
+                    "Username, password, confirm password, and role are required."
+                )
+                return redirect('user_management')
+
+            if request.user.role == 'admin' and role == 'super_admin':
+                messages.error(request, "Admin cannot create Super Admin users.")
+                return redirect('user_management')
+
+            if password != confirm_password:
+                messages.error(request, "Password and confirm password do not match.")
+                return redirect('user_management')
+
+            if User.objects.filter(username=username).exists():
+                messages.error(request, "This username already exists.")
+                return redirect('user_management')
+
+            if email and User.objects.filter(email=email).exists():
+                messages.error(request, "This email is already used by another account.")
+                return redirect('user_management')
+
+            staff_department = None
+
+            if role == 'student':
+                if not student_id or not department_id or not batch_id or not current_semester_id:
+                    messages.error(
+                        request,
+                        "Student ID, department, batch, and current semester are required for student accounts."
+                    )
+                    return redirect('user_management')
+
+                if StudentProfile.objects.filter(student_id=student_id).exists():
+                    messages.error(request, "This Student ID already exists.")
+                    return redirect('user_management')
+
+                employee_id = None
+                designation = None
+                office_room = None
+
+            else:
+                if not employee_id:
+                    messages.error(request, "Employee ID is required for non-student users.")
+                    return redirect('user_management')
+
+                if User.objects.filter(employee_id=employee_id).exists():
+                    messages.error(request, "This Employee ID already exists.")
+                    return redirect('user_management')
+
+                if role in ['faculty', 'dept_head']:
+                    if not staff_department_id:
+                        messages.error(request, "Department is required for Faculty and Department Head users.")
+                        return redirect('user_management')
+
+                    staff_department = Department.objects.filter(
+                        id=staff_department_id
+                    ).first()
+                else:
+                    staff_department = None
+
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                first_name=first_name or '',
+                last_name=last_name or '',
+                email=email or '',
+                role=role,
+                employee_id=employee_id,
+                staff_department=staff_department,
+                designation=designation,
+                office_room=office_room,
+                phone=phone,
+                gender=gender,
+                date_of_birth=date_of_birth,
+                address=address,
+                is_active=is_active,
+            )
+
+            if profile_photo:
+                user.profile_photo = profile_photo
+                user.save()
+
+            if role == 'student':
+                department = Department.objects.filter(id=department_id).first()
+                batch = Batch.objects.filter(id=batch_id).first()
+                current_semester = Semester.objects.filter(id=current_semester_id).first()
+
+                profile = StudentProfile.objects.create(
+                    user=user,
+                    student_id=student_id,
+                    department=department,
+                    batch=batch,
+                    current_semester=current_semester,
+                    admission_session=admission_session,
+                    guardian_name=guardian_name,
+                    guardian_phone=guardian_phone,
+                    address=address,
+                    is_active=is_active,
+                )
+
+                if profile_photo and hasattr(profile, 'photo'):
+                    profile.photo = profile_photo
+                    profile.save()
+
+            create_audit_log(
+                request,
+                action='CREATE',
+                module='User Management',
+                description=f'Created {user.get_role_display()} account: {user.username}',
+                target_model='User',
+                target_id=user.id,
+                target_repr=user.username,
+            )
+
+            messages.success(request, "User account created successfully.")
+            return redirect('user_management')
+
+        elif action == 'update_user':
+            user_id = request.POST.get('user_id')
+
+            user = User.objects.filter(id=user_id).first()
+
+            if not user:
+                messages.error(request, "User not found.")
+                return redirect('user_management')
+
+            if not user_can_manage_target(request.user, user):
+                messages.error(request, "You do not have permission to edit this user.")
+                return redirect('user_management')
+
+            first_name = normalize_empty(request.POST.get('first_name'))
+            last_name = normalize_empty(request.POST.get('last_name'))
+            email = normalize_empty(request.POST.get('email'))
+            phone = normalize_empty(request.POST.get('phone'))
+            gender = normalize_empty(request.POST.get('gender'))
+            date_of_birth = normalize_empty(request.POST.get('date_of_birth'))
+            address = normalize_empty(request.POST.get('address'))
+            profile_photo = request.FILES.get('profile_photo')
+
+            if email:
+                duplicate_email = User.objects.exclude(
+                    id=user.id
+                ).filter(
+                    email=email
+                ).exists()
+
+                if duplicate_email:
+                    messages.error(request, "This email is already used by another account.")
+                    return redirect('user_management')
+
+            user.first_name = first_name or ''
+            user.last_name = last_name or ''
+            user.email = email or ''
+            user.phone = phone
+            user.gender = gender
+            user.date_of_birth = date_of_birth
+            user.address = address
+
+            if profile_photo:
+                user.profile_photo = profile_photo
+
+            if user.role == 'student':
+                student_id = normalize_empty(request.POST.get('student_id'))
+                department_id = normalize_empty(request.POST.get('department'))
+                batch_id = normalize_empty(request.POST.get('batch'))
+                current_semester_id = normalize_empty(request.POST.get('current_semester'))
+                admission_session = normalize_empty(request.POST.get('admission_session'))
+                guardian_name = normalize_empty(request.POST.get('guardian_name'))
+                guardian_phone = normalize_empty(request.POST.get('guardian_phone'))
+
+                if not student_id:
+                    messages.error(request, "Student ID is required for student profile.")
+                    return redirect('user_management')
+
+                duplicate_student_id = StudentProfile.objects.exclude(
+                    user=user
+                ).filter(
+                    student_id=student_id
+                ).exists()
+
+                if duplicate_student_id:
+                    messages.error(request, "Another student already uses this Student ID.")
+                    return redirect('user_management')
+
+                department = Department.objects.filter(id=department_id).first() if department_id else None
+                batch = Batch.objects.filter(id=batch_id).first() if batch_id else None
+                current_semester = Semester.objects.filter(id=current_semester_id).first() if current_semester_id else None
+
+                profile, created = StudentProfile.objects.get_or_create(
+                    user=user,
+                    defaults={
+                        'student_id': student_id
+                    }
+                )
+
+                profile.student_id = student_id
+                profile.department = department
+                profile.batch = batch
+                profile.current_semester = current_semester
+                profile.admission_session = admission_session
+                profile.guardian_name = guardian_name
+                profile.guardian_phone = guardian_phone
+                profile.address = user.address
+                profile.is_active = user.is_active
+
+                if profile_photo and hasattr(profile, 'photo'):
+                    profile.photo = profile_photo
+
+                profile.save()
+
+                user.employee_id = None
+                user.staff_department = None
+                user.designation = None
+                user.office_room = None
+
+            else:
+                employee_id = normalize_empty(request.POST.get('employee_id'))
+                staff_department_id = normalize_empty(request.POST.get('staff_department'))
+                designation = normalize_empty(request.POST.get('designation'))
+                office_room = normalize_empty(request.POST.get('office_room'))
+
+                if not employee_id:
+                    messages.error(request, "Employee ID is required for non-student users.")
+                    return redirect('user_management')
+
+                duplicate_employee_id = User.objects.exclude(
+                    id=user.id
+                ).filter(
+                    employee_id=employee_id
+                ).exists()
+
+                if duplicate_employee_id:
+                    messages.error(request, "Another user already uses this Employee ID.")
+                    return redirect('user_management')
+
+                staff_department = None
+
+                if user.role in ['faculty', 'dept_head']:
+                    if not staff_department_id:
+                        messages.error(request, "Department is required for Faculty and Department Head users.")
+                        return redirect('user_management')
+
+                    staff_department = Department.objects.filter(
+                        id=staff_department_id
+                    ).first()
+
+                user.employee_id = employee_id
+                user.staff_department = staff_department
+                user.designation = designation
+                user.office_room = office_room
+
+            user.save()
+
+            create_audit_log(
+                request,
+                action='UPDATE',
+                module='User Management',
+                description=f'Updated user account: {user.username}',
+                target_model='User',
+                target_id=user.id,
+                target_repr=user.username,
+            )
+
+            messages.success(request, "User updated successfully.")
+            return redirect('user_management')
+
+        elif action == 'reset_password':
+            user_id = request.POST.get('user_id')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            user = User.objects.filter(id=user_id).first()
+
+            if not user:
+                messages.error(request, "User not found.")
+                return redirect('user_management')
+
+            if not user_can_manage_target(request.user, user):
+                messages.error(request, "You do not have permission to reset this user's password.")
+                return redirect('user_management')
+
+            if not new_password or not confirm_password:
+                messages.error(request, "Password and confirm password are required.")
+                return redirect('user_management')
+
+            if new_password != confirm_password:
+                messages.error(request, "Password and confirm password do not match.")
+                return redirect('user_management')
+
+            user.set_password(new_password)
+            user.save()
+
+            create_audit_log(
+                request,
+                action='PASSWORD_RESET',
+                module='User Management',
+                description=f'Reset password for user: {user.username}',
+                target_model='User',
+                target_id=user.id,
+                target_repr=user.username,
+            )
+
+            messages.success(request, f"Password reset successfully for {user.username}.")
+            return redirect('user_management')
+
+        elif action == 'toggle_user_status':
+            user_id = request.POST.get('user_id')
+
+            user = User.objects.filter(id=user_id).first()
+
+            if not user:
+                messages.error(request, "User not found.")
+                return redirect('user_management')
+
+            if not user_can_change_status(request.user, user):
+                messages.error(
+                    request,
+                    "Only Super Admin can activate or deactivate user access."
+                )
+                return redirect('user_management')
+
+            user.is_active = not user.is_active
+            user.save()
+
+            if user.role == 'student':
+                StudentProfile.objects.filter(
+                    user=user
+                ).update(
+                    is_active=user.is_active
+                )
+
+            create_audit_log(
+                request,
+                action='ACTIVATE' if user.is_active else 'DEACTIVATE',
+                module='User Management',
+                description=f'Changed active status for user: {user.username}',
+                target_model='User',
+                target_id=user.id,
+                target_repr=user.username,
+            )
+
+            if user.is_active:
+                messages.success(request, "User activated successfully.")
+            else:
+                messages.warning(request, "User deactivated successfully.")
+
+            return redirect('user_management')
+
+    search_query = request.GET.get('q', '').strip()
+    user_type = request.GET.get('user_type', 'all').strip()
+    department_filter = request.GET.get('department', '').strip()
+    batch_filter = request.GET.get('batch', '').strip()
+    semester_filter = request.GET.get('semester', '').strip()
+    status_filter = request.GET.get('status', '').strip()
+    selected_user_id = request.GET.get('selected_user', '').strip()
+
+    users = User.objects.all().select_related(
+        'staff_department'
+    ).order_by(
+        'role',
+        'username'
+    )
+
+    if request.user.role == 'admin':
+        users = users.exclude(role='super_admin')
+
+    if user_type == 'students':
+        users = users.filter(role='student')
+    elif user_type == 'faculty':
+        users = users.filter(role='faculty')
+    elif user_type == 'accounts':
+        users = users.filter(role='accounts')
+    elif user_type == 'exam':
+        users = users.filter(role='exam_controller')
+    elif user_type == 'dept_head':
+        users = users.filter(role='dept_head')
+    elif user_type == 'admin':
+        users = users.filter(role='admin')
+    elif user_type == 'super_admin':
+        users = users.filter(role='super_admin')
+
+    if status_filter == 'active':
+        users = users.filter(is_active=True)
+    elif status_filter == 'inactive':
+        users = users.filter(is_active=False)
+
+    if department_filter:
+        if user_type in ['students', 'all']:
+            users = users.filter(
+                Q(studentprofile__department_id=department_filter) |
+                Q(staff_department_id=department_filter)
+            )
+        elif user_type in ['faculty', 'dept_head']:
+            users = users.filter(staff_department_id=department_filter)
+
+    if batch_filter and user_type in ['students', 'all']:
+        users = users.filter(studentprofile__batch_id=batch_filter)
+
+    if semester_filter and user_type in ['students', 'all']:
+        users = users.filter(studentprofile__current_semester_id=semester_filter)
+
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(employee_id__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(phone__icontains=search_query) |
+            Q(role__icontains=search_query) |
+            Q(designation__icontains=search_query) |
+            Q(office_room__icontains=search_query) |
+            Q(staff_department__name__icontains=search_query) |
+            Q(staff_department__code__icontains=search_query) |
+            Q(studentprofile__student_id__icontains=search_query) |
+            Q(studentprofile__department__name__icontains=search_query) |
+            Q(studentprofile__department__code__icontains=search_query) |
+            Q(studentprofile__batch__batch_name__icontains=search_query) |
+            Q(studentprofile__current_semester__name__icontains=search_query)
+        ).distinct()
+
+    user_rows = [
+        build_user_row(user, request.user)
+        for user in users
+    ]
+
+    selected_row = None
+
+    if selected_user_id:
+        selected_user = User.objects.select_related(
+            'staff_department'
+        ).filter(
+            id=selected_user_id
+        ).first()
+
+        if selected_user:
+            if request.user.role == 'admin' and selected_user.role == 'super_admin':
+                selected_user = None
+
+        if selected_user:
+            selected_row = build_user_row(selected_user, request.user)
+
+    students_count = User.objects.filter(role='student').count()
+    faculty_count = User.objects.filter(role='faculty').count()
+    staff_count = User.objects.exclude(role='student').count()
+    active_count = User.objects.filter(is_active=True).count()
+    inactive_count = User.objects.filter(is_active=False).count()
+
+    context = {
+        'user_rows': user_rows,
+        'selected_row': selected_row,
+
+        'departments': departments,
+        'batches': batches,
+        'semesters': semesters,
+        'role_choices': role_choices,
+        'gender_choices': User.GENDER_CHOICES,
+
+        'search_query': search_query,
+        'user_type': user_type,
+        'department_filter': department_filter,
+        'batch_filter': batch_filter,
+        'semester_filter': semester_filter,
+        'status_filter': status_filter,
+        'selected_user_id': selected_user_id,
+
+        'students_count': students_count,
+        'faculty_count': faculty_count,
+        'staff_count': staff_count,
+        'active_count': active_count,
+        'inactive_count': inactive_count,
+        'is_super_admin': request.user.role == 'super_admin',
+        'is_admin_user': request.user.role == 'admin',
+    }
+
+    return render(request, 'dashboard/user_management.html', context)

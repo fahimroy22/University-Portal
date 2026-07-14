@@ -1,0 +1,1669 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .exam-action-page {
+        display: grid;
+        gap: 16px;
+        width: 100%;
+        max-width: 1180px;
+        margin: 0 auto;
+        overflow-x: hidden;
+    }
+
+    body:not(.sidebar-collapsed) .exam-action-page {
+        max-width: 1080px;
+    }
+
+    body.sidebar-collapsed .exam-action-page {
+        max-width: 1240px;
+    }
+
+    .ex-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: none;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .ex-hero {
+        padding: 24px;
+    }
+
+    .ex-kicker {
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .ex-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .ex-text {
+        margin-top: 8px;
+        max-width: 760px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .ex-panel {
+        padding: 20px 22px;
+    }
+
+    .ex-section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .ex-section-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .ex-section-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .ex-badge {
+        display: inline-flex;
+        align-items: center;
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .ex-badge.success {
+        background: #ecfdf5;
+        border-color: #bbf7d0;
+        color: #047857;
+    }
+
+    .ex-badge.warning {
+        background: #fffbeb;
+        border-color: #fde68a;
+        color: #b45309;
+    }
+
+    .ex-badge.danger {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #dc2626;
+    }
+
+    .ex-filter-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .ex-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .ex-form-grid .full {
+        grid-column: 1 / -1;
+    }
+
+    .ex-check-row {
+        margin-top: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 14px;
+        border: 1px solid #eef2f7;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .ex-check-row label {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .ex-table-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+    }
+
+    .ex-table {
+        width: 100%;
+        min-width: 980px;
+        border: none;
+        border-radius: 0;
+    }
+
+    .ex-table th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        padding: 13px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .ex-table td {
+        padding: 14px;
+        border-bottom: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 14px;
+        vertical-align: top;
+    }
+
+    .ex-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .ex-row-title {
+        color: #0f172a;
+        font-weight: 750;
+    }
+
+    .ex-row-muted {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .ex-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        min-width: 210px;
+    }
+
+    .ex-mini-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 11px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .ex-mini-btn:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .ex-mini-btn.primary {
+        background: #9f1c1c;
+        border-color: #9f1c1c;
+        color: #ffffff;
+    }
+
+    .ex-mini-btn.primary:hover {
+        background: #7f1717;
+        border-color: #7f1717;
+        color: #ffffff;
+    }
+
+    .ex-mini-btn.danger {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #dc2626;
+    }
+
+    .ex-mini-btn.danger:hover {
+        background: #fee2e2;
+    }
+
+    .ex-empty {
+        padding: 28px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        background: #f8fafc;
+        text-align: center;
+    }
+
+    .ex-empty-title {
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 750;
+    }
+
+    .ex-empty-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .ex-two-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .ex-result-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+    }
+
+    .ex-help-box {
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid #eef2f7;
+        background: #f8fafc;
+    }
+
+    .ex-help-title {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .ex-help-text {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .ex-search-input {
+        margin-bottom: 14px;
+    }
+
+    .semester-routine-filter {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: end;
+        max-width: 100%;
+    }
+
+    .routine-builder-table {
+        min-width: 1040px;
+        table-layout: fixed;
+    }
+
+    .routine-builder-table th,
+    .routine-builder-table td {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .routine-builder-table input {
+        min-height: 38px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 13px;
+        width: 100%;
+        max-width: 130px;
+        box-sizing: border-box;
+    }
+
+    .routine-builder-table input[type="text"] {
+        max-width: 90px;
+    }
+
+    .routine-builder-table input:focus {
+        outline: none;
+        border-color: #9f1c1c;
+        box-shadow: 0 0 0 3px rgba(159, 28, 28, 0.08);
+    }
+
+    .routine-builder-table th:nth-child(1),
+    .routine-builder-table td:nth-child(1) {
+        width: 150px;
+    }
+
+    .routine-builder-table th:nth-child(2),
+    .routine-builder-table td:nth-child(2) {
+        width: 90px;
+    }
+
+    .routine-builder-table th:nth-child(3),
+    .routine-builder-table td:nth-child(3) {
+        width: 90px;
+    }
+
+    .routine-builder-table th:nth-child(4),
+    .routine-builder-table td:nth-child(4) {
+        width: 60px;
+    }
+
+    .routine-builder-table th:nth-child(5),
+    .routine-builder-table td:nth-child(5) {
+        width: 120px;
+    }
+
+    .routine-builder-table th:nth-child(6),
+    .routine-builder-table td:nth-child(6),
+    .routine-builder-table th:nth-child(7),
+    .routine-builder-table td:nth-child(7),
+    .routine-builder-table th:nth-child(8),
+    .routine-builder-table td:nth-child(8) {
+        width: 120px;
+    }
+
+    .routine-builder-table th:nth-child(9),
+    .routine-builder-table td:nth-child(9) {
+        width: 80px;
+    }
+
+    .routine-builder-table th:nth-child(10),
+    .routine-builder-table td:nth-child(10) {
+        width: 90px;
+    }
+
+    .routine-scope-card {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+        max-width: 100%;
+    }
+
+    .routine-scope-item {
+        padding: 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #f8fafc;
+        min-width: 0;
+    }
+
+    .routine-scope-label {
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .routine-scope-value {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .routine-action-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 16px;
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid #eef2f7;
+        background: #f8fafc;
+    }
+
+    .routine-action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    @media (max-width: 1100px) {
+        .semester-routine-filter,
+        .routine-scope-card {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .ex-filter-form,
+        .ex-form-grid,
+        .ex-two-grid,
+        .ex-result-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ex-check-row,
+        .ex-section-head,
+        .routine-action-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+
+<div class="exam-action-page">
+
+    <section class="ex-card ex-hero">
+        <div class="ex-kicker">Exam Office</div>
+        <h1 class="ex-title">{{ page_title }}</h1>
+        <p class="ex-text">{{ page_subtitle }}</p>
+    </section>
+
+    <section class="ex-card ex-panel">
+        <div class="ex-section-head">
+            <div>
+                <h2 class="ex-section-title">Department Filter</h2>
+                <p class="ex-section-text">
+                    Filter course offerings, students, routines, and records by department.
+                </p>
+            </div>
+
+            {% if selected_department_id %}
+                <span class="ex-badge warning">Filter active</span>
+            {% else %}
+                <span class="ex-badge">Showing all</span>
+            {% endif %}
+        </div>
+
+        <form method="GET" class="ex-filter-form">
+            <div>
+                <label>Department</label>
+                <select name="department" class="input-control mt-2">
+                    <option value="">All departments</option>
+                    {% for department in departments %}
+                        <option value="{{ department.id }}"
+                            {% if selected_department_id|stringformat:"s" == department.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ department.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                Apply Filter
+            </button>
+
+            {% if page_type == 'routine' %}
+                <a href="{% url 'exam_create_routine' %}" class="btn-secondary">Reset</a>
+            {% elif page_type == 'seat_plan' %}
+                <a href="{% url 'exam_create_seat_plan' %}" class="btn-secondary">Reset</a>
+            {% elif page_type == 'hall_duty' %}
+                <a href="{% url 'exam_assign_hall_duty' %}" class="btn-secondary">Reset</a>
+            {% elif page_type == 'result' %}
+                <a href="{% url 'exam_publish_result' %}" class="btn-secondary">Reset</a>
+            {% endif %}
+        </form>
+    </section>
+
+    {% if page_type == 'routine' %}
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Semester-wise Exam Routine Builder</h2>
+                    <p class="ex-section-text">
+                        Select department, semester, section, and exam type. Then create all course routines together from one table.
+                    </p>
+                </div>
+
+                <span class="ex-badge warning">Bulk routine</span>
+            </div>
+
+            <form method="GET" action="{% url 'exam_create_routine' %}">
+                <div class="semester-routine-filter">
+                    <div>
+                        <label>Department</label>
+                        <select name="department" required class="input-control mt-2">
+                            <option value="">Select department</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}"
+                                    {% if selected_department_id|stringformat:"s" == department.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ department.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Semester</label>
+                        <select name="routine_semester" required class="input-control mt-2">
+                            <option value="">Select semester</option>
+                            {% for semester in semesters %}
+                                <option value="{{ semester.id }}"
+                                    {% if selected_routine_semester_id|stringformat:"s" == semester.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ semester }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Section</label>
+                        <select name="routine_section" class="input-control mt-2">
+                            <option value="">All sections</option>
+
+                            {% for section in available_sections %}
+                                <option value="{{ section }}"
+                                    {% if selected_routine_section == section %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Section {{ section }}
+                                </option>
+                            {% endfor %}
+
+                            {% if not available_sections %}
+                                <option value="A" {% if selected_routine_section == 'A' %}selected{% endif %}>Section A</option>
+                                <option value="B" {% if selected_routine_section == 'B' %}selected{% endif %}>Section B</option>
+                                <option value="C" {% if selected_routine_section == 'C' %}selected{% endif %}>Section C</option>
+                                <option value="D" {% if selected_routine_section == 'D' %}selected{% endif %}>Section D</option>
+                                <option value="E" {% if selected_routine_section == 'E' %}selected{% endif %}>Section E</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Exam Type</label>
+                        <select name="routine_exam_type" required class="input-control mt-2">
+                            <option value="midterm" {% if selected_routine_exam_type == 'midterm' %}selected{% endif %}>Midterm</option>
+                            <option value="final" {% if selected_routine_exam_type == 'final' %}selected{% endif %}>Final</option>
+                            <option value="recovery" {% if selected_routine_exam_type == 'recovery' %}selected{% endif %}>Recovery</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        Load Courses
+                    </button>
+                </div>
+            </form>
+
+            {% if selected_department_id and selected_routine_semester_id %}
+                <div class="mt-5 routine-scope-card">
+                    <div class="routine-scope-item">
+                        <div class="routine-scope-label">Department</div>
+                        <div class="routine-scope-value">
+                            {% if scope_department %}
+                                {{ scope_department.code }} - {{ scope_department.name }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="routine-scope-item">
+                        <div class="routine-scope-label">Semester</div>
+                        <div class="routine-scope-value">
+                            {{ scope_semester|default:"-" }}
+                        </div>
+                    </div>
+
+                    <div class="routine-scope-item">
+                        <div class="routine-scope-label">Section</div>
+                        <div class="routine-scope-value">
+                            {% if selected_routine_section %}
+                                Section {{ selected_routine_section }}
+                            {% else %}
+                                All Sections
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="routine-scope-item">
+                        <div class="routine-scope-label">Exam Type</div>
+                        <div class="routine-scope-value">
+                            {{ scope_exam_type_display }}
+                        </div>
+                    </div>
+
+                    <div class="routine-scope-item">
+                        <div class="routine-scope-label">Courses Loaded</div>
+                        <div class="routine-scope-value">
+                            {{ semester_builder_rows|length }}
+                        </div>
+                    </div>
+                </div>
+
+                {% if semester_builder_rows %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="save_semester_routine">
+                        <input type="hidden" name="selected_department_id" value="{{ selected_department_id }}">
+                        <input type="hidden" name="routine_semester" value="{{ selected_routine_semester_id }}">
+                        <input type="hidden" name="routine_exam_type" value="{{ selected_routine_exam_type }}">
+                        <input type="hidden" name="routine_section" value="{{ selected_routine_section }}">
+
+                        <div class="ex-table-wrap">
+                            <table class="ex-table routine-builder-table">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Batch</th>
+                                        <th>Semester</th>
+                                        <th>Section</th>
+                                        <th>Faculty</th>
+                                        <th>Exam Date</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Room</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for row in semester_builder_rows %}
+                                        <tr>
+                                            <td>
+                                                <div class="ex-row-title">{{ row.offering.course.code }}</div>
+                                                <div class="ex-row-muted">{{ row.offering.course.title }}</div>
+                                            </td>
+
+                                            <td>{{ row.offering.batch }}</td>
+                                            <td>{{ row.offering.semester }}</td>
+                                            <td>{{ row.offering.section|default:"-" }}</td>
+
+                                            <td>
+                                                {% if row.offering.faculty %}
+                                                    {{ row.offering.faculty.get_full_name|default:row.offering.faculty.username }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+
+                                            <td>
+                                                <input
+                                                    type="date"
+                                                    name="exam_date_{{ row.offering.id }}"
+                                                    value="{% if row.routine %}{{ row.routine.exam_date|date:'Y-m-d' }}{% endif %}"
+                                                >
+                                            </td>
+
+                                            <td>
+                                                <input
+                                                    type="time"
+                                                    name="start_time_{{ row.offering.id }}"
+                                                    value="{% if row.routine %}{{ row.routine.start_time|time:'H:i' }}{% endif %}"
+                                                >
+                                            </td>
+
+                                            <td>
+                                                <input
+                                                    type="time"
+                                                    name="end_time_{{ row.offering.id }}"
+                                                    value="{% if row.routine %}{{ row.routine.end_time|time:'H:i' }}{% endif %}"
+                                                >
+                                            </td>
+
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    name="room_{{ row.offering.id }}"
+                                                    value="{% if row.routine %}{{ row.routine.room }}{% endif %}"
+                                                    placeholder="Room"
+                                                >
+                                            </td>
+
+                                            <td>
+                                                {% if row.routine %}
+                                                    {% if row.routine.is_published %}
+                                                        <span class="ex-badge success">Published</span>
+                                                    {% else %}
+                                                        <span class="ex-badge warning">Draft</span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="ex-badge">New</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="routine-action-bar">
+                            <div>
+                                <div class="ex-row-title">Semester Routine Action</div>
+                                <div class="ex-row-muted">
+                                    Save as draft to review later, or publish/republish the full routine immediately.
+                                </div>
+                            </div>
+
+                            <div class="routine-action-buttons">
+                                <button type="submit" name="publish_mode" value="draft" class="ex-mini-btn">
+                                    Save Draft
+                                </button>
+
+                                <button type="submit" name="publish_mode" value="publish" class="ex-mini-btn primary">
+                                    Publish / Republish Full Routine
+                                </button>
+
+                                {% if semester_scope_routines %}
+                                    <a
+                                        href="{% url 'download_semester_exam_routine_pdf' %}?department={{ selected_department_id }}&semester={{ selected_routine_semester_id }}&exam_type={{ selected_routine_exam_type }}&section={{ selected_routine_section }}"
+                                        class="ex-mini-btn"
+                                    >
+                                        Download PDF
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="ex-empty mt-5">
+                        <div class="ex-empty-title">No course found for this semester and section</div>
+                        <div class="ex-empty-text">
+                            Check whether course offerings exist for the selected department, semester, and section.
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </section>
+
+        {% if semester_scope_routines %}
+            <section class="ex-card ex-panel">
+                <div class="ex-section-head">
+                    <div>
+                        <h2 class="ex-section-title">Selected Semester Routine</h2>
+                        <p class="ex-section-text">
+                            Published and draft routines for the currently selected department, semester, section, and exam type.
+                        </p>
+                    </div>
+
+                    <a
+                        href="{% url 'download_semester_exam_routine_pdf' %}?department={{ selected_department_id }}&semester={{ selected_routine_semester_id }}&exam_type={{ selected_routine_exam_type }}&section={{ selected_routine_section }}"
+                        class="ex-mini-btn primary"
+                    >
+                        Download Printable Routine
+                    </a>
+                </div>
+
+                <div class="ex-table-wrap">
+                    <table class="ex-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Course</th>
+                                <th>Batch</th>
+                                <th>Semester</th>
+                                <th>Section</th>
+                                <th>Room</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for routine in semester_scope_routines %}
+                                <tr>
+                                    <td>{{ routine.exam_date }}</td>
+                                    <td>{{ routine.start_time }} - {{ routine.end_time }}</td>
+
+                                    <td>
+                                        <div class="ex-row-title">{{ routine.course_offering.course.code }}</div>
+                                        <div class="ex-row-muted">{{ routine.course_offering.course.title }}</div>
+                                    </td>
+
+                                    <td>{{ routine.course_offering.batch }}</td>
+                                    <td>{{ routine.course_offering.semester }}</td>
+                                    <td>{{ routine.course_offering.section|default:"-" }}</td>
+                                    <td>{{ routine.room }}</td>
+
+                                    <td>
+                                        {% if routine.is_published %}
+                                            <span class="ex-badge success">Published</span>
+                                        {% else %}
+                                            <span class="ex-badge warning">Draft</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <div class="ex-actions">
+                                            <form method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="toggle_routine">
+                                                <input type="hidden" name="routine_id" value="{{ routine.id }}">
+                                                <input type="hidden" name="selected_department_id" value="{{ selected_department_id }}">
+                                                <input type="hidden" name="routine_semester" value="{{ selected_routine_semester_id }}">
+                                                <input type="hidden" name="routine_exam_type" value="{{ selected_routine_exam_type }}">
+                                                <input type="hidden" name="routine_section" value="{{ selected_routine_section }}">
+
+                                                <button type="submit" class="ex-mini-btn">
+                                                    {% if routine.is_published %}Unpublish{% else %}Publish{% endif %}
+                                                </button>
+                                            </form>
+
+                                            <a href="{% url 'edit_exam_routine' routine.id %}" class="ex-mini-btn">Edit</a>
+
+                                            <form method="POST" action="{% url 'delete_exam_routine' routine.id %}" onsubmit="return confirm('Delete this exam routine?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="ex-mini-btn danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        {% endif %}
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Create Individual Exam Routine</h2>
+                    <p class="ex-section-text">
+                        Create or update a single midterm, final, or recovery exam routine for a course offering.
+                    </p>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_routine">
+                <input type="hidden" name="selected_department_id" value="{{ selected_department_id }}">
+                <input type="hidden" name="routine_semester" value="{{ selected_routine_semester_id }}">
+                <input type="hidden" name="routine_exam_type" value="{{ selected_routine_exam_type }}">
+                <input type="hidden" name="routine_section" value="{{ selected_routine_section }}">
+
+                <div class="ex-form-grid">
+                    <div class="full">
+                        <label>Course Offering</label>
+                        <select name="course_offering" required class="input-control mt-2">
+                            <option value="">Select course offering</option>
+                            {% for offering in course_offerings %}
+                                <option value="{{ offering.id }}">
+                                    {{ offering.course.code }} - {{ offering.course.title }} | {{ offering.batch }} | {{ offering.semester }} | Section {{ offering.section }}
+                                </option>
+                            {% empty %}
+                                <option value="" disabled>No course offering found</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Exam Type</label>
+                        <select name="exam_type" required class="input-control mt-2">
+                            <option value="midterm">Midterm</option>
+                            <option value="final">Final</option>
+                            <option value="recovery">Recovery</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Exam Date</label>
+                        <input type="date" name="exam_date" required class="input-control mt-2">
+                    </div>
+
+                    <div>
+                        <label>Start Time</label>
+                        <input type="time" name="start_time" required class="input-control mt-2">
+                    </div>
+
+                    <div>
+                        <label>End Time</label>
+                        <input type="time" name="end_time" required class="input-control mt-2">
+                    </div>
+
+                    <div class="full">
+                        <label>Room</label>
+                        <input type="text" name="room" required placeholder="Example: Room 404" class="input-control mt-2">
+                    </div>
+                </div>
+
+                <div class="ex-check-row">
+                    <label>
+                        <input type="checkbox" name="is_published">
+                        Publish now
+                    </label>
+
+                    <button type="submit" class="btn-primary">
+                        Create Routine
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">All Exam Routines</h2>
+                    <p class="ex-section-text">
+                        Review, publish, edit, or delete exam routine records.
+                    </p>
+                </div>
+
+                <span class="ex-badge">{{ routines|length }} Routine{{ routines|length|pluralize }}</span>
+            </div>
+
+            {% if routines %}
+                <div class="ex-table-wrap">
+                    <table class="ex-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Batch</th>
+                                <th>Semester</th>
+                                <th>Exam</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Room</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for routine in routines %}
+                                <tr>
+                                    <td>
+                                        <div class="ex-row-title">{{ routine.course_offering.course.code }}</div>
+                                        <div class="ex-row-muted">{{ routine.course_offering.course.title }}</div>
+                                    </td>
+                                    <td>{{ routine.course_offering.batch }}</td>
+                                    <td>{{ routine.course_offering.semester }}</td>
+                                    <td><span class="ex-badge">{{ routine.get_exam_type_display }}</span></td>
+                                    <td>{{ routine.exam_date }}</td>
+                                    <td>{{ routine.start_time }} - {{ routine.end_time }}</td>
+                                    <td>{{ routine.room }}</td>
+                                    <td>
+                                        {% if routine.is_published %}
+                                            <span class="ex-badge success">Published</span>
+                                        {% else %}
+                                            <span class="ex-badge warning">Draft</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="ex-actions">
+                                            <form method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="toggle_routine">
+                                                <input type="hidden" name="routine_id" value="{{ routine.id }}">
+                                                <input type="hidden" name="selected_department_id" value="{{ selected_department_id }}">
+                                                <input type="hidden" name="routine_semester" value="{{ selected_routine_semester_id }}">
+                                                <input type="hidden" name="routine_exam_type" value="{{ selected_routine_exam_type }}">
+                                                <input type="hidden" name="routine_section" value="{{ selected_routine_section }}">
+
+                                                <button type="submit" class="ex-mini-btn">
+                                                    {% if routine.is_published %}Unpublish{% else %}Publish{% endif %}
+                                                </button>
+                                            </form>
+
+                                            <a href="{% url 'edit_exam_routine' routine.id %}" class="ex-mini-btn">Edit</a>
+
+                                            <form method="POST" action="{% url 'delete_exam_routine' routine.id %}" onsubmit="return confirm('Delete this exam routine?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="ex-mini-btn danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="ex-empty">
+                    <div class="ex-empty-title">No exam routine found</div>
+                    <div class="ex-empty-text">Created routines will appear here.</div>
+                </div>
+            {% endif %}
+        </section>
+
+    {% elif page_type == 'seat_plan' %}
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Create Seat Plan</h2>
+                    <p class="ex-section-text">
+                        Assign a student to an exam room and seat number.
+                    </p>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_seat_plan">
+                <input type="hidden" name="selected_department_id" value="{{ selected_department_id }}">
+
+                <div class="ex-form-grid">
+                    <div>
+                        <label>Student</label>
+                        <select name="student" required class="input-control mt-2">
+                            <option value="">Select student</option>
+                            {% for student in students %}
+                                <option value="{{ student.id }}">
+                                    {{ student.student_id }} - {{ student.user.get_full_name|default:student.user.username }} | {{ student.department }}
+                                </option>
+                            {% empty %}
+                                <option value="" disabled>No student found</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Course Offering</label>
+                        <select name="course_offering" required class="input-control mt-2">
+                            <option value="">Select course offering</option>
+                            {% for offering in course_offerings %}
+                                <option value="{{ offering.id }}">
+                                    {{ offering.course.code }} - {{ offering.course.title }} | {{ offering.batch }} | {{ offering.semester }} | Section {{ offering.section }}
+                                </option>
+                            {% empty %}
+                                <option value="" disabled>No course offering found</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Exam Type</label>
+                        <select name="exam_type" required class="input-control mt-2">
+                            <option value="midterm">Midterm</option>
+                            <option value="final">Final</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Room</label>
+                        <input type="text" name="room" required placeholder="Example: Room 404" class="input-control mt-2">
+                    </div>
+
+                    <div>
+                        <label>Seat Number</label>
+                        <input type="text" name="seat_number" required placeholder="Example: A-12" class="input-control mt-2">
+                    </div>
+                </div>
+
+                <div class="ex-check-row">
+                    <label>
+                        <input type="checkbox" name="is_published">
+                        Publish now
+                    </label>
+
+                    <button type="submit" class="btn-primary">
+                        Create Seat Plan
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Seat Plans</h2>
+                    <p class="ex-section-text">
+                        Review, publish, edit, or delete seat plan records.
+                    </p>
+                </div>
+
+                <span class="ex-badge">{{ seat_plans|length }} Seat Plan{{ seat_plans|length|pluralize }}</span>
+            </div>
+
+            {% if seat_plans %}
+                <div class="ex-table-wrap">
+                    <table class="ex-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Exam</th>
+                                <th>Room</th>
+                                <th>Seat</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for seat in seat_plans %}
+                                <tr>
+                                    <td>
+                                        <div class="ex-row-title">{{ seat.student.student_id }}</div>
+                                        <div class="ex-row-muted">{{ seat.student.user.get_full_name|default:seat.student.user.username }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="ex-row-title">{{ seat.course_offering.course.code }}</div>
+                                        <div class="ex-row-muted">{{ seat.course_offering.course.title }}</div>
+                                    </td>
+                                    <td><span class="ex-badge">{{ seat.get_exam_type_display }}</span></td>
+                                    <td>{{ seat.room }}</td>
+                                    <td><strong>{{ seat.seat_number }}</strong></td>
+                                    <td>
+                                        {% if seat.is_published %}
+                                            <span class="ex-badge success">Published</span>
+                                        {% else %}
+                                            <span class="ex-badge warning">Draft</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="ex-actions">
+                                            <form method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="toggle_seat_plan">
+                                                <input type="hidden" name="seat_plan_id" value="{{ seat.id }}">
+                                                <input type="hidden" name="selected_department_id" value="{{ selected_department_id }}">
+                                                <button type="submit" class="ex-mini-btn">
+                                                    {% if seat.is_published %}Unpublish{% else %}Publish{% endif %}
+                                                </button>
+                                            </form>
+
+                                            <a href="{% url 'edit_seat_plan' seat.id %}" class="ex-mini-btn">Edit</a>
+
+                                            <form method="POST" action="{% url 'delete_seat_plan' seat.id %}" onsubmit="return confirm('Delete this seat plan?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="ex-mini-btn danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="ex-empty">
+                    <div class="ex-empty-title">No seat plan found</div>
+                    <div class="ex-empty-text">Created seat plans will appear here.</div>
+                </div>
+            {% endif %}
+        </section>
+
+    {% elif page_type == 'hall_duty' %}
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Assign Hall Duty</h2>
+                    <p class="ex-section-text">
+                        Assign faculty members to exam hall invigilation duty.
+                    </p>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="selected_department_id" value="{{ selected_department_id }}">
+
+                <div class="ex-form-grid">
+                    <div>
+                        <label>Faculty</label>
+                        <select name="faculty" required class="input-control mt-2">
+                            <option value="">Select faculty</option>
+                            {% for faculty in faculty_users %}
+                                <option value="{{ faculty.id }}">
+                                    {{ faculty.get_full_name|default:faculty.username }}
+                                </option>
+                            {% empty %}
+                                <option value="" disabled>No faculty found</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Exam Routine</label>
+                        <select name="exam_routine" required class="input-control mt-2">
+                            <option value="">Select routine</option>
+                            {% for routine in routines %}
+                                <option value="{{ routine.id }}">
+                                    {{ routine.course_offering.course.code }} - {{ routine.get_exam_type_display }} | {{ routine.exam_date }} | {{ routine.room }}
+                                </option>
+                            {% empty %}
+                                <option value="" disabled>No routine found</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Duty Room</label>
+                        <input type="text" name="duty_room" required placeholder="Example: Room 404" class="input-control mt-2">
+                    </div>
+
+                    <div>
+                        <label>Duty Note</label>
+                        <textarea name="duty_note" rows="3" class="input-control mt-2"></textarea>
+                    </div>
+                </div>
+
+                <div class="ex-check-row">
+                    <span class="ex-badge">Faculty duty assignment</span>
+                    <button type="submit" class="btn-primary">
+                        Assign Hall Duty
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Hall Duties</h2>
+                    <p class="ex-section-text">
+                        Review assigned faculty duties for exam halls.
+                    </p>
+                </div>
+
+                <span class="ex-badge">{{ hall_duties|length }} Duty{{ hall_duties|length|pluralize }}</span>
+            </div>
+
+            {% if hall_duties %}
+                <div class="ex-table-wrap">
+                    <table class="ex-table">
+                        <thead>
+                            <tr>
+                                <th>Faculty</th>
+                                <th>Course</th>
+                                <th>Exam</th>
+                                <th>Date</th>
+                                <th>Duty Room</th>
+                                <th>Note</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for duty in hall_duties %}
+                                <tr>
+                                    <td>
+                                        <div class="ex-row-title">{{ duty.faculty.get_full_name|default:duty.faculty.username }}</div>
+                                        <div class="ex-row-muted">{{ duty.faculty.email|default:"-" }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="ex-row-title">{{ duty.exam_routine.course_offering.course.code }}</div>
+                                        <div class="ex-row-muted">{{ duty.exam_routine.course_offering.course.title }}</div>
+                                    </td>
+                                    <td><span class="ex-badge">{{ duty.exam_routine.get_exam_type_display }}</span></td>
+                                    <td>{{ duty.exam_routine.exam_date }}</td>
+                                    <td>{{ duty.duty_room }}</td>
+                                    <td>{{ duty.duty_note|default:"-" }}</td>
+                                    <td>
+                                        <div class="ex-actions">
+                                            <a href="{% url 'edit_hall_duty' duty.id %}" class="ex-mini-btn">Edit</a>
+
+                                            <form method="POST" action="{% url 'delete_hall_duty' duty.id %}" onsubmit="return confirm('Delete this hall duty?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="ex-mini-btn danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="ex-empty">
+                    <div class="ex-empty-title">No hall duty found</div>
+                    <div class="ex-empty-text">Assigned hall duties will appear here.</div>
+                </div>
+            {% endif %}
+        </section>
+
+    {% elif page_type == 'result' %}
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Preview Course Result</h2>
+                    <p class="ex-section-text">
+                        Search by course code or title, then preview submitted marks before publishing.
+                    </p>
+                </div>
+            </div>
+
+            <form method="GET" action="{% url 'exam_result_preview' %}">
+                {% if selected_department_id %}
+                    <input type="hidden" name="department" value="{{ selected_department_id }}">
+                {% endif %}
+
+                <div class="ex-result-grid">
+                    <div class="ex-help-box">
+                        <div class="ex-help-title">Course search</div>
+                        <div class="ex-help-text">
+                            Type a course code like <strong>CSE 0613-1205</strong> or part of a title like <strong>Data Structure</strong>.
+                        </div>
+                    </div>
+
+                    <div>
+                        <label>Search Course</label>
+                        <input
+                            type="search"
+                            id="courseSearchInput"
+                            class="input-control mt-2 ex-search-input"
+                            placeholder="Search course code or title"
+                        >
+
+                        <label>Selected Course Offering</label>
+                        <select name="course_offering" id="courseOfferingSelect" required class="input-control mt-2">
+                            <option value="">Select course offering</option>
+                            {% for offering in course_offerings %}
+                                <option
+                                    value="{{ offering.id }}"
+                                    data-search="{{ offering.course.code }} {{ offering.course.title }} {{ offering.batch }} {{ offering.semester }} Section {{ offering.section }}"
+                                >
+                                    {{ offering.course.code }} - {{ offering.course.title }} | {{ offering.batch }} | {{ offering.semester }} | Section {{ offering.section }}
+                                </option>
+                            {% empty %}
+                                <option value="" disabled>No course offering found</option>
+                            {% endfor %}
+                        </select>
+
+                        <div class="mt-4">
+                            <label>Exam Type</label>
+                            <select name="exam_type" required class="input-control mt-2">
+                                <option value="midterm">Midterm</option>
+                                <option value="final">Final</option>
+                            </select>
+                        </div>
+
+                        <div class="ex-check-row">
+                            <span class="ex-badge">Individual course review</span>
+                            <button type="submit" class="btn-primary">
+                                Preview Result
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Open Student Mark Sheet</h2>
+                    <p class="ex-section-text">
+                        Search by student ID. The student result page opens semester-wise with transcript download options.
+                    </p>
+                </div>
+            </div>
+
+            <form method="GET" action="{% url 'exam_manage_student_results' %}">
+                <div class="ex-result-grid">
+                    <div class="ex-help-box">
+                        <div class="ex-help-title">Student search</div>
+                        <div class="ex-help-text">
+                            Type a student ID like <strong>12411058</strong>. You can also select a semester to jump to that semester on the result page.
+                        </div>
+                    </div>
+
+                    <div>
+                        <label>Student ID</label>
+                        <input
+                            type="search"
+                            name="student_id"
+                            required
+                            class="input-control mt-2"
+                            placeholder="Example: 12411058"
+                        >
+
+                        <div class="mt-4">
+                            <label>Semester</label>
+                            <select name="semester" class="input-control mt-2">
+                                <option value="">All semesters</option>
+                                {% for semester in semesters %}
+                                    <option value="{{ semester.id }}">{{ semester }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mt-4">
+                            <label>Exam Type</label>
+                            <select name="exam_type" class="input-control mt-2">
+                                <option value="">All exam types</option>
+                                <option value="midterm">Midterm</option>
+                                <option value="final">Final</option>
+                            </select>
+                        </div>
+
+                        <div class="ex-check-row">
+                            <span class="ex-badge">Student result page</span>
+                            <button type="submit" class="btn-primary">
+                                Open Result Page
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Semester Result Publishing</h2>
+                    <p class="ex-section-text">
+                        Review every course result inside a department semester, then publish all ready courses together.
+                    </p>
+                </div>
+
+                <span class="ex-badge warning">Bulk publish control</span>
+            </div>
+
+            <form method="GET" action="{% url 'exam_semester_result_review' %}">
+                <div class="ex-form-grid">
+                    <div>
+                        <label>Department</label>
+                        <select name="department" required class="input-control mt-2">
+                            <option value="">Select department</option>
+                            {% for department in departments %}
+                                <option value="{{ department.id }}"
+                                    {% if selected_department_id|stringformat:"s" == department.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ department.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Semester</label>
+                        <select name="semester" required class="input-control mt-2">
+                            <option value="">Select semester</option>
+                            {% for semester in semesters %}
+                                <option value="{{ semester.id }}">{{ semester }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="full">
+                        <label>Exam Type</label>
+                        <select name="exam_type" required class="input-control mt-2">
+                            <option value="midterm">Midterm</option>
+                            <option value="final">Final</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="ex-check-row">
+                    <span class="ex-badge">Semester-wide review</span>
+                    <button type="submit" class="btn-primary">
+                        Review Semester Results
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="ex-card ex-panel">
+            <div class="ex-section-head">
+                <div>
+                    <h2 class="ex-section-title">Published Results</h2>
+                    <p class="ex-section-text">
+                        Manage published result records and unpublish results when needed.
+                    </p>
+                </div>
+
+                <span class="ex-badge">{{ result_publications|length }} Result{{ result_publications|length|pluralize }}</span>
+            </div>
+
+            {% if result_publications %}
+                <div class="ex-table-wrap">
+                    <table class="ex-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Batch</th>
+                                <th>Semester</th>
+                                <th>Exam</th>
+                                <th>Status</th>
+                                <th>Published By</th>
+                                <th>Published At</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for pub in result_publications %}
+                                <tr>
+                                    <td>
+                                        <div class="ex-row-title">{{ pub.course_offering.course.code }}</div>
+                                        <div class="ex-row-muted">{{ pub.course_offering.course.title }}</div>
+                                    </td>
+                                    <td>{{ pub.course_offering.batch }}</td>
+                                    <td>{{ pub.course_offering.semester }}</td>
+                                    <td><span class="ex-badge">{{ pub.get_exam_type_display }}</span></td>
+                                    <td>
+                                        {% if pub.is_published %}
+                                            <span class="ex-badge success">Published</span>
+                                        {% else %}
+                                            <span class="ex-badge warning">Unpublished</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if pub.published_by %}
+                                            {{ pub.published_by.username }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ pub.published_at|default:"-" }}</td>
+                                    <td>
+                                        <div class="ex-actions">
+                                            <a
+                                                href="{% url 'exam_result_preview' %}?course_offering={{ pub.course_offering.id }}&exam_type={{ pub.exam_type }}"
+                                                class="ex-mini-btn primary"
+                                            >
+                                                Review
+                                            </a>
+
+                                            {% if pub.is_published %}
+                                                <form method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="unpublish_result">
+                                                    <input type="hidden" name="publication_id" value="{{ pub.id }}">
+                                                    <input type="hidden" name="selected_department_id" value="{{ selected_department_id }}">
+                                                    <button type="submit" class="ex-mini-btn">Unpublish</button>
+                                                </form>
+                                            {% endif %}
+
+                                            <form method="POST" action="{% url 'delete_result_publication' pub.id %}" onsubmit="return confirm('Delete this result publication record?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="ex-mini-btn danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="ex-empty">
+                    <div class="ex-empty-title">No result publication found</div>
+                    <div class="ex-empty-text">Published result records will appear here.</div>
+                </div>
+            {% endif %}
+        </section>
+
+        <script>
+            const courseSearchInput = document.getElementById('courseSearchInput');
+            const courseOfferingSelect = document.getElementById('courseOfferingSelect');
+
+            if (courseSearchInput && courseOfferingSelect) {
+                const courseOptions = Array.from(courseOfferingSelect.options);
+
+                courseSearchInput.addEventListener('input', function () {
+                    const searchValue = this.value.trim().toLowerCase();
+
+                    let firstMatch = null;
+
+                    courseOptions.forEach(function (option) {
+                        if (!option.value) {
+                            option.hidden = false;
+                            return;
+                        }
+
+                        const searchText = (option.dataset.search || option.textContent || '').toLowerCase();
+                        const matches = !searchValue || searchText.includes(searchValue);
+
+                        option.hidden = !matches;
+
+                        if (matches && !firstMatch) {
+                            firstMatch = option;
+                        }
+                    });
+
+                    if (firstMatch && searchValue) {
+                        courseOfferingSelect.value = firstMatch.value;
+                    } else if (!searchValue) {
+                        courseOfferingSelect.value = '';
+                    }
+                });
+            }
+        </script>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

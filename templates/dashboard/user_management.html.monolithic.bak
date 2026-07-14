@@ -1,0 +1,1432 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .user-page {
+        display: grid;
+        gap: 24px;
+    }
+
+    .user-hero {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 38px;
+        border-radius: 34px;
+        background:
+            radial-gradient(circle at 10% 20%, rgba(127, 29, 29, 0.10), transparent 30%),
+            radial-gradient(circle at 92% 12%, rgba(127, 29, 29, 0.07), transparent 34%),
+            rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.06);
+        backdrop-filter: blur(18px);
+    }
+
+    .user-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 9px 16px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+    }
+
+    .user-hero h2 {
+        font-size: clamp(32px, 4vw, 52px);
+        line-height: 1.02;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+        color: var(--navy);
+        margin: 0 0 12px;
+    }
+
+    .user-hero p {
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .soft-back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 20px;
+        border-radius: 16px;
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        font-weight: 900;
+        box-shadow: 0 14px 30px rgba(127, 29, 29, 0.08);
+        white-space: nowrap;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .summary-card {
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 22px;
+        padding: 18px;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .summary-label {
+        color: var(--soft-muted);
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+    }
+
+    .summary-value {
+        margin-top: 8px;
+        color: var(--navy);
+        font-size: 28px;
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .tab-shell {
+        position: sticky;
+        top: 108px;
+        z-index: 20;
+        padding: 12px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.045);
+        backdrop-filter: blur(18px);
+    }
+
+    .tab-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .tab-button {
+        width: 100%;
+        min-height: 52px;
+        padding: 10px 14px;
+        border: 1px solid transparent;
+        border-radius: 18px;
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 950;
+        cursor: pointer;
+        box-shadow: none;
+    }
+
+    .tab-button.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        box-shadow: 0 14px 30px rgba(127, 29, 29, 0.18);
+    }
+
+    .tab-panel {
+        display: none;
+    }
+
+    .tab-panel.active {
+        display: grid;
+        gap: 24px;
+    }
+
+    .panel-card {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 30px;
+        padding: 30px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.055);
+        backdrop-filter: blur(18px);
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .panel-card h3 {
+        margin: 0 0 8px;
+        color: var(--navy);
+        font-size: 28px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .panel-card h4 {
+        margin: 0 0 18px;
+        color: var(--navy);
+        font-size: 22px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.03em;
+    }
+
+    .panel-card p {
+        color: var(--muted);
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .form-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .form-field {
+        margin: 0;
+    }
+
+    .form-field label,
+    .user-search-box label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid #cbd5e1;
+        background: white;
+        color: var(--navy);
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(127, 29, 29, 0.12);
+    }
+
+    textarea.input-control {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    input[type="file"].input-control {
+        padding: 10px 12px;
+    }
+
+    .active-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 48px;
+        color: #334155;
+        font-weight: 800;
+        font-size: 13px;
+    }
+
+    .active-check input {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--accent);
+    }
+
+    .student-extra,
+    .staff-extra,
+    .staff-department-row {
+        display: none;
+        margin-top: 24px;
+        padding: 24px;
+        border-radius: 26px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+    }
+
+    .form-action-row {
+        margin-top: 22px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .create-button,
+    .save-button {
+        min-height: 46px;
+        padding: 0 18px;
+        border: none;
+        border-radius: 15px;
+        background: var(--accent);
+        color: white;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 12px 26px rgba(127, 29, 29, 0.18);
+    }
+
+    .secondary-button {
+        min-height: 46px;
+        padding: 0 18px;
+        border: 1px solid #fecaca;
+        border-radius: 15px;
+        background: white;
+        color: var(--accent);
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .danger-button {
+        min-height: 46px;
+        padding: 0 16px;
+        border: 1px solid #fecaca;
+        border-radius: 15px;
+        background: #fff1f2;
+        color: #b91c1c;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .disabled-button {
+        min-height: 46px;
+        padding: 0 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 15px;
+        background: #f8fafc;
+        color: #94a3b8;
+        font-weight: 900;
+        cursor: not-allowed;
+    }
+
+    .type-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .type-tab {
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 950;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .type-tab.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .search-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 12px;
+        align-items: end;
+        margin-top: 14px;
+    }
+
+    .user-search-box {
+        padding: 18px;
+        border-radius: 24px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+        box-shadow: 0 16px 38px rgba(127, 29, 29, 0.055);
+    }
+
+    .compact-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .compact-user-row {
+        display: grid;
+        grid-template-columns: 52px 1.25fr 1fr 1fr 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 16px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.035);
+        transition: 0.16s ease;
+    }
+
+    .compact-user-row:hover {
+        border-color: #fecaca;
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(127, 29, 29, 0.07);
+    }
+
+    .compact-user-row.selected {
+        border-color: var(--accent);
+        background: #fffafa;
+    }
+
+    .compact-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--accent), #b91c1c);
+        color: white;
+        font-size: 19px;
+        font-weight: 950;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .compact-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .compact-name {
+        color: var(--navy);
+        font-size: 16px;
+        font-weight: 950;
+        line-height: 1.15;
+    }
+
+    .compact-sub {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .compact-label {
+        color: var(--soft-muted);
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .compact-value {
+        color: var(--navy);
+        font-size: 13px;
+        font-weight: 900;
+        line-height: 1.25;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background: #ecfdf5;
+        color: #15803d;
+    }
+
+    .status-inactive {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .detail-panel {
+        margin-top: 24px;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 30px;
+        background: #ffffff;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.065);
+        overflow: hidden;
+    }
+
+    .detail-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 22px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(135deg, #fffafa, #ffffff);
+    }
+
+    .detail-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .detail-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 22px;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--accent), #b91c1c);
+        color: white;
+        font-size: 22px;
+        font-weight: 950;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .detail-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .detail-name {
+        color: var(--navy);
+        font-size: 24px;
+        font-weight: 950;
+        letter-spacing: -0.035em;
+        line-height: 1.1;
+    }
+
+    .detail-role {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 850;
+    }
+
+    .detail-panel-body {
+        padding: 22px;
+    }
+
+    .profile-box {
+        margin-top: 20px;
+        padding: 22px;
+        border-radius: 24px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+    }
+
+    .password-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: start;
+        padding-top: 18px;
+        margin-top: 18px;
+        border-top: 1px solid var(--border);
+    }
+
+    .password-form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 220px)) auto;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .empty-state {
+        padding: 28px;
+        border-radius: 22px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        color: var(--muted);
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .hidden-filter {
+        display: none;
+    }
+
+    @media (max-width: 1200px) {
+        .summary-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .filter-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .compact-user-row {
+            grid-template-columns: 52px 1fr 1fr auto;
+        }
+
+        .compact-hide-md {
+            display: none;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .user-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .form-grid-3,
+        .filter-grid,
+        .search-row,
+        .summary-grid,
+        .password-actions,
+        .password-form {
+            grid-template-columns: 1fr;
+        }
+
+        .compact-user-row {
+            grid-template-columns: 48px 1fr auto;
+        }
+
+        .compact-hide-sm {
+            display: none;
+        }
+    }
+</style>
+
+<div class="user-page">
+
+    <section class="user-hero">
+        <div>
+            <div class="user-pill">Access Control</div>
+            <h2>User Management</h2>
+            <p>
+                Create users, filter by relevant academic or administrative fields, and open a selected user for detailed management.
+            </p>
+        </div>
+
+        <div>
+            {% if user.role == 'super_admin' %}
+                <a href="{% url 'super_admin_dashboard' %}" class="soft-back-button">
+                    ← Back to Dashboard
+                </a>
+            {% else %}
+                <a href="{% url 'admin_dashboard' %}" class="soft-back-button">
+                    ← Back to Dashboard
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-label">Students</div>
+            <div class="summary-value">{{ students_count }}</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Faculty</div>
+            <div class="summary-value">{{ faculty_count }}</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Staff/Admin</div>
+            <div class="summary-value">{{ staff_count }}</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Active</div>
+            <div class="summary-value">{{ active_count }}</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Inactive</div>
+            <div class="summary-value">{{ inactive_count }}</div>
+        </div>
+    </section>
+
+    <div class="tab-shell">
+        <div class="tab-buttons">
+            <button type="button" class="tab-button active" data-tab="create-user">Create User</button>
+            <button type="button" class="tab-button" data-tab="manage-users">Manage Users</button>
+        </div>
+    </div>
+
+    <div id="create-user" class="tab-panel active">
+
+        <section class="panel-card">
+            <div class="panel-header">
+                <div>
+                    <h3>Create New User</h3>
+                    <p>Add login credentials, unique ID, contact details, academic details, and access status.</p>
+                </div>
+                <span class="section-chip">New Account</span>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_user">
+
+                <div class="form-grid-3">
+
+                    <p class="form-field">
+                        <label>Role</label>
+                        <select name="role" id="create-role" required class="input-control">
+                            <option value="">Select Role</option>
+                            {% for value, label in role_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Username</label>
+                        <input type="text" name="username" required class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Email</label>
+                        <input type="email" name="email" class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Password</label>
+                        <input type="password" name="password" required class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Confirm Password</label>
+                        <input type="password" name="confirm_password" required class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Phone</label>
+                        <input type="text" name="phone" class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>First Name</label>
+                        <input type="text" name="first_name" class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Last Name</label>
+                        <input type="text" name="last_name" class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Gender</label>
+                        <select name="gender" class="input-control">
+                            <option value="">Select Gender</option>
+                            {% for value, label in gender_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p class="form-field">
+                        <label>Date of Birth</label>
+                        <input type="date" name="date_of_birth" class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Profile Photo</label>
+                        <input type="file" name="profile_photo" class="input-control">
+                    </p>
+
+                    <p class="form-field">
+                        <label>Status</label>
+                        <span class="active-check">
+                            <input type="checkbox" name="is_active" checked>
+                            Active Account
+                        </span>
+                    </p>
+
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <p class="form-field">
+                        <label>Address</label>
+                        <textarea name="address" rows="3" class="input-control"></textarea>
+                    </p>
+                </div>
+
+                <div id="create-student-extra" class="student-extra">
+                    <h4>Student Profile Information</h4>
+
+                    <div class="form-grid-3">
+
+                        <p class="form-field">
+                            <label>Student ID</label>
+                            <input type="text" name="student_id" class="input-control" placeholder="Example: UGV-CSE-301">
+                        </p>
+
+                        <p class="form-field">
+                            <label>Department</label>
+                            <select name="department" class="input-control">
+                                <option value="">Select Department</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.code }} - {{ department.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+                        <p class="form-field">
+                            <label>Batch</label>
+                            <select name="batch" class="input-control">
+                                <option value="">Select Batch</option>
+                                {% for batch in batches %}
+                                    <option value="{{ batch.id }}">{{ batch.department.code }} - {{ batch.batch_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+                        <p class="form-field">
+                            <label>Current Semester</label>
+                            <select name="current_semester" class="input-control">
+                                <option value="">Select Semester</option>
+                                {% for semester in semesters %}
+                                    <option value="{{ semester.id }}">{{ semester.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+                        <p class="form-field">
+                            <label>Admission Session</label>
+                            <input type="text" name="admission_session" placeholder="Summer 2026" class="input-control">
+                        </p>
+
+                        <p class="form-field">
+                            <label>Guardian Name</label>
+                            <input type="text" name="guardian_name" class="input-control">
+                        </p>
+
+                        <p class="form-field">
+                            <label>Guardian Phone</label>
+                            <input type="text" name="guardian_phone" class="input-control">
+                        </p>
+
+                    </div>
+                </div>
+
+                <div id="create-staff-extra" class="staff-extra">
+                    <h4>Faculty / Staff / Admin Profile Information</h4>
+
+                    <div class="form-grid-3">
+
+                        <p class="form-field">
+                            <label>Employee ID</label>
+                            <input type="text" name="employee_id" class="input-control" placeholder="Example: FAC-CSE-001, ACC-001">
+                        </p>
+
+                        <p class="form-field create-staff-department-field">
+                            <label>Department</label>
+                            <select name="staff_department" class="input-control">
+                                <option value="">Select Department</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.code }} - {{ department.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+                        <p class="form-field">
+                            <label>Designation</label>
+                            <input type="text" name="designation" class="input-control" placeholder="Example: Lecturer, Accounts Officer">
+                        </p>
+
+                        <p class="form-field">
+                            <label>Office Room</label>
+                            <input type="text" name="office_room" class="input-control" placeholder="Example: Admin Building 201">
+                        </p>
+
+                    </div>
+                </div>
+
+                <div class="form-action-row">
+                    <button type="submit" class="create-button">Create User</button>
+                </div>
+            </form>
+        </section>
+
+    </div>
+
+    <div id="manage-users" class="tab-panel">
+
+        <section class="panel-card">
+            <div class="panel-header">
+                <div>
+                    <h3>Manage Existing Users</h3>
+                    <p>Use the list view first. Click a user row to open detailed editing.</p>
+                </div>
+                <span class="section-chip">{{ user_rows|length }} Users</span>
+            </div>
+
+            <div class="type-tabs">
+                <a class="type-tab {% if user_type == 'all' %}active{% endif %}" href="{% url 'user_management' %}?active_tab=manage-users&user_type=all">All</a>
+                <a class="type-tab {% if user_type == 'students' %}active{% endif %}" href="{% url 'user_management' %}?active_tab=manage-users&user_type=students">Students</a>
+                <a class="type-tab {% if user_type == 'faculty' %}active{% endif %}" href="{% url 'user_management' %}?active_tab=manage-users&user_type=faculty">Faculty</a>
+                <a class="type-tab {% if user_type == 'accounts' %}active{% endif %}" href="{% url 'user_management' %}?active_tab=manage-users&user_type=accounts">Accounts</a>
+                <a class="type-tab {% if user_type == 'exam' %}active{% endif %}" href="{% url 'user_management' %}?active_tab=manage-users&user_type=exam">Exam</a>
+                <a class="type-tab {% if user_type == 'dept_head' %}active{% endif %}" href="{% url 'user_management' %}?active_tab=manage-users&user_type=dept_head">Dept Head</a>
+                <a class="type-tab {% if user_type == 'admin' %}active{% endif %}" href="{% url 'user_management' %}?active_tab=manage-users&user_type=admin">Admin</a>
+                {% if is_super_admin %}
+                    <a class="type-tab {% if user_type == 'super_admin' %}active{% endif %}" href="{% url 'user_management' %}?active_tab=manage-users&user_type=super_admin">Super Admin</a>
+                {% endif %}
+            </div>
+
+            <form method="GET" class="user-search-form">
+                <input type="hidden" name="active_tab" value="manage-users">
+
+                <div class="user-search-box">
+                    <div class="filter-grid">
+                        <p class="form-field">
+                            <label>User Type</label>
+                            <select name="user_type" id="filter-user-type" class="input-control">
+                                <option value="all" {% if user_type == 'all' %}selected{% endif %}>All Users</option>
+                                <option value="students" {% if user_type == 'students' %}selected{% endif %}>Students</option>
+                                <option value="faculty" {% if user_type == 'faculty' %}selected{% endif %}>Faculty</option>
+                                <option value="accounts" {% if user_type == 'accounts' %}selected{% endif %}>Accounts Officers</option>
+                                <option value="exam" {% if user_type == 'exam' %}selected{% endif %}>Exam Controllers</option>
+                                <option value="dept_head" {% if user_type == 'dept_head' %}selected{% endif %}>Department Heads</option>
+                                <option value="admin" {% if user_type == 'admin' %}selected{% endif %}>Admins</option>
+                                {% if is_super_admin %}
+                                    <option value="super_admin" {% if user_type == 'super_admin' %}selected{% endif %}>Super Admins</option>
+                                {% endif %}
+                            </select>
+                        </p>
+
+                        <p class="form-field filter-department-field">
+                            <label>Department</label>
+                            <select name="department" class="input-control">
+                                <option value="">All Departments</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}" {% if department_filter == department.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ department.code }} - {{ department.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+                        <p class="form-field filter-student-field">
+                            <label>Batch</label>
+                            <select name="batch" class="input-control">
+                                <option value="">All Batches</option>
+                                {% for batch in batches %}
+                                    <option value="{{ batch.id }}" {% if batch_filter == batch.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ batch.department.code }} - {{ batch.batch_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+                        <p class="form-field filter-student-field">
+                            <label>Semester</label>
+                            <select name="semester" class="input-control">
+                                <option value="">All Semesters</option>
+                                {% for semester in semesters %}
+                                    <option value="{{ semester.id }}" {% if semester_filter == semester.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ semester.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+                        <p class="form-field">
+                            <label>Status</label>
+                            <select name="status" class="input-control">
+                                <option value="">All Status</option>
+                                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </p>
+                    </div>
+
+                    <div class="search-row">
+                        <div>
+                            <label>Search User</label>
+                            <input
+                                type="text"
+                                name="q"
+                                value="{{ search_query|default:'' }}"
+                                class="input-control"
+                                placeholder="Search by username, name, email, phone, student ID, employee ID, department..."
+                            >
+                        </div>
+
+                        <button type="submit" class="create-button">
+                            Apply Filter
+                        </button>
+
+                        <a href="{% url 'user_management' %}?active_tab=manage-users" class="secondary-button">
+                            Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+
+            <div class="compact-list">
+                {% for row in user_rows %}
+                    <a
+                        href="{% url 'user_management' %}?active_tab=manage-users&user_type={{ user_type }}&department={{ department_filter }}&batch={{ batch_filter }}&semester={{ semester_filter }}&status={{ status_filter }}&q={{ search_query }}&selected_user={{ row.user.id }}"
+                        class="compact-user-row {% if selected_user_id == row.user.id|stringformat:'s' %}selected{% endif %}"
+                    >
+                        <div class="compact-avatar">
+                            {% if row.user.profile_photo %}
+                                <img src="{{ row.user.profile_photo.url }}" alt="Profile Photo">
+                            {% else %}
+                                {{ row.user.username|slice:":1"|upper }}
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <div class="compact-name">{{ row.user.username }}</div>
+                            <div class="compact-sub">{{ row.user.get_role_display }}</div>
+                        </div>
+
+                        <div>
+                            <div class="compact-label">
+                                {% if row.user.role == 'student' %}
+                                    Student ID
+                                {% else %}
+                                    Employee ID
+                                {% endif %}
+                            </div>
+                            <div class="compact-value">{{ row.display_id }}</div>
+                        </div>
+
+                        <div class="compact-hide-sm">
+                            <div class="compact-label">Name</div>
+                            <div class="compact-value">
+                                {% if row.user.get_full_name %}
+                                    {{ row.user.get_full_name }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="compact-hide-md">
+                            <div class="compact-label">Department</div>
+                            <div class="compact-value">{{ row.department_label }}</div>
+                        </div>
+
+                        <div>
+                            {% if row.user.is_active %}
+                                <span class="status-badge status-active">Active</span>
+                            {% else %}
+                                <span class="status-badge status-inactive">Inactive</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="empty-state">No user found.</div>
+                {% endfor %}
+            </div>
+
+            {% if selected_row %}
+                <section class="detail-panel" id="selected-user-detail">
+                    <div class="detail-panel-header">
+                        <div class="detail-title">
+                            <div class="detail-avatar">
+                                {% if selected_row.user.profile_photo %}
+                                    <img src="{{ selected_row.user.profile_photo.url }}" alt="Profile Photo">
+                                {% else %}
+                                    {{ selected_row.user.username|slice:":1"|upper }}
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <div class="detail-name">{{ selected_row.user.username }}</div>
+                                <div class="detail-role">
+                                    {{ selected_row.user.get_role_display }} ·
+                                    {% if selected_row.user.role == 'student' %}
+                                        Student ID:
+                                    {% else %}
+                                        Employee ID:
+                                    {% endif %}
+                                    {{ selected_row.display_id }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if selected_row.user.is_active %}
+                            <span class="status-badge status-active">Active</span>
+                        {% else %}
+                            <span class="status-badge status-inactive">Inactive</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="detail-panel-body">
+                        {% if selected_row.can_edit %}
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_user">
+                                <input type="hidden" name="user_id" value="{{ selected_row.user.id }}">
+
+                                <div class="form-grid-3">
+                                    <p class="form-field">
+                                        <label>First Name</label>
+                                        <input type="text" name="first_name" value="{{ selected_row.user.first_name }}" class="input-control">
+                                    </p>
+
+                                    <p class="form-field">
+                                        <label>Last Name</label>
+                                        <input type="text" name="last_name" value="{{ selected_row.user.last_name }}" class="input-control">
+                                    </p>
+
+                                    <p class="form-field">
+                                        <label>Email</label>
+                                        <input type="email" name="email" value="{{ selected_row.user.email }}" class="input-control">
+                                    </p>
+
+                                    <p class="form-field">
+                                        <label>Phone</label>
+                                        <input type="text" name="phone" value="{{ selected_row.user.phone|default:'' }}" class="input-control">
+                                    </p>
+
+                                    <p class="form-field">
+                                        <label>Gender</label>
+                                        <select name="gender" class="input-control">
+                                            <option value="">Select Gender</option>
+                                            {% for value, label in gender_choices %}
+                                                <option value="{{ value }}" {% if selected_row.user.gender == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </p>
+
+                                    <p class="form-field">
+                                        <label>Date of Birth</label>
+                                        <input type="date" name="date_of_birth" value="{{ selected_row.user.date_of_birth|date:'Y-m-d' }}" class="input-control">
+                                    </p>
+
+                                    <p class="form-field">
+                                        <label>Profile Photo</label>
+                                        <input type="file" name="profile_photo" class="input-control">
+                                    </p>
+                                </div>
+
+                                <div style="margin-top: 16px;">
+                                    <p class="form-field">
+                                        <label>Address</label>
+                                        <textarea name="address" rows="3" class="input-control">{{ selected_row.user.address|default:'' }}</textarea>
+                                    </p>
+                                </div>
+
+                                {% if selected_row.user.role == 'student' %}
+                                    <div class="profile-box">
+                                        <h4>Student Profile</h4>
+
+                                        <div class="form-grid-3">
+                                            <p class="form-field">
+                                                <label>Student ID</label>
+                                                <input type="text" name="student_id" value="{% if selected_row.profile %}{{ selected_row.profile.student_id }}{% endif %}" class="input-control">
+                                            </p>
+
+                                            <p class="form-field">
+                                                <label>Department</label>
+                                                <select name="department" class="input-control">
+                                                    <option value="">Select Department</option>
+                                                    {% for department in departments %}
+                                                        <option value="{{ department.id }}" {% if selected_row.profile and selected_row.profile.department and selected_row.profile.department.id == department.id %}selected{% endif %}>
+                                                            {{ department.code }} - {{ department.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </p>
+
+                                            <p class="form-field">
+                                                <label>Batch</label>
+                                                <select name="batch" class="input-control">
+                                                    <option value="">Select Batch</option>
+                                                    {% for batch in batches %}
+                                                        <option value="{{ batch.id }}" {% if selected_row.profile and selected_row.profile.batch and selected_row.profile.batch.id == batch.id %}selected{% endif %}>
+                                                            {{ batch.department.code }} - {{ batch.batch_name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </p>
+
+                                            <p class="form-field">
+                                                <label>Current Semester</label>
+                                                <select name="current_semester" class="input-control">
+                                                    <option value="">Select Semester</option>
+                                                    {% for semester in semesters %}
+                                                        <option value="{{ semester.id }}" {% if selected_row.profile and selected_row.profile.current_semester and selected_row.profile.current_semester.id == semester.id %}selected{% endif %}>
+                                                            {{ semester.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </p>
+
+                                            <p class="form-field">
+                                                <label>Admission Session</label>
+                                                <input type="text" name="admission_session" value="{% if selected_row.profile %}{{ selected_row.profile.admission_session|default:'' }}{% endif %}" class="input-control">
+                                            </p>
+
+                                            <p class="form-field">
+                                                <label>Guardian Name</label>
+                                                <input type="text" name="guardian_name" value="{% if selected_row.profile %}{{ selected_row.profile.guardian_name|default:'' }}{% endif %}" class="input-control">
+                                            </p>
+
+                                            <p class="form-field">
+                                                <label>Guardian Phone</label>
+                                                <input type="text" name="guardian_phone" value="{% if selected_row.profile %}{{ selected_row.profile.guardian_phone|default:'' }}{% endif %}" class="input-control">
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="profile-box">
+                                        <h4>Faculty / Staff / Admin Profile</h4>
+
+                                        <div class="form-grid-3">
+                                            <p class="form-field">
+                                                <label>Employee ID</label>
+                                                <input type="text" name="employee_id" value="{{ selected_row.user.employee_id|default:'' }}" class="input-control">
+                                            </p>
+
+                                            {% if selected_row.user.role == 'faculty' or selected_row.user.role == 'dept_head' %}
+                                                <p class="form-field">
+                                                    <label>Department</label>
+                                                    <select name="staff_department" class="input-control">
+                                                        <option value="">Select Department</option>
+                                                        {% for department in departments %}
+                                                            <option value="{{ department.id }}" {% if selected_row.user.staff_department and selected_row.user.staff_department.id == department.id %}selected{% endif %}>
+                                                                {{ department.code }} - {{ department.name }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </p>
+                                            {% endif %}
+
+                                            <p class="form-field">
+                                                <label>Designation</label>
+                                                <input type="text" name="designation" value="{{ selected_row.user.designation|default:'' }}" class="input-control">
+                                            </p>
+
+                                            <p class="form-field">
+                                                <label>Office Room</label>
+                                                <input type="text" name="office_room" value="{{ selected_row.user.office_room|default:'' }}" class="input-control">
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <div class="form-action-row">
+                                    <button type="submit" class="save-button">Save User</button>
+                                </div>
+                            </form>
+
+                            <div class="password-actions">
+                                <form method="POST" class="password-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="reset_password">
+                                    <input type="hidden" name="user_id" value="{{ selected_row.user.id }}">
+
+                                    <input type="password" name="new_password" placeholder="New Password" required class="input-control">
+                                    <input type="password" name="confirm_password" placeholder="Confirm Password" required class="input-control">
+
+                                    <button type="submit" class="secondary-button">Reset Password</button>
+                                </form>
+
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="toggle_user_status">
+                                    <input type="hidden" name="user_id" value="{{ selected_row.user.id }}">
+
+                                    {% if selected_row.can_toggle_status %}
+                                        {% if selected_row.user.is_active %}
+                                            <button type="submit" class="danger-button">Deactivate Access</button>
+                                        {% else %}
+                                            <button type="submit" class="save-button">Activate Access</button>
+                                        {% endif %}
+                                    {% else %}
+                                        <button type="button" class="disabled-button" disabled>
+                                            Super Admin Only
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                You do not have permission to edit this user.
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            {% endif %}
+        </section>
+
+    </div>
+
+</div>
+
+<script>
+    function activateUserTab(tabName) {
+        const buttons = document.querySelectorAll('.tab-button');
+        const panels = document.querySelectorAll('.tab-panel');
+
+        buttons.forEach(function(button) {
+            button.classList.remove('active');
+
+            if (button.dataset.tab === tabName) {
+                button.classList.add('active');
+            }
+        });
+
+        panels.forEach(function(panel) {
+            panel.classList.remove('active');
+
+            if (panel.id === tabName) {
+                panel.classList.add('active');
+            }
+        });
+
+        sessionStorage.setItem('userManagementActiveTab', tabName);
+    }
+
+    document.querySelectorAll('.tab-button').forEach(function(button) {
+        button.addEventListener('click', function() {
+            activateUserTab(button.dataset.tab);
+        });
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTabFromUrl = urlParams.get('active_tab');
+    const savedTab = sessionStorage.getItem('userManagementActiveTab');
+
+    if (activeTabFromUrl) {
+        activateUserTab(activeTabFromUrl);
+    } else if (savedTab) {
+        activateUserTab(savedTab);
+    }
+
+    const createRole = document.getElementById('create-role');
+    const studentExtra = document.getElementById('create-student-extra');
+    const staffExtra = document.getElementById('create-staff-extra');
+    const staffDepartmentField = document.querySelector('.create-staff-department-field');
+
+    function toggleCreateExtras() {
+        if (!createRole || !studentExtra || !staffExtra) {
+            return;
+        }
+
+        const role = createRole.value;
+
+        if (role === 'student') {
+            studentExtra.style.display = 'block';
+            staffExtra.style.display = 'none';
+        } else if (role) {
+            studentExtra.style.display = 'none';
+            staffExtra.style.display = 'block';
+
+            if (staffDepartmentField) {
+                if (role === 'faculty' || role === 'dept_head') {
+                    staffDepartmentField.style.display = 'block';
+                } else {
+                    staffDepartmentField.style.display = 'none';
+                    const select = staffDepartmentField.querySelector('select');
+                    if (select) {
+                        select.value = '';
+                    }
+                }
+            }
+        } else {
+            studentExtra.style.display = 'none';
+            staffExtra.style.display = 'none';
+        }
+    }
+
+    if (createRole) {
+        createRole.addEventListener('change', toggleCreateExtras);
+        toggleCreateExtras();
+    }
+
+    const filterUserType = document.getElementById('filter-user-type');
+    const departmentFilters = document.querySelectorAll('.filter-department-field');
+    const studentFilters = document.querySelectorAll('.filter-student-field');
+
+    function toggleFilterFields() {
+        if (!filterUserType) {
+            return;
+        }
+
+        const type = filterUserType.value;
+
+        departmentFilters.forEach(function(field) {
+            if (type === 'all' || type === 'students' || type === 'faculty' || type === 'dept_head') {
+                field.classList.remove('hidden-filter');
+            } else {
+                field.classList.add('hidden-filter');
+                const select = field.querySelector('select');
+                if (select) {
+                    select.value = '';
+                }
+            }
+        });
+
+        studentFilters.forEach(function(field) {
+            if (type === 'all' || type === 'students') {
+                field.classList.remove('hidden-filter');
+            } else {
+                field.classList.add('hidden-filter');
+                const select = field.querySelector('select');
+                if (select) {
+                    select.value = '';
+                }
+            }
+        });
+    }
+
+    if (filterUserType) {
+        filterUserType.addEventListener('change', toggleFilterFields);
+        toggleFilterFields();
+    }
+
+    const selectedDetail = document.getElementById('selected-user-detail');
+
+    if (selectedDetail && window.location.search.includes('selected_user=')) {
+        selectedDetail.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+</script>
+
+{% endblock %}

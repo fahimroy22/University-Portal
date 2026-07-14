@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Django
+db.sqlite3
+media/
+
+# Environment
+.env
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# JetBrains
+.idea/
+
+# Static
+staticfiles/
+
+# Logs
+*.log
+
+# Cache
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/

@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .fcd-page {
+        display: grid;
+        gap: 24px;
+    }
+
+    .fcd-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #fffafa, #fff1f2 50%, white);
+        border: 1px solid #fecaca;
+    }
+
+    .fcd-kicker {
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: .13em;
+        font-size: 11px;
+        font-weight: 950;
+        margin-bottom: 12px;
+    }
+
+    .fcd-hero h1 {
+        margin: 0 0 10px;
+        color: var(--navy);
+        font-size: clamp(34px, 4vw, 50px);
+        font-weight: 950;
+        letter-spacing: -.05em;
+    }
+
+    .fcd-hero p {
+        margin: 0;
+        color: var(--muted);
+    }
+
+    .fcd-back {
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 15px;
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        display: inline-flex;
+        align-items: center;
+        font-weight: 900;
+    }
+
+    .fcd-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        overflow: hidden;
+    }
+
+    .fcd-head {
+        padding: 26px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .fcd-head h2 {
+        margin: 0 0 7px;
+        color: var(--navy);
+        font-size: 26px;
+        font-weight: 950;
+    }
+
+    .fcd-head p {
+        margin: 0;
+        color: var(--muted);
+    }
+
+    .fcd-body {
+        padding: 26px;
+    }
+
+    .fcd-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .fcd-info {
+        padding: 16px;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+    }
+
+    .fcd-label {
+        margin-bottom: 6px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: var(--soft-muted);
+        font-weight: 950;
+    }
+
+    .fcd-value {
+        color: var(--navy);
+        font-weight: 850;
+    }
+
+    .fcd-table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+    }
+
+    .fcd-table {
+        width: 100%;
+        min-width: 700px;
+        border-collapse: collapse;
+    }
+
+    .fcd-table th,
+    .fcd-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .fcd-table th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        font-weight: 950;
+    }
+
+    .fcd-changed td {
+        background: #fffafa;
+    }
+
+    .fcd-positive {
+        color: #047857;
+        font-weight: 950;
+    }
+
+    .fcd-negative {
+        color: #dc2626;
+        font-weight: 950;
+    }
+
+    .fcd-status {
+        display: inline-flex;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .pending {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+
+    .approved {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #bbf7d0;
+    }
+
+    .rejected {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .fcd-reason {
+        padding: 20px;
+        border-radius: 18px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+        color: #334155;
+        font-weight: 750;
+        line-height: 1.7;
+    }
+
+    .fcd-file {
+        display: inline-flex;
+        min-height: 44px;
+        align-items: center;
+        padding: 0 16px;
+        border-radius: 14px;
+        background: var(--accent);
+        color: white;
+        font-weight: 900;
+    }
+
+    @media (max-width: 700px) {
+        .fcd-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .fcd-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="fcd-page">
+
+    <section class="fcd-hero">
+        <div>
+            <div class="fcd-kicker">Correction Request</div>
+
+            <h1>Correction Request Details</h1>
+
+            <p>
+                Review the complete request history, proposed mark changes, supporting evidence,
+                and administrative decision status.
+            </p>
+        </div>
+
+        <a href="{% url 'faculty_correction_requests' %}" class="fcd-back">
+            ← Back to Requests
+        </a>
+    </section>
+
+    <section class="fcd-card">
+        <div class="fcd-head">
+            <h2>Request Information</h2>
+            <p>Official metadata for this correction request.</p>
+        </div>
+
+        <div class="fcd-body">
+            <div class="fcd-grid">
+
+                <div class="fcd-info">
+                    <div class="fcd-label">Student</div>
+                    <div class="fcd-value">
+                        {{ correction_request.student.student_id }}
+                        —
+                        {{ correction_request.student.user.get_full_name|default:correction_request.student.user.username }}
+                    </div>
+                </div>
+
+                <div class="fcd-info">
+                    <div class="fcd-label">Course</div>
+                    <div class="fcd-value">
+                        {{ correction_request.course_offering.course.code }}
+                        —
+                        {{ correction_request.course_offering.course.title }}
+                    </div>
+                </div>
+
+                <div class="fcd-info">
+                    <div class="fcd-label">Submitted At</div>
+                    <div class="fcd-value">
+                        {{ correction_request.created_at|default:"-" }}
+                    </div>
+                </div>
+
+                <div class="fcd-info">
+                    <div class="fcd-label">Status</div>
+
+                    {% if correction_request.status == 'approved' %}
+                        <span class="fcd-status approved">Approved</span>
+                    {% elif correction_request.status == 'rejected' %}
+                        <span class="fcd-status rejected">Rejected</span>
+                    {% else %}
+                        <span class="fcd-status pending">
+                            {{ correction_request.get_status_display|default:correction_request.status|default:"Pending" }}
+                        </span>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="fcd-card">
+        <div class="fcd-head">
+            <h2>Requested Mark Changes</h2>
+            <p>Only highlighted rows contain an actual change.</p>
+        </div>
+
+        <div class="fcd-body">
+
+            <div class="fcd-table-wrap">
+                <table class="fcd-table">
+                    <thead>
+                        <tr>
+                            <th>Assessment</th>
+                            <th>Current Mark</th>
+                            <th>Requested Mark</th>
+                            <th>Difference</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in mark_changes %}
+                            <tr {% if item.changed %}class="fcd-changed"{% endif %}>
+                                <td>{{ item.label }}</td>
+                                <td>{{ item.old }}</td>
+                                <td>{{ item.new }}</td>
+
+                                <td>
+                                    {% if item.changed %}
+                                        {% if item.difference > 0 %}
+                                            <span class="fcd-positive">
+                                                +{{ item.difference }}
+                                            </span>
+                                        {% else %}
+                                            <span class="fcd-negative">
+                                                {{ item.difference }}
+                                            </span>
+                                        {% endif %}
+                                    {% else %}
+                                        No change
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="fcd-card">
+        <div class="fcd-head">
+            <h2>Correction Reason</h2>
+            <p>The explanation submitted with the official correction request.</p>
+        </div>
+
+        <div class="fcd-body">
+            <div class="fcd-reason">
+                {{ correction_request.reason|default:"No explanation provided." }}
+            </div>
+        </div>
+    </section>
+
+    {% if correction_request.attachment %}
+        <section class="fcd-card">
+            <div class="fcd-head">
+                <h2>Supporting Evidence</h2>
+                <p>Open the document attached to this correction request.</p>
+            </div>
+
+            <div class="fcd-body">
+                <a
+                    href="{{ correction_request.attachment.url }}"
+                    target="_blank"
+                    rel="noopener"
+                    class="fcd-file"
+                >
+                    Open Attachment
+                </a>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if correction_request.admin_note %}
+        <section class="fcd-card">
+            <div class="fcd-head">
+                <h2>Administrative Note</h2>
+                <p>Review feedback recorded during the approval process.</p>
+            </div>
+
+            <div class="fcd-body">
+                <div class="fcd-reason">
+                    {{ correction_request.admin_note }}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+</div>
+
+{% endblock %}

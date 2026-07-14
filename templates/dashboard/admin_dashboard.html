@@ -1,0 +1,1068 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .admin-dashboard {
+        --ad-ink: #0f172a;
+        --ad-text: #334155;
+        --ad-muted: #64748b;
+        --ad-faint: #94a3b8;
+
+        --ad-line: #e2e8f0;
+        --ad-line-soft: #eef2f7;
+        --ad-canvas: #f8fafc;
+        --ad-surface: #ffffff;
+
+        --ad-accent: #9f1c1c;
+        --ad-accent-dark: #7f1717;
+        --ad-accent-soft: #fff1f2;
+        --ad-accent-line: #fecaca;
+
+        --ad-green: #047857;
+        --ad-green-soft: #ecfdf5;
+        --ad-green-line: #bbf7d0;
+
+        --ad-blue: #2563eb;
+        --ad-blue-soft: #eff6ff;
+        --ad-blue-line: #bfdbfe;
+
+        --ad-purple: #7c3aed;
+        --ad-purple-soft: #faf5ff;
+        --ad-purple-line: #e9d5ff;
+
+        --ad-cyan: #0891b2;
+        --ad-cyan-soft: #ecfeff;
+        --ad-cyan-line: #a5f3fc;
+
+        --ad-amber: #b45309;
+        --ad-amber-soft: #fffbeb;
+        --ad-amber-line: #fde68a;
+
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        display: grid;
+        gap: 24px;
+    }
+
+    .admin-dashboard,
+    .admin-dashboard * {
+        box-sizing: border-box;
+    }
+
+    .admin-dashboard a {
+        text-decoration: none;
+    }
+
+    .ad-surface {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        background: var(--ad-surface);
+        border: 1px solid var(--ad-line);
+        border-radius: 28px;
+        overflow: hidden;
+    }
+
+    /* =========================================================
+       SHARED
+    ========================================================= */
+
+    .ad-eyebrow {
+        color: var(--ad-accent);
+        font-size: 10.5px;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+    }
+
+    .ad-title {
+        margin: 8px 0 0;
+        color: var(--ad-ink);
+        font-size: clamp(32px, 4.5vw, 48px);
+        line-height: 1.02;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+    }
+
+    .ad-subtitle {
+        margin: 12px 0 0;
+        max-width: 780px;
+        color: var(--ad-muted);
+        font-size: 15px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .ad-section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+    }
+
+    .ad-section-title {
+        margin: 7px 0 0;
+        color: var(--ad-ink);
+        font-size: 28px;
+        line-height: 1.08;
+        font-weight: 950;
+        letter-spacing: -0.045em;
+    }
+
+    .ad-section-subtitle {
+        margin: 8px 0 0;
+        color: var(--ad-muted);
+        font-size: 14px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .ad-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid var(--ad-line);
+        color: #475569;
+        font-size: 12px;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .ad-pill.brand {
+        background: var(--ad-accent-soft);
+        border-color: var(--ad-accent-line);
+        color: var(--ad-accent-dark);
+    }
+
+    .ad-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 17px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+        background: #f8fafc;
+        border: 1px solid var(--ad-line);
+        color: #64748b;
+    }
+
+    .ad-icon svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    .ad-icon.red {
+        background: var(--ad-accent-soft);
+        color: var(--ad-accent);
+        border-color: var(--ad-accent-line);
+    }
+
+    .ad-icon.green {
+        background: var(--ad-green-soft);
+        color: var(--ad-green);
+        border-color: var(--ad-green-line);
+    }
+
+    .ad-icon.blue {
+        background: var(--ad-blue-soft);
+        color: var(--ad-blue);
+        border-color: var(--ad-blue-line);
+    }
+
+    .ad-icon.purple {
+        background: var(--ad-purple-soft);
+        color: var(--ad-purple);
+        border-color: var(--ad-purple-line);
+    }
+
+    .ad-icon.cyan {
+        background: var(--ad-cyan-soft);
+        color: var(--ad-cyan);
+        border-color: var(--ad-cyan-line);
+    }
+
+    .ad-icon.amber {
+        background: var(--ad-amber-soft);
+        color: var(--ad-amber);
+        border-color: var(--ad-amber-line);
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .ad-hero {
+        position: relative;
+        padding: 34px;
+        background:
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.75),
+                transparent 32%
+            ),
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.58),
+                transparent 36%
+            ),
+            #ffffff;
+    }
+
+    .ad-hero-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 270px;
+        gap: 28px;
+        align-items: center;
+    }
+
+    .ad-hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+    }
+
+    .ad-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .ad-primary-button,
+    .ad-secondary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 16px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 900;
+        transition:
+            transform 0.15s ease,
+            background 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .ad-primary-button {
+        background: var(--ad-accent);
+        color: #ffffff;
+        border: 1px solid var(--ad-accent);
+    }
+
+    .ad-primary-button:hover {
+        background: var(--ad-accent-dark);
+        border-color: var(--ad-accent-dark);
+        transform: translateY(-1px);
+    }
+
+    .ad-secondary-button {
+        background: #ffffff;
+        color: var(--ad-ink);
+        border: 1px solid var(--ad-line);
+    }
+
+    .ad-secondary-button:hover {
+        background: var(--ad-canvas);
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    .ad-hero-status {
+        padding: 22px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid var(--ad-line);
+    }
+
+    .ad-status-label {
+        color: var(--ad-faint);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .ad-status-value {
+        margin-top: 8px;
+        color: var(--ad-ink);
+        font-size: 30px;
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.045em;
+    }
+
+    .ad-status-text {
+        margin-top: 8px;
+        color: var(--ad-muted);
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       MAIN MODULES
+    ========================================================= */
+
+    .ad-panel {
+        padding: 28px;
+    }
+
+    .ad-module-grid {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .ad-module-card {
+        min-width: 0;
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
+        padding: 22px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid var(--ad-line);
+        transition:
+            transform 0.15s ease,
+            box-shadow 0.15s ease,
+            border-color 0.15s ease,
+            background 0.15s ease;
+    }
+
+    .ad-module-card:hover {
+        transform: translateY(-2px);
+        border-color: #cbd5e1;
+        box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
+    }
+
+    .ad-module-card.featured {
+        background: linear-gradient(
+            135deg,
+            #fffafa 0%,
+            #ffffff 100%
+        );
+        border-color: var(--ad-accent-line);
+    }
+
+    .ad-module-title {
+        margin-top: 18px;
+        color: var(--ad-ink);
+        font-size: 19px;
+        line-height: 1.2;
+        font-weight: 950;
+        letter-spacing: -0.025em;
+    }
+
+    .ad-module-text {
+        margin-top: 7px;
+        color: var(--ad-muted);
+        font-size: 13.5px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .ad-module-link {
+        margin-top: auto;
+        padding-top: 22px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--ad-accent);
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .ad-module-link span {
+        transition: transform 0.15s ease;
+    }
+
+    .ad-module-card:hover .ad-module-link span {
+        transform: translateX(3px);
+    }
+
+    /* =========================================================
+       SYSTEM TOOLS
+    ========================================================= */
+
+    .ad-system-grid {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .ad-tool-card {
+        min-height: 195px;
+        padding: 22px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid var(--ad-line);
+        transition:
+            transform 0.15s ease,
+            box-shadow 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .ad-tool-card:hover {
+        transform: translateY(-2px);
+        border-color: #cbd5e1;
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+    }
+
+    .ad-tool-card.featured {
+        background: #fffafa;
+        border-color: var(--ad-accent-line);
+    }
+
+    .ad-tool-title {
+        margin-top: 16px;
+        color: var(--ad-ink);
+        font-size: 18px;
+        line-height: 1.25;
+        font-weight: 950;
+    }
+
+    .ad-tool-text {
+        margin-top: 6px;
+        color: var(--ad-muted);
+        font-size: 13.5px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .ad-tool-footer {
+        margin-top: 18px;
+    }
+
+    .ad-coming-soon {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #94a3b8;
+        border: 1px solid var(--ad-line);
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .ad-open-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--ad-accent);
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1150px) {
+        .ad-hero-inner {
+            grid-template-columns: 1fr;
+        }
+
+        .ad-hero-status {
+            max-width: 480px;
+        }
+
+        .ad-module-grid,
+        .ad-system-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .admin-dashboard {
+            gap: 16px;
+        }
+
+        .ad-surface {
+            border-radius: 22px;
+        }
+
+        .ad-hero,
+        .ad-panel {
+            padding: 20px 18px;
+        }
+
+        .ad-title {
+            font-size: clamp(30px, 9vw, 38px);
+        }
+
+        .ad-subtitle {
+            font-size: 14px;
+        }
+
+        .ad-hero-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .ad-primary-button,
+        .ad-secondary-button {
+            width: 100%;
+        }
+
+        .ad-hero-status {
+            max-width: none;
+            width: 100%;
+        }
+
+        .ad-section-header {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ad-section-title {
+            font-size: 25px;
+        }
+
+        .ad-module-grid,
+        .ad-system-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .ad-module-card,
+        .ad-tool-card {
+            min-height: 0;
+            padding: 18px;
+        }
+
+        .ad-module-card {
+            display: grid;
+            grid-template-columns: 48px minmax(0, 1fr);
+            column-gap: 14px;
+            align-items: start;
+        }
+
+        .ad-module-card .ad-icon {
+            grid-row: 1 / span 3;
+        }
+
+        .ad-module-title {
+            margin-top: 0;
+        }
+
+        .ad-module-link {
+            margin-top: 12px;
+            padding-top: 0;
+        }
+    }
+</style>
+
+
+<div class="admin-dashboard">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="ad-surface ad-hero">
+
+        <div class="ad-hero-inner">
+
+            <div>
+
+                <div class="ad-eyebrow">
+                    Administration Overview
+                </div>
+
+                <h1 class="ad-title">
+                    Admin Dashboard
+                </h1>
+
+                <p class="ad-subtitle">
+                    Manage academic setup, student enrollment, notices, system configuration,
+                    audit activity, and result correction requests from one central administration area.
+                </p>
+
+
+                <div class="ad-hero-meta">
+
+                    <span class="ad-pill brand">
+                        {{ user.get_role_display }}
+                    </span>
+
+                    <span class="ad-pill">
+                        University Administration
+                    </span>
+
+                    <span class="ad-pill">
+                        System Access
+                    </span>
+
+                </div>
+
+
+                <div class="ad-hero-actions">
+
+                    <a
+                        href="{% url 'user_management' %}"
+                        class="ad-primary-button"
+                    >
+                        Manage Users
+                    </a>
+
+                    <a
+                        href="{% url 'academic_setup' %}"
+                        class="ad-secondary-button"
+                    >
+                        Academic Setup
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <aside class="ad-hero-status">
+
+                <div class="ad-status-label">
+                    Portal Role
+                </div>
+
+                <div class="ad-status-value">
+                    Admin
+                </div>
+
+                <div class="ad-status-text">
+                    Full access to administrative, academic, and system management tools.
+                </div>
+
+            </aside>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ADMINISTRATION MODULES
+    ====================================================== -->
+
+    <section class="ad-surface ad-panel">
+
+        <div class="ad-section-header">
+
+            <div>
+
+                <div class="ad-eyebrow">
+                    Administration
+                </div>
+
+                <h2 class="ad-section-title">
+                    Core Management
+                </h2>
+
+                <p class="ad-section-subtitle">
+                    Access the most important university management modules.
+                </p>
+
+            </div>
+
+            <span class="ad-pill brand">
+                Main Modules
+            </span>
+
+        </div>
+
+
+        <div class="ad-module-grid">
+
+            <!-- USER MANAGEMENT -->
+
+            <a
+                href="{% url 'user_management' %}"
+                class="ad-module-card"
+            >
+
+                <div class="ad-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </div>
+
+                <div class="ad-module-title">
+                    User Management
+                </div>
+
+                <div class="ad-module-text">
+                    Manage student, faculty, department head, accounts, exam office, and admin user accounts.
+                </div>
+
+                <div class="ad-module-link">
+                    Open module <span>→</span>
+                </div>
+
+            </a>
+
+
+            <!-- ACADEMIC SETUP -->
+
+            <a
+                href="{% url 'academic_setup' %}"
+                class="ad-module-card"
+            >
+
+                <div class="ad-icon purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"/>
+                    </svg>
+                </div>
+
+                <div class="ad-module-title">
+                    Academic Setup
+                </div>
+
+                <div class="ad-module-text">
+                    Manage departments, semesters, batches, courses, and academic structures.
+                </div>
+
+                <div class="ad-module-link">
+                    Open module <span>→</span>
+                </div>
+
+            </a>
+
+
+            <!-- COURSE ENROLLMENT -->
+
+            <a
+                href="{% url 'course_enrollment' %}"
+                class="ad-module-card featured"
+            >
+
+                <div class="ad-icon red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7 4h10a2 2 0 012 2v14H5V6a2 2 0 012-2z"/>
+                    </svg>
+                </div>
+
+                <div class="ad-module-title">
+                    Course Enrollment
+                </div>
+
+                <div class="ad-module-text">
+                    Assign and approve student course registrations for active semesters.
+                </div>
+
+                <div class="ad-module-link">
+                    Open module <span>→</span>
+                </div>
+
+            </a>
+
+
+            <!-- NOTICE MANAGEMENT -->
+
+            <a
+                href="{% url 'notice_management' %}"
+                class="ad-module-card"
+            >
+
+                <div class="ad-icon cyan">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                    </svg>
+                </div>
+
+                <div class="ad-module-title">
+                    Notice Management
+                </div>
+
+                <div class="ad-module-text">
+                    Create and publish notices for students, faculty, departments, and university staff.
+                </div>
+
+                <div class="ad-module-link">
+                    Open module <span>→</span>
+                </div>
+
+            </a>
+
+
+            <!-- BULK UPLOAD -->
+
+            <a
+                href="{% url 'bulk_student_upload' %}"
+                class="ad-module-card"
+            >
+
+                <div class="ad-icon green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"/>
+                    </svg>
+                </div>
+
+                <div class="ad-module-title">
+                    Bulk Student Upload
+                </div>
+
+                <div class="ad-module-text">
+                    Upload CSV files to create many student accounts and academic records efficiently.
+                </div>
+
+                <div class="ad-module-link">
+                    Open module <span>→</span>
+                </div>
+
+            </a>
+
+
+            <!-- RESULT CORRECTION -->
+
+            <a
+                href="{% url 'result_correction_requests' %}"
+                class="ad-module-card featured"
+            >
+
+                <div class="ad-icon amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/>
+                    </svg>
+                </div>
+
+                <div class="ad-module-title">
+                    Result Corrections
+                </div>
+
+                <div class="ad-module-text">
+                    Review and process submitted result correction requests and academic record changes.
+                </div>
+
+                <div class="ad-module-link">
+                    Open module <span>→</span>
+                </div>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SYSTEM TOOLS
+    ====================================================== -->
+
+    <section class="ad-surface ad-panel">
+
+        <div class="ad-section-header">
+
+            <div>
+
+                <div class="ad-eyebrow">
+                    System Administration
+                </div>
+
+                <h2 class="ad-section-title">
+                    System Tools
+                </h2>
+
+                <p class="ad-section-subtitle">
+                    Manage portal configuration, system activity, and administrative tools.
+                </p>
+
+            </div>
+
+            <span class="ad-pill brand">
+                Admin Tools
+            </span>
+
+        </div>
+
+
+        <div class="ad-system-grid">
+
+            <!-- SYSTEM SETTINGS -->
+
+            <a
+                href="{% url 'system_settings' %}"
+                class="ad-tool-card featured"
+            >
+
+                <div class="ad-icon red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h3M7 10.5h10M8 15h8M12 3l2 3 3.5.5-2.5 2.5.6 3.5L12 11l-3.6 1.9.6-3.5L6.5 6.5 10 6z"/>
+                    </svg>
+                </div>
+
+                <div class="ad-tool-title">
+                    System Settings
+                </div>
+
+                <div class="ad-tool-text">
+                    Manage university name, logo, portal settings, session details, and system notes.
+                </div>
+
+                <div class="ad-tool-footer">
+                    <span class="ad-open-link">
+                        Open module →
+                    </span>
+                </div>
+
+            </a>
+
+
+            <!-- AUDIT LOGS -->
+
+            <a
+                href="{% url 'audit_logs' %}"
+                class="ad-tool-card"
+            >
+
+                <div class="ad-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                    </svg>
+                </div>
+
+                <div class="ad-tool-title">
+                    Audit Logs
+                </div>
+
+                <div class="ad-tool-text">
+                    Review system activity, administrative actions, and important platform changes.
+                </div>
+
+                <div class="ad-tool-footer">
+                    <span class="ad-open-link">
+                        Open module →
+                    </span>
+                </div>
+
+            </a>
+
+
+            <!-- RESULT CORRECTIONS -->
+
+            <a
+                href="{% url 'result_correction_requests' %}"
+                class="ad-tool-card"
+            >
+
+                <div class="ad-icon amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/>
+                    </svg>
+                </div>
+
+                <div class="ad-tool-title">
+                    Result Corrections
+                </div>
+
+                <div class="ad-tool-text">
+                    Review pending correction requests and manage approved academic result changes.
+                </div>
+
+                <div class="ad-tool-footer">
+                    <span class="ad-open-link">
+                        Open module →
+                    </span>
+                </div>
+
+            </a>
+
+
+            <!-- ROLES -->
+
+            <div class="ad-tool-card">
+
+                <div class="ad-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"/>
+                    </svg>
+                </div>
+
+                <div class="ad-tool-title">
+                    Roles
+                </div>
+
+                <div class="ad-tool-text">
+                    Role permissions and access control configuration.
+                </div>
+
+                <div class="ad-tool-footer">
+                    <span class="ad-coming-soon">
+                        Coming soon
+                    </span>
+                </div>
+
+            </div>
+
+
+            <!-- BACKUP -->
+
+            <div class="ad-tool-card">
+
+                <div class="ad-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M7 7v10h10V7M9 11h6"/>
+                    </svg>
+                </div>
+
+                <div class="ad-tool-title">
+                    Backup
+                </div>
+
+                <div class="ad-tool-text">
+                    Database and uploaded file backup management.
+                </div>
+
+                <div class="ad-tool-footer">
+                    <span class="ad-coming-soon">
+                        Coming soon
+                    </span>
+                </div>
+
+            </div>
+
+
+            <!-- SECURITY -->
+
+            <div class="ad-tool-card">
+
+                <div class="ad-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/>
+                    </svg>
+                </div>
+
+                <div class="ad-tool-title">
+                    Security
+                </div>
+
+                <div class="ad-tool-text">
+                    Security controls, login sessions, and account protection settings.
+                </div>
+
+                <div class="ad-tool-footer">
+                    <span class="ad-coming-soon">
+                        Coming soon
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

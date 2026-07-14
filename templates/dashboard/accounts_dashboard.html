@@ -1,0 +1,609 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .accounts-page {
+        width: min(100%, 1180px);
+        margin: 0 auto;
+        display: grid;
+        gap: 16px;
+    }
+
+    .accounts-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: none;
+    }
+
+    .accounts-hero {
+        padding: 24px;
+    }
+
+    .accounts-kicker {
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .accounts-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .accounts-text {
+        margin-top: 8px;
+        max-width: 780px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .summary-item {
+        padding: 18px;
+        border-right: 1px solid #eef2f7;
+    }
+
+    .summary-item:last-child {
+        border-right: none;
+    }
+
+    .summary-label {
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .summary-value {
+        margin-top: 7px;
+        color: #0f172a;
+        font-size: 25px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        word-break: break-word;
+    }
+
+    .summary-note {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.4;
+        font-weight: 600;
+    }
+
+    .panel {
+        padding: 20px 22px;
+    }
+
+    .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .panel-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .lookup-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+        gap: 18px;
+        align-items: stretch;
+    }
+
+    .help-box {
+        padding: 16px;
+        border-radius: 14px;
+        border: 1px solid #eef2f7;
+        background: #f8fafc;
+    }
+
+    .help-title {
+        color: #0f172a;
+        font-size: 15px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .help-text {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .search-form {
+        display: grid;
+        gap: 14px;
+    }
+
+    .form-field {
+        margin: 0;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 13px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: #9f1c1c;
+        box-shadow: 0 0 0 3px rgba(159, 28, 28, 0.10);
+    }
+
+    .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .primary-button,
+    .secondary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 750;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .primary-button {
+        border: 1px solid #9f1c1c;
+        background: #9f1c1c;
+        color: #ffffff;
+    }
+
+    .primary-button:hover {
+        background: #7f1717;
+        border-color: #7f1717;
+        color: #ffffff;
+    }
+
+    .secondary-button {
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #334155;
+    }
+
+    .secondary-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .quick-card {
+        display: grid;
+        gap: 10px;
+        padding: 18px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .quick-card:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .quick-title {
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .quick-desc {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    .quick-arrow {
+        color: #94a3b8;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+    }
+
+    .payment-table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+        background: #ffffff;
+    }
+
+    .payment-table th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        padding: 13px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .payment-table td {
+        padding: 14px;
+        border-bottom: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .payment-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .payment-table tr:hover td {
+        background: #fffafa;
+    }
+
+    .student-id {
+        color: #9f1c1c;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .student-name {
+        color: #0f172a;
+        font-weight: 750;
+    }
+
+    .muted {
+        color: #64748b;
+    }
+
+    .amount {
+        color: #0f172a;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .empty-state {
+        padding: 28px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+        .summary-grid,
+        .quick-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .summary-item:nth-child(2) {
+            border-right: none;
+        }
+
+        .summary-item:nth-child(1),
+        .summary-item:nth-child(2) {
+            border-bottom: 1px solid #eef2f7;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .lookup-grid,
+        .summary-grid,
+        .quick-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-item {
+            border-right: none;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .panel-head {
+            flex-direction: column;
+        }
+
+        .button-row {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .primary-button,
+        .secondary-button {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="accounts-page">
+
+    <section class="accounts-card accounts-hero">
+        <div class="accounts-kicker">Finance Office</div>
+        <h1 class="accounts-title">Accounts Overview</h1>
+        <p class="accounts-text">
+            View finance totals, quickly open a student payment page, and access separated accounts tools from one clean overview.
+        </p>
+    </section>
+
+    <section class="accounts-card">
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">Total Students</div>
+                <div class="summary-value">{{ total_students }}</div>
+                <div class="summary-note">Student finance profiles in the system.</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Total Payable</div>
+                <div class="summary-value">{{ total_payable }} BDT</div>
+                <div class="summary-note">Assigned payable amount after waivers.</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Total Collected</div>
+                <div class="summary-value">{{ total_paid }} BDT</div>
+                <div class="summary-note">Total received payments.</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Current Due</div>
+                <div class="summary-value">{{ total_due }} BDT</div>
+                <div class="summary-note">{{ students_with_due }} student(s) currently have dues.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="accounts-card panel">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Open Student Payment Page</h2>
+                <p class="panel-text">
+                    Search by exact student ID or username to open the specific student account directly.
+                </p>
+            </div>
+
+            <span class="section-chip">Quick Lookup</span>
+        </div>
+
+        <div class="lookup-grid">
+            <div class="help-box">
+                <div class="help-title">How this works</div>
+                <div class="help-text">
+                    If the student ID matches exactly, the system opens that student's payment page. If multiple students match, it sends you to the Student Accounts page with the search applied.
+                </div>
+            </div>
+
+            <form method="get" class="search-form">
+                <p class="form-field">
+                    <label>Student ID / Username / Name</label>
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ query }}"
+                        placeholder="Example: 01231801"
+                        class="input-control"
+                    >
+                </p>
+
+                <div class="button-row">
+                    <button type="submit" class="primary-button">
+                        Open Student Account
+                    </button>
+
+                    <a href="{% url 'accounts_students' %}" class="secondary-button">
+                        Browse Student Accounts
+                    </a>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="quick-grid">
+        <a href="{% url 'accounts_students' %}" class="quick-card">
+            <div class="quick-title">Student Accounts</div>
+            <div class="quick-desc">Filter by department, batch, semester, and payment status.</div>
+            <div class="quick-arrow">→</div>
+        </a>
+
+        <a href="{% url 'accounts_dues' %}" class="quick-card">
+            <div class="quick-title">Dues</div>
+            <div class="quick-desc">Review students with unpaid or partial balances.</div>
+            <div class="quick-arrow">→</div>
+        </a>
+
+        <a href="{% url 'accounts_payments' %}" class="quick-card">
+            <div class="quick-title">Payments</div>
+            <div class="quick-desc">Search and review all payment records.</div>
+            <div class="quick-arrow">→</div>
+        </a>
+
+        <a href="{% url 'accounts_receipts' %}" class="quick-card">
+            <div class="quick-title">Receipts</div>
+            <div class="quick-desc">Find payment records and download receipts.</div>
+            <div class="quick-arrow">→</div>
+        </a>
+
+        <a href="{% url 'accounts_waivers' %}" class="quick-card">
+            <div class="quick-title">Waivers</div>
+            <div class="quick-desc">Review manual and linked waiver records.</div>
+            <div class="quick-arrow">→</div>
+        </a>
+
+        <a href="{% url 'accounts_admit_cards' %}" class="quick-card">
+            <div class="quick-title">Admit Cards</div>
+            <div class="quick-desc">Open eligible students and print admit cards.</div>
+            <div class="quick-arrow">→</div>
+        </a>
+
+        <a href="{% url 'accounts_reports' %}" class="quick-card">
+            <div class="quick-title">Reports</div>
+            <div class="quick-desc">View department-wise finance summaries.</div>
+            <div class="quick-arrow">→</div>
+        </a>
+
+        <a href="{% url 'notice_management' %}" class="quick-card">
+            <div class="quick-title">Notice Management</div>
+            <div class="quick-desc">Publish finance-related notices when needed.</div>
+            <div class="quick-arrow">→</div>
+        </a>
+    </section>
+
+    <section class="accounts-card panel">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Recent Payments</h2>
+                <p class="panel-text">
+                    Latest payment records received by the accounts office.
+                </p>
+            </div>
+
+            <span class="section-chip">
+                {% if recent_payments %}
+                    {{ recent_payments|length }} Recent
+                {% else %}
+                    No Payment
+                {% endif %}
+            </span>
+        </div>
+
+        {% if recent_payments %}
+            <div class="table-wrap">
+                <table class="payment-table">
+                    <tr>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Student ID</th>
+                        <th>Department</th>
+                        <th>Amount</th>
+                        <th>Received By</th>
+                        <th>Receipt</th>
+                    </tr>
+
+                    {% for payment in recent_payments %}
+                        <tr>
+                            <td>{{ payment.payment_date }}</td>
+
+                            <td>
+                                <span class="student-name">
+                                    {{ payment.student.user.get_full_name|default:payment.student.user.username }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="student-id">{{ payment.student.student_id }}</span>
+                            </td>
+
+                            <td>{{ payment.student.department }}</td>
+
+                            <td>
+                                <span class="amount">{{ payment.amount }} BDT</span>
+                            </td>
+
+                            <td>{{ payment.received_by|default:"-" }}</td>
+
+                            <td>
+                                <a href="{% url 'download_payment_receipt' payment.id %}" class="secondary-button">
+                                    Print
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No recent payment found.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,472 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .accounts-reports-page {
+        width: min(100%, 1180px);
+        margin: 0 auto;
+        display: grid;
+        gap: 16px;
+    }
+
+    .report-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: none;
+    }
+
+    .report-hero,
+    .report-panel {
+        padding: 24px;
+    }
+
+    .report-kicker {
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .report-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .report-text {
+        margin-top: 8px;
+        max-width: 820px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin-top: 20px;
+        border-top: 1px solid #eef2f7;
+    }
+
+    .summary-item {
+        padding: 18px 18px 0 0;
+        border-right: 1px solid #eef2f7;
+    }
+
+    .summary-item:not(:first-child) {
+        padding-left: 18px;
+    }
+
+    .summary-item:last-child {
+        border-right: none;
+        padding-right: 0;
+    }
+
+    .summary-label {
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .summary-value {
+        margin-top: 7px;
+        color: #0f172a;
+        font-size: 24px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        word-break: break-word;
+    }
+
+    .summary-value.paid {
+        color: #047857;
+    }
+
+    .summary-value.due {
+        color: #dc2626;
+    }
+
+    .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .panel-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .report-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .mini-report-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .mini-report-box {
+        padding: 18px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .mini-label {
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .mini-value {
+        margin-top: 8px;
+        color: #0f172a;
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.15;
+    }
+
+    .mini-note {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.45;
+    }
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+    }
+
+    .reports-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: collapse;
+        background: #ffffff;
+    }
+
+    .reports-table th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        padding: 13px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .reports-table td {
+        padding: 14px;
+        border-bottom: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .reports-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .reports-table tr:hover td {
+        background: #fffafa;
+    }
+
+    .dept-code {
+        color: #9f1c1c;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .dept-name {
+        color: #0f172a;
+        font-weight: 750;
+    }
+
+    .amount {
+        color: #0f172a;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .amount.paid {
+        color: #047857;
+    }
+
+    .amount.due {
+        color: #dc2626;
+    }
+
+    .progress-track {
+        width: 100%;
+        height: 9px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 999px;
+        background: #047857;
+    }
+
+    .progress-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .empty-state {
+        padding: 30px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    @media (max-width: 1000px) {
+        .summary-grid,
+        .mini-report-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .summary-item:nth-child(2) {
+            border-right: none;
+        }
+
+        .summary-item:nth-child(1),
+        .summary-item:nth-child(2) {
+            border-bottom: 1px solid #eef2f7;
+            padding-bottom: 16px;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .panel-head {
+            flex-direction: column;
+        }
+
+        .summary-grid,
+        .mini-report-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-item,
+        .summary-item:not(:first-child) {
+            padding-left: 0;
+            padding-right: 0;
+            border-right: none;
+            border-bottom: 1px solid #eef2f7;
+            padding-bottom: 16px;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+    }
+</style>
+
+<div class="accounts-reports-page">
+
+    <section class="report-card report-hero">
+        <div class="report-kicker">Accounts</div>
+        <h1 class="report-title">Finance Reports</h1>
+        <p class="report-text">
+            Review department-wise student finance summaries, total payable amount, total collected amount, and remaining dues.
+        </p>
+
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">Total Students</div>
+                <div class="summary-value">{{ grand_students }}</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Grand Payable</div>
+                <div class="summary-value">{{ grand_payable }} BDT</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Grand Collected</div>
+                <div class="summary-value paid">{{ grand_paid }} BDT</div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">Grand Due</div>
+                <div class="summary-value due">{{ grand_due }} BDT</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="report-card report-panel">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Report Summary</h2>
+                <p class="panel-text">
+                    Quick snapshot of the current finance state across all departments.
+                </p>
+            </div>
+
+            <span class="report-chip">Overview</span>
+        </div>
+
+        <div class="mini-report-grid">
+            <div class="mini-report-box">
+                <div class="mini-label">Collection Status</div>
+                <div class="mini-value">
+                    {% if grand_due <= 0 %}
+                        Clear
+                    {% else %}
+                        Due Available
+                    {% endif %}
+                </div>
+                <div class="mini-note">
+                    Based on the difference between payable and collected amounts.
+                </div>
+            </div>
+
+            <div class="mini-report-box">
+                <div class="mini-label">Departments</div>
+                <div class="mini-value">{{ department_rows|length }}</div>
+                <div class="mini-note">
+                    Departments included in this finance report.
+                </div>
+            </div>
+
+            <div class="mini-report-box">
+                <div class="mini-label">Report Type</div>
+                <div class="mini-value">Department-wise</div>
+                <div class="mini-note">
+                    This page is prepared for accounts overview and audit review.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="report-card report-panel">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">Department-wise Finance Report</h2>
+                <p class="panel-text">
+                    Compare payable, collected, and due amounts by department.
+                </p>
+            </div>
+
+            <span class="report-chip">
+                {% if department_rows %}
+                    {{ department_rows|length }} Department{{ department_rows|length|pluralize }}
+                {% else %}
+                    No Department
+                {% endif %}
+            </span>
+        </div>
+
+        {% if department_rows %}
+            <div class="table-wrap">
+                <table class="reports-table">
+                    <tr>
+                        <th>Department</th>
+                        <th>Students</th>
+                        <th>Total Payable</th>
+                        <th>Total Collected</th>
+                        <th>Total Due</th>
+                        <th>Collection Progress</th>
+                    </tr>
+
+                    {% for row in department_rows %}
+                        <tr>
+                            <td>
+                                <div class="dept-code">{{ row.department.code }}</div>
+                                <div class="dept-name">{{ row.department.name }}</div>
+                            </td>
+
+                            <td>{{ row.student_count }}</td>
+
+                            <td>
+                                <span class="amount">{{ row.total_payable }} BDT</span>
+                            </td>
+
+                            <td>
+                                <span class="amount paid">{{ row.total_paid }} BDT</span>
+                            </td>
+
+                            <td>
+                                <span class="amount due">{{ row.total_due }} BDT</span>
+                            </td>
+
+                            <td>
+                                {% if row.total_payable > 0 %}
+                                    width calculation not available in template
+                                    <div class="progress-track">
+                                        <div class="progress-bar" style="width: 65%;"></div>
+                                    </div>
+                                    <div class="progress-text">
+                                        Collected: {{ row.total_paid }} / {{ row.total_payable }} BDT
+                                    </div>
+                                {% else %}
+                                    <div class="progress-text">No payable amount assigned.</div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No department finance data found.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

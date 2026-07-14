@@ -1,0 +1,897 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .seat-page {
+        display: grid;
+        gap: 14px;
+    }
+
+    .seat-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 16px;
+        align-items: center;
+        min-height: 150px;
+        padding: 22px 24px;
+        border-radius: 24px;
+        background: linear-gradient(135deg, #fffafa 0%, #fff1f2 48%, #ffffff 100%);
+        border: 1px solid rgba(254, 202, 202, 0.85);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .seat-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 11px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .seat-title {
+        margin: 0;
+        color: var(--navy);
+        font-size: clamp(26px, 3.4vw, 42px);
+        line-height: 1.04;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+    }
+
+    .seat-subtitle {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.5;
+        margin-top: 9px;
+        max-width: 720px;
+    }
+
+    .hero-action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .back-button-soft {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 0 14px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        font-size: 12.5px;
+        font-weight: 900;
+        transition: background 0.14s ease;
+    }
+
+    .back-button-soft:hover {
+        background: var(--accent-soft);
+    }
+
+    .hero-summary {
+        min-height: 118px;
+        padding: 20px;
+        border-radius: 24px;
+        background: radial-gradient(circle at 100% 0%, rgba(127, 29, 29, 0.08), transparent 34%), white;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .summary-title {
+        color: var(--soft-muted);
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .summary-number {
+        color: var(--navy);
+        font-size: 34px;
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.05em;
+    }
+
+    .summary-desc {
+        color: var(--muted);
+        font-size: 12.5px;
+        line-height: 1.45;
+        margin-top: 7px;
+        font-weight: 750;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 118px;
+        padding: 18px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
+        background: var(--accent);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.green {
+        background: #16a34a;
+    }
+
+    .stat-icon.purple {
+        background: #7c3aed;
+    }
+
+    .stat-icon.cyan {
+        background: #0891b2;
+    }
+
+    .stat-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .stat-label {
+        color: var(--soft-muted);
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .stat-value {
+        color: var(--navy);
+        font-size: 24px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .stat-value.green-text {
+        color: #15803d;
+    }
+
+    .stat-value.muted-text {
+        color: #64748b;
+    }
+
+    .stat-desc {
+        color: var(--muted);
+        font-size: 12.5px;
+        line-height: 1.4;
+        margin-top: 5px;
+    }
+
+    .panel-card {
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 26px;
+        padding: 22px;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 16px;
+    }
+
+    .panel-title {
+        margin: 0 0 5px;
+        color: var(--navy);
+        font-size: 24px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .panel-subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .seat-card-grid {
+        display: none;
+        gap: 12px;
+    }
+
+    .seat-card {
+        padding: 16px;
+        border-radius: 20px;
+        background: white;
+        border: 1px solid var(--border);
+    }
+
+    .seat-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .seat-course-code {
+        color: var(--navy);
+        font-size: 18px;
+        font-weight: 950;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+    }
+
+    .seat-course-title {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+        margin-top: 5px;
+    }
+
+    .seat-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .seat-mini-box {
+        padding: 13px;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .seat-mini-box.green {
+        background: #ecfdf5;
+        border-color: #bbf7d0;
+    }
+
+    .seat-mini-label {
+        color: var(--soft-muted);
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .seat-mini-value {
+        color: var(--navy);
+        font-size: 18px;
+        font-weight: 950;
+        line-height: 1.1;
+    }
+
+    .seat-mini-box.green .seat-mini-value {
+        color: #15803d;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 28px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .badge-slate {
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+
+    .badge-green {
+        background: #ecfdf5;
+        color: #15803d;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .seat-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+        background: white;
+    }
+
+    .seat-table th {
+        padding: 14px 16px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 10.5px;
+        font-weight: 950;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .seat-table td {
+        padding: 15px 16px;
+        color: #334155;
+        font-size: 13.5px;
+        font-weight: 750;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+
+    .seat-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .seat-table strong {
+        color: var(--navy);
+        font-weight: 950;
+    }
+
+    .center-text {
+        text-align: center;
+    }
+
+    .empty-box {
+        padding: 28px;
+        border-radius: 22px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 54px;
+        height: 54px;
+        margin: 0 auto;
+        border-radius: 18px;
+        background: white;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 950;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .empty-title {
+        margin: 14px 0 0;
+        color: #334155;
+        font-size: 18px;
+        font-weight: 950;
+    }
+
+    .empty-desc {
+        margin: 7px auto 0;
+        max-width: 420px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .note-card {
+        padding: 18px 20px;
+        border-radius: 22px;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+    }
+
+    .note-title {
+        margin: 0;
+        color: #92400e;
+        font-size: 20px;
+        line-height: 1.15;
+        font-weight: 950;
+        letter-spacing: -0.03em;
+    }
+
+    .note-text {
+        margin: 8px 0 0;
+        color: #a16207;
+        font-size: 13px;
+        line-height: 1.55;
+        font-weight: 750;
+    }
+
+    .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .quick-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        min-height: 92px;
+        padding: 18px;
+        border-radius: 22px;
+        background: white;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+        transition: background 0.14s ease, transform 0.14s ease;
+    }
+
+    .quick-link:hover {
+        background: var(--accent-soft);
+        transform: translateY(-1px);
+    }
+
+    .quick-label {
+        color: var(--soft-muted);
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .quick-title {
+        color: var(--navy);
+        font-size: 17px;
+        font-weight: 950;
+        line-height: 1.15;
+    }
+
+    .quick-arrow {
+        color: var(--accent);
+        font-size: 24px;
+        font-weight: 950;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 1180px) {
+        .seat-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .table-wrap {
+            display: none;
+        }
+
+        .seat-card-grid {
+            display: grid;
+        }
+
+        .quick-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .seat-page {
+            gap: 12px;
+        }
+
+        .seat-hero {
+            padding: 16px;
+            border-radius: 22px;
+            min-height: auto;
+        }
+
+        .seat-title {
+            font-size: 27px;
+        }
+
+        .seat-subtitle {
+            font-size: 13px;
+            margin-top: 7px;
+        }
+
+        .hero-summary {
+            min-height: auto;
+            padding: 16px;
+            border-radius: 22px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            min-height: 104px;
+            padding: 15px;
+            border-radius: 20px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 17px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+        }
+
+        .panel-card {
+            padding: 16px;
+            border-radius: 22px;
+        }
+
+        .panel-header {
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .panel-title {
+            font-size: 22px;
+        }
+
+        .seat-card {
+            padding: 14px;
+            border-radius: 20px;
+        }
+
+        .seat-card-top {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .seat-mini-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .note-card {
+            padding: 16px;
+            border-radius: 20px;
+        }
+
+        .quick-link {
+            min-height: 82px;
+            padding: 16px;
+            border-radius: 20px;
+        }
+
+        .back-button-soft {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .seat-title {
+            font-size: 24px;
+        }
+
+        .seat-subtitle {
+            font-size: 12.5px;
+        }
+
+        .section-chip,
+        .badge {
+            font-size: 10px;
+        }
+
+        .stat-desc,
+        .panel-subtitle,
+        .note-text,
+        .empty-desc {
+            font-size: 12.5px;
+        }
+    }
+</style>
+
+<div class="seat-page">
+
+    <!-- Page Header -->
+    <section class="seat-hero">
+        <div>
+            <div class="seat-pill">Exam Seating</div>
+
+            <h1 class="seat-title">My Seat Plan</h1>
+
+            <p class="seat-subtitle">
+                View your published exam room and seat number for each course and exam type.
+            </p>
+
+            <div class="hero-action-row">
+                <a href="{% url 'student_dashboard' %}" class="back-button-soft">
+                    ← Back to Overview
+                </a>
+            </div>
+        </div>
+
+        <aside class="hero-summary">
+            <div class="summary-title">Available Seat Plans</div>
+            <div class="summary-number">{{ seat_plans|length }}</div>
+
+            {% if seat_plans %}
+                <div class="summary-desc">Your exam seat information has been published.</div>
+            {% else %}
+                <div class="summary-desc">No seat plan has been published yet.</div>
+            {% endif %}
+        </aside>
+    </section>
+
+    <!-- Summary Cards -->
+    <section class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Seat Plans</div>
+                <div class="stat-value">{{ seat_plans|length }}</div>
+                <div class="stat-desc">Published seat plans available for you.</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Plan Status</div>
+
+                {% if seat_plans %}
+                    <div class="stat-value green-text">Published</div>
+                    <div class="stat-desc">Your seat information is available.</div>
+                {% else %}
+                    <div class="stat-value muted-text">Pending</div>
+                    <div class="stat-desc">No seat plan has been published yet.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V9l7-4 7 4v12M9 21v-6h6v6"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Exam Room</div>
+                <div class="stat-value">Assigned</div>
+                <div class="stat-desc">Room number is shown for each exam.</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon cyan">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h10M7 11h10M7 15h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Seat Number</div>
+                <div class="stat-value">Listed</div>
+                <div class="stat-desc">Check carefully before exam day.</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Seat Plan Section -->
+    <section class="panel-card">
+
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">Published Seat Plan</h2>
+                <p class="panel-subtitle">
+                    Your seat plan is shown with course code, course title, exam type, room, and seat number.
+                </p>
+            </div>
+
+            {% if seat_plans %}
+                <span class="section-chip">
+                    {{ seat_plans|length }} Seat Plan{{ seat_plans|length|pluralize }}
+                </span>
+            {% else %}
+                <span class="section-chip">No Seat Plan</span>
+            {% endif %}
+        </div>
+
+        {% if seat_plans %}
+
+            <!-- Mobile / Tablet Cards -->
+            <div class="seat-card-grid">
+                {% for seat in seat_plans %}
+                    <article class="seat-card">
+                        <div class="seat-card-top">
+                            <div>
+                                <div class="seat-mini-label">Course</div>
+
+                                <div class="seat-course-code">
+                                    {{ seat.course_offering.course.code }}
+                                </div>
+
+                                <div class="seat-course-title">
+                                    {{ seat.course_offering.course.title }}
+                                </div>
+                            </div>
+
+                            <span class="badge">
+                                {{ seat.get_exam_type_display }}
+                            </span>
+                        </div>
+
+                        <div class="seat-mini-grid">
+                            <div class="seat-mini-box">
+                                <div class="seat-mini-label">Room</div>
+                                <div class="seat-mini-value">{{ seat.room }}</div>
+                            </div>
+
+                            <div class="seat-mini-box green">
+                                <div class="seat-mini-label">Seat Number</div>
+                                <div class="seat-mini-value">{{ seat.seat_number }}</div>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="table-wrap">
+                <table class="seat-table">
+                    <thead>
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Title</th>
+                            <th>Exam Type</th>
+                            <th class="center-text">Room</th>
+                            <th class="center-text">Seat Number</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for seat in seat_plans %}
+                            <tr>
+                                <td>
+                                    <strong>{{ seat.course_offering.course.code }}</strong>
+                                </td>
+
+                                <td>
+                                    {{ seat.course_offering.course.title }}
+                                </td>
+
+                                <td>
+                                    <span class="badge">
+                                        {{ seat.get_exam_type_display }}
+                                    </span>
+                                </td>
+
+                                <td class="center-text">
+                                    <span class="badge badge-slate">
+                                        {{ seat.room }}
+                                    </span>
+                                </td>
+
+                                <td class="center-text">
+                                    <span class="badge badge-green">
+                                        {{ seat.seat_number }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+
+            <div class="empty-box">
+                <div class="empty-icon">—</div>
+
+                <h3 class="empty-title">No published seat plan yet</h3>
+
+                <p class="empty-desc">
+                    Your seat plan will appear here after the exam controller publishes it.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- Important Note -->
+    <section class="note-card">
+        <h2 class="note-title">Important Exam Note</h2>
+
+        <p class="note-text">
+            Always verify your room and seat number before exam day. Bring your admit card and follow the published exam routine.
+        </p>
+    </section>
+
+    <!-- Quick Links -->
+    <section class="quick-grid">
+
+        <a href="{% url 'student_exam_routine_page' %}" class="quick-link">
+            <div>
+                <div class="quick-label">Exams</div>
+                <div class="quick-title">Exam Routine</div>
+            </div>
+
+            <span class="quick-arrow">→</span>
+        </a>
+
+        <a href="{% url 'student_admit_card_page' %}" class="quick-link">
+            <div>
+                <div class="quick-label">Permission</div>
+                <div class="quick-title">Admit Card</div>
+            </div>
+
+            <span class="quick-arrow">→</span>
+        </a>
+
+        <a href="{% url 'student_dashboard' %}" class="quick-link">
+            <div>
+                <div class="quick-label">Portal</div>
+                <div class="quick-title">Overview</div>
+            </div>
+
+            <span class="quick-arrow">→</span>
+        </a>
+
+    </section>
+
+</div>
+
+{% endblock %}

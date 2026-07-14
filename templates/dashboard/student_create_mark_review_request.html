@@ -1,0 +1,2059 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .mark-review-page {
+        display: grid;
+        gap: 24px;
+        width: 100%;
+    }
+
+    /* =========================
+       HERO
+    ========================= */
+
+    .mr-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 30px 36px;
+        border: 1px solid #fecaca;
+        border-radius: 28px;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(254, 226, 226, 0.72),
+                transparent 34%
+            ),
+            linear-gradient(
+                135deg,
+                #ffffff 0%,
+                #fffafa 52%,
+                #fff7f7 100%
+            );
+    }
+
+    .mr-hero-copy {
+        min-width: 0;
+    }
+
+    .mr-eyebrow {
+        margin-bottom: 12px;
+        color: #b91c1c;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    .mr-hero h1 {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(34px, 4vw, 52px);
+        line-height: 1.04;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+    }
+
+    .mr-hero p {
+        max-width: 850px;
+        margin: 14px 0 0;
+        color: #64748b;
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .mr-outline-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-shrink: 0;
+        min-height: 48px;
+        padding: 0 20px;
+        border: 1px solid #fecaca;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.84);
+        color: #b91c1c;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: 0.18s ease;
+    }
+
+    .mr-outline-btn:hover {
+        border-color: #ef4444;
+        background: #fff5f5;
+        transform: translateY(-1px);
+    }
+
+    /* =========================
+       WORKFLOW
+    ========================= */
+
+    .mr-workflow {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px 20px;
+        border: 1px solid #dbe3ef;
+        border-radius: 18px;
+        background: #f8fafc;
+    }
+
+    .mr-workflow-icon {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 13px;
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .mr-workflow-icon svg {
+        width: 21px;
+        height: 21px;
+        stroke-width: 2;
+    }
+
+    .mr-workflow-copy {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .mr-workflow-copy strong {
+        color: #334155;
+    }
+
+    /* =========================
+       MAIN FORM
+    ========================= */
+
+    .mr-form {
+        display: grid;
+        gap: 24px;
+    }
+
+    .mr-section {
+        overflow: hidden;
+        border: 1px solid #dbe3ef;
+        border-radius: 24px;
+        background: #ffffff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.035);
+    }
+
+    .mr-section-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 24px 28px 20px;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .mr-step-number {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 13px;
+        background: #fff1f2;
+        color: #b91c1c;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .mr-section-heading {
+        min-width: 0;
+    }
+
+    .mr-section-heading h2 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+    }
+
+    .mr-section-heading p {
+        margin: 6px 0 0;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    .mr-section-body {
+        padding: 26px 28px 28px;
+    }
+
+    /* =========================
+       FILTERS
+    ========================= */
+
+    .mr-filter-grid {
+        display: grid;
+        grid-template-columns: minmax(220px, 0.7fr) minmax(300px, 1.3fr);
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .mr-field {
+        display: grid;
+        gap: 8px;
+    }
+
+    .mr-label {
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .mr-select,
+    .mr-input,
+    .mr-textarea {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        outline: none;
+        background: #ffffff;
+        color: #0f172a;
+        transition: 0.18s ease;
+    }
+
+    .mr-select,
+    .mr-input {
+        height: 52px;
+        padding: 0 15px;
+        border-radius: 14px;
+        font-size: 14px;
+    }
+
+    .mr-textarea {
+        min-height: 170px;
+        padding: 16px;
+        resize: vertical;
+        border-radius: 16px;
+        font-family: inherit;
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .mr-select:focus,
+    .mr-input:focus,
+    .mr-textarea:focus {
+        border-color: #b91c1c;
+        box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.08);
+    }
+
+    .mr-search-wrap {
+        position: relative;
+    }
+
+    .mr-search-wrap svg {
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        width: 19px;
+        height: 19px;
+        color: #94a3b8;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .mr-search-wrap .mr-input {
+        padding-left: 47px;
+    }
+
+    /* =========================
+       COURSE RESULT CARDS
+    ========================= */
+
+    .mr-results-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .mr-course-card {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 15px;
+        padding: 18px 20px;
+        border: 1px solid #dbe3ef;
+        border-radius: 18px;
+        background: #ffffff;
+        cursor: pointer;
+        transition: 0.18s ease;
+    }
+
+    .mr-course-card:hover {
+        border-color: #fca5a5;
+        background: #fffafa;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
+    }
+
+    .mr-course-card.selected {
+        border-color: #b91c1c;
+        background: #fff7f7;
+        box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.07);
+    }
+
+    .mr-course-radio {
+        display: grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        border: 2px solid #cbd5e1;
+        border-radius: 999px;
+        background: #ffffff;
+        transition: 0.18s ease;
+    }
+
+    .mr-course-radio::after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: transparent;
+    }
+
+    .mr-course-card.selected .mr-course-radio {
+        border-color: #b91c1c;
+    }
+
+    .mr-course-card.selected .mr-course-radio::after {
+        background: #b91c1c;
+    }
+
+    .mr-course-main {
+        min-width: 0;
+    }
+
+    .mr-course-top {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 9px;
+    }
+
+    .mr-course-code {
+        color: #b91c1c;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+    }
+
+    .mr-semester-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 27px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .mr-current-badge {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .mr-course-title {
+        margin-top: 6px;
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .mr-course-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .mr-course-result {
+        min-width: 120px;
+        text-align: right;
+    }
+
+    .mr-course-result-label {
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .mr-course-result-value {
+        margin-top: 4px;
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .mr-native-radio {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* =========================
+       EMPTY / NO SEARCH RESULTS
+    ========================= */
+
+    .mr-empty {
+        padding: 34px 24px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 17px;
+        background: #f8fafc;
+        color: #64748b;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    #noSearchResults {
+        display: none;
+    }
+
+    /* =========================
+       LOCKED SECTIONS
+    ========================= */
+
+    .mr-dependent {
+        position: relative;
+        transition: 0.2s ease;
+    }
+
+    .mr-dependent.is-locked {
+        opacity: 0.52;
+    }
+
+    .mr-dependent.is-locked .mr-section-body {
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .mr-lock-message {
+        display: none;
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        border: 1px solid #dbe3ef;
+        border-radius: 14px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .mr-dependent.is-locked .mr-lock-message {
+        display: block;
+    }
+
+    /* =========================
+       SELECTED COURSE SUMMARY
+    ========================= */
+
+    .mr-selected-summary {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 22px;
+        padding: 17px 18px;
+        border: 1px solid #fecaca;
+        border-radius: 16px;
+        background: #fffafa;
+    }
+
+    .mr-selected-summary.visible {
+        display: flex;
+    }
+
+    .mr-selected-summary-code {
+        color: #b91c1c;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+    }
+
+    .mr-selected-summary-title {
+        margin-top: 4px;
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .mr-selected-summary-meta {
+        margin-top: 4px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .mr-selected-summary-total {
+        flex-shrink: 0;
+        text-align: right;
+    }
+
+    .mr-selected-summary-total span {
+        display: block;
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .mr-selected-summary-total strong {
+        display: block;
+        margin-top: 4px;
+        color: #0f172a;
+        font-size: 20px;
+    }
+
+    /* =========================
+       COMPONENT SELECTOR
+    ========================= */
+
+    .mr-component-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .mr-component {
+        position: relative;
+    }
+
+    .mr-component input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+    }
+
+    .mr-component-label {
+        display: flex;
+        min-height: 112px;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid #dbe3ef;
+        border-radius: 17px;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: 0.18s ease;
+    }
+
+    .mr-component-label:hover {
+        border-color: #fca5a5;
+        background: #fffafa;
+    }
+
+    .mr-component input:checked + .mr-component-label {
+        border-color: #b91c1c;
+        background: #fff1f2;
+        box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.06);
+    }
+
+    .mr-component-top {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .mr-component-name {
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .mr-component-check {
+        display: grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #ffffff;
+        color: transparent;
+        transition: 0.18s ease;
+    }
+
+    .mr-component-check svg {
+        width: 14px;
+        height: 14px;
+        stroke-width: 2.6;
+    }
+
+    .mr-component input:checked + .mr-component-label .mr-component-check {
+        border-color: #b91c1c;
+        background: #b91c1c;
+        color: #ffffff;
+    }
+
+    .mr-component-value {
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    .mr-component-caption {
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    /* =========================
+       DETAILS / CHARACTER COUNT
+    ========================= */
+
+    .mr-field-help {
+        margin-top: -2px;
+        color: #94a3b8;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .mr-textarea-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 7px;
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    /* =========================
+       FILE UPLOAD
+    ========================= */
+
+    .mr-upload {
+        position: relative;
+        display: grid;
+        place-items: center;
+        min-height: 165px;
+        padding: 24px;
+        border: 1.5px dashed #cbd5e1;
+        border-radius: 18px;
+        background: #f8fafc;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.18s ease;
+    }
+
+    .mr-upload:hover,
+    .mr-upload.dragover {
+        border-color: #b91c1c;
+        background: #fffafa;
+    }
+
+    .mr-upload input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .mr-upload-icon {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 12px;
+        border-radius: 15px;
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .mr-upload-icon svg {
+        width: 23px;
+        height: 23px;
+        stroke-width: 2;
+    }
+
+    .mr-upload-title {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .mr-upload-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .mr-upload-types {
+        margin-top: 10px;
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .mr-file-preview {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-top: 12px;
+        padding: 13px 15px;
+        border: 1px solid #dbe3ef;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .mr-file-preview.visible {
+        display: flex;
+    }
+
+    .mr-file-info {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 0;
+    }
+
+    .mr-file-icon {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        border-radius: 11px;
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .mr-file-icon svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .mr-file-name {
+        overflow: hidden;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mr-file-size {
+        margin-top: 2px;
+        color: #94a3b8;
+        font-size: 11px;
+    }
+
+    .mr-remove-file {
+        border: 0;
+        background: transparent;
+        color: #b91c1c;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    /* =========================
+       FOOTER ACTIONS
+    ========================= */
+
+    .mr-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 22px 28px;
+        border-top: 1px solid #edf2f7;
+        background: #fbfdff;
+    }
+
+    .mr-action-note {
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .mr-action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .mr-cancel-btn,
+    .mr-submit-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 20px;
+        border-radius: 14px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 0.18s ease;
+    }
+
+    .mr-cancel-btn {
+        border: 1px solid #fecaca;
+        background: #ffffff;
+        color: #b91c1c;
+    }
+
+    .mr-cancel-btn:hover {
+        background: #fff5f5;
+    }
+
+    .mr-submit-btn {
+        border: 1px solid #b91c1c;
+        background: #b91c1c;
+        color: #ffffff;
+    }
+
+    .mr-submit-btn:hover:not(:disabled) {
+        background: #991b1b;
+        border-color: #991b1b;
+        transform: translateY(-1px);
+    }
+
+    .mr-submit-btn:disabled {
+        border-color: #cbd5e1;
+        background: #cbd5e1;
+        color: #ffffff;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 1180px) {
+        .mr-component-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 800px) {
+        .mr-hero {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 26px 24px;
+        }
+
+        .mr-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .mr-component-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .mr-selected-summary,
+        .mr-actions {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .mr-action-buttons {
+            width: 100%;
+        }
+
+        .mr-cancel-btn,
+        .mr-submit-btn {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .mr-section-header,
+        .mr-section-body,
+        .mr-actions {
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .mr-component-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .mr-course-card {
+            grid-template-columns: auto minmax(0, 1fr);
+        }
+
+        .mr-course-result {
+            grid-column: 2;
+            text-align: left;
+        }
+
+        .mr-action-buttons {
+            flex-direction: column-reverse;
+        }
+
+        .mr-cancel-btn,
+        .mr-submit-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="mark-review-page">
+
+    <!-- HERO -->
+    <section class="mr-hero">
+        <div class="mr-hero-copy">
+            <div class="mr-eyebrow">Academic Review</div>
+
+            <h1>Request a Mark Review</h1>
+
+            <p>
+                Select the relevant published result, identify the mark component
+                you believe may be incorrect, and provide enough information for
+                the responsible faculty member to review your concern.
+            </p>
+        </div>
+
+        <a href="{% url 'student_mark_review_requests' %}"
+           class="mr-outline-btn">
+            ← My Requests
+        </a>
+    </section>
+
+
+    <!-- WORKFLOW -->
+    <div class="mr-workflow">
+        <div class="mr-workflow-icon">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+        </div>
+
+        <div class="mr-workflow-copy">
+            <strong>How it works:</strong>
+            Your request is reviewed by the responsible faculty member first.
+            If an actual error is confirmed, the faculty may create an official
+            correction request for Exam Controller verification and final
+            administrative approval.
+        </div>
+    </div>
+
+
+    <form method="POST"
+          enctype="multipart/form-data"
+          class="mr-form"
+          id="markReviewForm">
+
+        {% csrf_token %}
+
+
+        <!-- ==============================================
+             STEP 1 — SELECT RESULT
+        =============================================== -->
+        <section class="mr-section">
+
+            <div class="mr-section-header">
+                <div class="mr-step-number">01</div>
+
+                <div class="mr-section-heading">
+                    <h2>Select Result</h2>
+                    <p>
+                        Filter by semester or search by course code and title,
+                        then choose the result that needs to be reviewed.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mr-section-body">
+
+                <div class="mr-filter-grid">
+
+                    <div class="mr-field">
+                        <label class="mr-label"
+                               for="semesterFilter">
+                            Semester
+                        </label>
+
+                        <select id="semesterFilter"
+                                class="mr-select">
+                            <option value="all">
+                                All Semesters
+                            </option>
+
+                            {% for semester in semester_options %}
+                                <option value="{{ semester.id }}">
+                                    {{ semester }}
+                                    {% if student.current_semester_id == semester.id %}
+                                        — Current
+                                    {% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div class="mr-field">
+                        <label class="mr-label"
+                               for="courseSearch">
+                            Search Result
+                        </label>
+
+                        <div class="mr-search-wrap">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="m21 21-4.35-4.35M11 18a7 7 0 110-14 7 7 0 010 14z"/>
+                            </svg>
+
+                            <input type="search"
+                                   id="courseSearch"
+                                   class="mr-input"
+                                   placeholder="Search by course code or course title...">
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="mr-results-list"
+                     id="resultsList">
+
+                    {% for mark in available_marks %}
+
+                        <label class="mr-course-card"
+                               data-course-card
+                               data-semester-id="{{ mark.course_offering.semester_id }}"
+                               data-search="{{ mark.course_offering.course.code|lower }} {{ mark.course_offering.course.title|lower }}"
+                               data-mark-id="{{ mark.id }}"
+                               data-code="{{ mark.course_offering.course.code }}"
+                               data-title="{{ mark.course_offering.course.title }}"
+                               data-semester="{{ mark.course_offering.semester }}"
+                               data-credit="{{ mark.course_offering.course.credit }}"
+                               data-total="{{ mark.total }}"
+                               data-grade="{{ mark.grade }}"
+                               data-class-test="{{ mark.class_test }}"
+                               data-assignment="{{ mark.assignment }}"
+                               data-attendance="{{ mark.attendance }}"
+                               data-midterm="{{ mark.midterm }}"
+                               data-final="{{ mark.final }}">
+
+                            <input type="radio"
+                                   name="mark"
+                                   value="{{ mark.id }}"
+                                   class="mr-native-radio"
+                                   required>
+
+                            <span class="mr-course-radio"></span>
+
+                            <span class="mr-course-main">
+
+                                <span class="mr-course-top">
+                                    <span class="mr-course-code">
+                                        {{ mark.course_offering.course.code }}
+                                    </span>
+
+                                    <span class="mr-semester-badge
+                                        {% if student.current_semester_id == mark.course_offering.semester_id %}
+                                            mr-current-badge
+                                        {% endif %}">
+                                        {{ mark.course_offering.semester }}
+
+                                        {% if student.current_semester_id == mark.course_offering.semester_id %}
+                                            · Current
+                                        {% endif %}
+                                    </span>
+                                </span>
+
+                                <span class="mr-course-title">
+                                    {{ mark.course_offering.course.title }}
+                                </span>
+
+                                <span class="mr-course-meta">
+                                    <span>
+                                        {{ mark.course_offering.course.credit }}
+                                        Credits
+                                    </span>
+
+                                    {% if mark.course_offering.section %}
+                                        <span>
+                                            Section
+                                            {{ mark.course_offering.section }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if mark.course_offering.faculty %}
+                                        <span>
+                                            Faculty:
+                                            {{ mark.course_offering.faculty.get_full_name|default:mark.course_offering.faculty.username }}
+                                        </span>
+                                    {% endif %}
+                                </span>
+
+                            </span>
+
+                            <span class="mr-course-result">
+                                <span class="mr-course-result-label">
+                                    Recorded Result
+                                </span>
+
+                                <span class="mr-course-result-value">
+                                    {{ mark.total }}
+
+                                    {% if mark.grade %}
+                                        · {{ mark.grade }}
+                                    {% endif %}
+                                </span>
+                            </span>
+
+                        </label>
+
+                    {% empty %}
+
+                        <div class="mr-empty">
+                            No submitted or published result is currently
+                            available for mark review.
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="mr-empty"
+                     id="noSearchResults">
+                    No result matches the selected semester or search term.
+                </div>
+
+            </div>
+        </section>
+
+
+
+        <!-- ==============================================
+             STEP 2 — SELECT COMPONENTS
+        =============================================== -->
+        <section class="mr-section mr-dependent is-locked"
+                 id="componentSection">
+
+            <div class="mr-section-header">
+                <div class="mr-step-number">02</div>
+
+                <div class="mr-section-heading">
+                    <h2>Select Marks to Review</h2>
+                    <p>
+                        Choose one or more recorded mark components that you
+                        believe may be incorrect.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mr-section-body">
+
+                <div class="mr-lock-message">
+                    Select a course result above to view its recorded marks.
+                </div>
+
+
+                <div class="mr-selected-summary"
+                     id="selectedCourseSummary">
+
+                    <div>
+                        <div class="mr-selected-summary-code"
+                             id="summaryCode">
+                            —
+                        </div>
+
+                        <div class="mr-selected-summary-title"
+                             id="summaryTitle">
+                            —
+                        </div>
+
+                        <div class="mr-selected-summary-meta"
+                             id="summaryMeta">
+                            —
+                        </div>
+                    </div>
+
+                    <div class="mr-selected-summary-total">
+                        <span>Recorded Total</span>
+                        <strong id="summaryTotal">—</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="mr-component-grid">
+
+                    <!-- CLASS TEST -->
+                    <div class="mr-component">
+                        <input type="checkbox"
+                               id="componentClassTest"
+                               name="requested_components"
+                               value="class_test">
+
+                        <label for="componentClassTest"
+                               class="mr-component-label">
+
+                            <span class="mr-component-top">
+                                <span class="mr-component-name">
+                                    Class Test
+                                </span>
+
+                                <span class="mr-component-check">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="m5 12 4 4L19 6"/>
+                                    </svg>
+                                </span>
+                            </span>
+
+                            <span>
+                                <span class="mr-component-value"
+                                      id="valueClassTest">
+                                    —
+                                </span>
+
+                                <span class="mr-component-caption">
+                                    Recorded Mark
+                                </span>
+                            </span>
+
+                        </label>
+                    </div>
+
+
+                    <!-- ASSIGNMENT -->
+                    <div class="mr-component">
+                        <input type="checkbox"
+                               id="componentAssignment"
+                               name="requested_components"
+                               value="assignment">
+
+                        <label for="componentAssignment"
+                               class="mr-component-label">
+
+                            <span class="mr-component-top">
+                                <span class="mr-component-name">
+                                    Assignment
+                                </span>
+
+                                <span class="mr-component-check">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="m5 12 4 4L19 6"/>
+                                    </svg>
+                                </span>
+                            </span>
+
+                            <span>
+                                <span class="mr-component-value"
+                                      id="valueAssignment">
+                                    —
+                                </span>
+
+                                <span class="mr-component-caption">
+                                    Recorded Mark
+                                </span>
+                            </span>
+
+                        </label>
+                    </div>
+
+
+                    <!-- ATTENDANCE -->
+                    <div class="mr-component">
+                        <input type="checkbox"
+                               id="componentAttendance"
+                               name="requested_components"
+                               value="attendance">
+
+                        <label for="componentAttendance"
+                               class="mr-component-label">
+
+                            <span class="mr-component-top">
+                                <span class="mr-component-name">
+                                    Attendance
+                                </span>
+
+                                <span class="mr-component-check">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="m5 12 4 4L19 6"/>
+                                    </svg>
+                                </span>
+                            </span>
+
+                            <span>
+                                <span class="mr-component-value"
+                                      id="valueAttendance">
+                                    —
+                                </span>
+
+                                <span class="mr-component-caption">
+                                    Recorded Mark
+                                </span>
+                            </span>
+
+                        </label>
+                    </div>
+
+
+                    <!-- MIDTERM -->
+                    <div class="mr-component">
+                        <input type="checkbox"
+                               id="componentMidterm"
+                               name="requested_components"
+                               value="midterm">
+
+                        <label for="componentMidterm"
+                               class="mr-component-label">
+
+                            <span class="mr-component-top">
+                                <span class="mr-component-name">
+                                    Midterm
+                                </span>
+
+                                <span class="mr-component-check">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="m5 12 4 4L19 6"/>
+                                    </svg>
+                                </span>
+                            </span>
+
+                            <span>
+                                <span class="mr-component-value"
+                                      id="valueMidterm">
+                                    —
+                                </span>
+
+                                <span class="mr-component-caption">
+                                    Recorded Mark
+                                </span>
+                            </span>
+
+                        </label>
+                    </div>
+
+
+                    <!-- FINAL -->
+                    <div class="mr-component">
+                        <input type="checkbox"
+                               id="componentFinal"
+                               name="requested_components"
+                               value="final">
+
+                        <label for="componentFinal"
+                               class="mr-component-label">
+
+                            <span class="mr-component-top">
+                                <span class="mr-component-name">
+                                    Final
+                                </span>
+
+                                <span class="mr-component-check">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="m5 12 4 4L19 6"/>
+                                    </svg>
+                                </span>
+                            </span>
+
+                            <span>
+                                <span class="mr-component-value"
+                                      id="valueFinal">
+                                    —
+                                </span>
+
+                                <span class="mr-component-caption">
+                                    Recorded Mark
+                                </span>
+                            </span>
+
+                        </label>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+
+
+        <!-- ==============================================
+             STEP 3 — REVIEW DETAILS
+        =============================================== -->
+        <section class="mr-section mr-dependent is-locked"
+                 id="detailsSection">
+
+            <div class="mr-section-header">
+                <div class="mr-step-number">03</div>
+
+                <div class="mr-section-heading">
+                    <h2>Review Details</h2>
+                    <p>
+                        Explain what you believe is incorrect and provide any
+                        relevant information that will help the faculty member
+                        verify the issue.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mr-section-body">
+
+                <div class="mr-lock-message">
+                    Select a result before entering review details.
+                </div>
+
+                <div class="mr-field">
+                    <label for="reviewReason"
+                           class="mr-label">
+                        Reason for Review
+                    </label>
+
+                    <div class="mr-field-help">
+                        Mention the selected assessment, what you believe is
+                        incorrect, and any relevant marking or submission details.
+                    </div>
+
+                    <textarea id="reviewReason"
+                              name="reason"
+                              class="mr-textarea"
+                              maxlength="1000"
+                              required
+                              placeholder="Example: My final exam mark appears to be recorded as 25, but the reviewed answer script showed 45. Please recheck the submitted result."></textarea>
+
+                    <div class="mr-textarea-footer">
+                        <span id="reasonCounter">0</span>
+                        / 1000
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+
+        <!-- ==============================================
+             STEP 4 — SUPPORTING EVIDENCE
+        =============================================== -->
+        <section class="mr-section mr-dependent is-locked"
+                 id="evidenceSection">
+
+            <div class="mr-section-header">
+                <div class="mr-step-number">04</div>
+
+                <div class="mr-section-heading">
+                    <h2>Supporting Evidence</h2>
+                    <p>
+                        Optional. Upload any document or image that may help
+                        verify your request.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mr-section-body">
+
+                <div class="mr-lock-message">
+                    Select a result before attaching supporting evidence.
+                </div>
+
+                <label class="mr-upload"
+                       id="uploadZone">
+
+                    <input type="file"
+                           name="attachment"
+                           id="attachmentInput"
+                           accept=".pdf,.jpg,.jpeg,.png">
+
+                    <span>
+                        <span class="mr-upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M12 16V4m0 0-4 4m4-4 4 4M5 15v4h14v-4"/>
+                            </svg>
+                        </span>
+
+                        <span class="mr-upload-title">
+                            Upload supporting evidence
+                        </span>
+
+                        <span class="mr-upload-text">
+                            Drag and drop a file here or click to browse
+                        </span>
+
+                        <span class="mr-upload-types">
+                            PDF, JPG, JPEG or PNG
+                        </span>
+                    </span>
+
+                </label>
+
+
+                <div class="mr-file-preview"
+                     id="filePreview">
+
+                    <div class="mr-file-info">
+
+                        <div class="mr-file-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM14 3v6h6"/>
+                            </svg>
+                        </div>
+
+                        <div style="min-width: 0;">
+                            <div class="mr-file-name"
+                                 id="fileName">
+                                —
+                            </div>
+
+                            <div class="mr-file-size"
+                                 id="fileSize">
+                                —
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button type="button"
+                            class="mr-remove-file"
+                            id="removeFileBtn">
+                        Remove
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTION FOOTER -->
+            <div class="mr-actions">
+
+                <div class="mr-action-note">
+                    Submitting this form does not directly change your official
+                    result. The responsible faculty member must review the request first.
+                </div>
+
+                <div class="mr-action-buttons">
+
+                    <a href="{% url 'student_results_page' %}"
+                       class="mr-cancel-btn">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="mr-submit-btn"
+                            id="submitReviewBtn"
+                            disabled>
+                        Submit Review Request
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </form>
+
+</div>
+
+
+<script>
+    (function () {
+
+        const cards = Array.from(
+            document.querySelectorAll("[data-course-card]")
+        );
+
+        const semesterFilter =
+            document.getElementById("semesterFilter");
+
+        const courseSearch =
+            document.getElementById("courseSearch");
+
+        const noSearchResults =
+            document.getElementById("noSearchResults");
+
+        const componentSection =
+            document.getElementById("componentSection");
+
+        const detailsSection =
+            document.getElementById("detailsSection");
+
+        const evidenceSection =
+            document.getElementById("evidenceSection");
+
+        const selectedCourseSummary =
+            document.getElementById("selectedCourseSummary");
+
+        const summaryCode =
+            document.getElementById("summaryCode");
+
+        const summaryTitle =
+            document.getElementById("summaryTitle");
+
+        const summaryMeta =
+            document.getElementById("summaryMeta");
+
+        const summaryTotal =
+            document.getElementById("summaryTotal");
+
+        const valueClassTest =
+            document.getElementById("valueClassTest");
+
+        const valueAssignment =
+            document.getElementById("valueAssignment");
+
+        const valueAttendance =
+            document.getElementById("valueAttendance");
+
+        const valueMidterm =
+            document.getElementById("valueMidterm");
+
+        const valueFinal =
+            document.getElementById("valueFinal");
+
+        const componentCheckboxes = Array.from(
+            document.querySelectorAll(
+                'input[name="requested_components"]'
+            )
+        );
+
+        const reviewReason =
+            document.getElementById("reviewReason");
+
+        const reasonCounter =
+            document.getElementById("reasonCounter");
+
+        const submitReviewBtn =
+            document.getElementById("submitReviewBtn");
+
+        const attachmentInput =
+            document.getElementById("attachmentInput");
+
+        const uploadZone =
+            document.getElementById("uploadZone");
+
+        const filePreview =
+            document.getElementById("filePreview");
+
+        const fileName =
+            document.getElementById("fileName");
+
+        const fileSize =
+            document.getElementById("fileSize");
+
+        const removeFileBtn =
+            document.getElementById("removeFileBtn");
+
+
+        function getSelectedCard() {
+            return cards.find(function (card) {
+                const radio =
+                    card.querySelector(
+                        'input[name="mark"]'
+                    );
+
+                return radio && radio.checked;
+            });
+        }
+
+
+        function formatFileSize(bytes) {
+            if (!bytes) {
+                return "0 KB";
+            }
+
+            if (bytes < 1024) {
+                return bytes + " bytes";
+            }
+
+            if (bytes < 1024 * 1024) {
+                return (
+                    bytes / 1024
+                ).toFixed(1) + " KB";
+            }
+
+            return (
+                bytes / (1024 * 1024)
+            ).toFixed(1) + " MB";
+        }
+
+
+        function updateSubmitState() {
+
+            const selectedCard =
+                getSelectedCard();
+
+            const hasComponent =
+                componentCheckboxes.some(function (checkbox) {
+                    return checkbox.checked;
+                });
+
+            const hasReason =
+                reviewReason.value.trim().length > 0;
+
+            submitReviewBtn.disabled = !(
+                selectedCard &&
+                hasComponent &&
+                hasReason
+            );
+        }
+
+
+        function unlockDependentSections() {
+
+            componentSection.classList.remove("is-locked");
+            detailsSection.classList.remove("is-locked");
+            evidenceSection.classList.remove("is-locked");
+
+        }
+
+
+        function updateSelectedCourse(card) {
+
+            cards.forEach(function (item) {
+                item.classList.remove("selected");
+            });
+
+            card.classList.add("selected");
+
+            const radio =
+                card.querySelector(
+                    'input[name="mark"]'
+                );
+
+            radio.checked = true;
+
+            unlockDependentSections();
+
+            selectedCourseSummary.classList.add("visible");
+
+            summaryCode.textContent =
+                card.dataset.code || "—";
+
+            summaryTitle.textContent =
+                card.dataset.title || "—";
+
+            summaryMeta.textContent =
+                [
+                    card.dataset.semester,
+                    card.dataset.credit
+                        ? card.dataset.credit + " Credits"
+                        : ""
+                ]
+                .filter(Boolean)
+                .join(" · ");
+
+            summaryTotal.textContent =
+                card.dataset.grade
+                    ? (
+                        card.dataset.total +
+                        " · " +
+                        card.dataset.grade
+                    )
+                    : card.dataset.total;
+
+            valueClassTest.textContent =
+                card.dataset.classTest || "0";
+
+            valueAssignment.textContent =
+                card.dataset.assignment || "0";
+
+            valueAttendance.textContent =
+                card.dataset.attendance || "0";
+
+            valueMidterm.textContent =
+                card.dataset.midterm || "0";
+
+            valueFinal.textContent =
+                card.dataset.final || "0";
+
+            /*
+             * Clear previously selected components when
+             * switching to another course.
+             */
+            componentCheckboxes.forEach(function (checkbox) {
+                checkbox.checked = false;
+            });
+
+            updateSubmitState();
+        }
+
+
+        cards.forEach(function (card) {
+
+            card.addEventListener("click", function () {
+                updateSelectedCourse(card);
+            });
+
+        });
+
+
+        function filterResults() {
+
+            const semesterValue =
+                semesterFilter.value;
+
+            const searchValue =
+                courseSearch.value
+                    .trim()
+                    .toLowerCase();
+
+            let visibleCount = 0;
+
+            cards.forEach(function (card) {
+
+                const semesterMatches =
+                    semesterValue === "all" ||
+                    card.dataset.semesterId === semesterValue;
+
+                const searchMatches =
+                    !searchValue ||
+                    (
+                        card.dataset.search || ""
+                    ).includes(searchValue);
+
+                const shouldShow =
+                    semesterMatches &&
+                    searchMatches;
+
+                card.style.display =
+                    shouldShow
+                        ? ""
+                        : "none";
+
+                if (shouldShow) {
+                    visibleCount += 1;
+                }
+
+            });
+
+            if (cards.length > 0) {
+                noSearchResults.style.display =
+                    visibleCount === 0
+                        ? "block"
+                        : "none";
+            }
+
+        }
+
+
+        semesterFilter.addEventListener(
+            "change",
+            filterResults
+        );
+
+        courseSearch.addEventListener(
+            "input",
+            filterResults
+        );
+
+
+        componentCheckboxes.forEach(
+            function (checkbox) {
+
+                checkbox.addEventListener(
+                    "change",
+                    updateSubmitState
+                );
+
+            }
+        );
+
+
+        reviewReason.addEventListener(
+            "input",
+            function () {
+
+                reasonCounter.textContent =
+                    reviewReason.value.length;
+
+                updateSubmitState();
+
+            }
+        );
+
+
+        attachmentInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    attachmentInput.files[0];
+
+                if (!file) {
+                    filePreview.classList.remove(
+                        "visible"
+                    );
+
+                    return;
+                }
+
+                fileName.textContent =
+                    file.name;
+
+                fileSize.textContent =
+                    formatFileSize(file.size);
+
+                filePreview.classList.add(
+                    "visible"
+                );
+
+            }
+        );
+
+
+        removeFileBtn.addEventListener(
+            "click",
+            function () {
+
+                attachmentInput.value = "";
+
+                filePreview.classList.remove(
+                    "visible"
+                );
+
+                fileName.textContent = "—";
+                fileSize.textContent = "—";
+
+            }
+        );
+
+
+        [
+            "dragenter",
+            "dragover"
+        ].forEach(function (eventName) {
+
+            uploadZone.addEventListener(
+                eventName,
+                function (event) {
+
+                    event.preventDefault();
+
+                    uploadZone.classList.add(
+                        "dragover"
+                    );
+
+                }
+            );
+
+        });
+
+
+        [
+            "dragleave",
+            "drop"
+        ].forEach(function (eventName) {
+
+            uploadZone.addEventListener(
+                eventName,
+                function () {
+
+                    uploadZone.classList.remove(
+                        "dragover"
+                    );
+
+                }
+            );
+
+        });
+
+
+        /*
+         * Select the current semester by default
+         * when an option marked with "Current" exists.
+         */
+        const semesterOptions =
+            Array.from(
+                semesterFilter.options
+            );
+
+        const currentOption =
+            semesterOptions.find(
+                function (option) {
+                    return option.textContent.includes(
+                        "Current"
+                    );
+                }
+            );
+
+        if (currentOption) {
+            semesterFilter.value =
+                currentOption.value;
+
+            filterResults();
+        }
+
+
+        updateSubmitState();
+
+    })();
+</script>
+
+{% endblock %}

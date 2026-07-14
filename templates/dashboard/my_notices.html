@@ -1,0 +1,799 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .notices-page {
+        --ink: #0f172a;
+        --ink-soft: #334155;
+        --muted: #64748b;
+        --soft-muted: #94a3b8;
+        --line: #e5e7eb;
+        --line-soft: #f1f5f9;
+        --canvas: #f8fafc;
+        --surface: #ffffff;
+
+        --accent: #b4232a;
+        --accent-dark: #8f1d23;
+        --accent-soft: #fff1f2;
+        --accent-line: #fecdd3;
+
+        --success: #047857;
+        --success-soft: #ecfdf5;
+        --success-line: #bbf7d0;
+
+        --warning: #b45309;
+        --warning-soft: #fffbeb;
+        --warning-line: #fde68a;
+
+        width: min(100%, 1120px);
+        margin: 0 auto;
+        display: grid;
+        gap: 24px;
+    }
+
+    .notices-page svg {
+        flex-shrink: 0;
+    }
+
+    .notices-page .tabular {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ---------- Header ---------- */
+    .notices-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 24px;
+        align-items: center;
+        padding: 28px;
+        border-radius: 28px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .notice-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        border: 1px solid var(--accent-line);
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .notice-kicker svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .notices-hero h1 {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(30px, 4vw, 46px);
+        line-height: 1.04;
+        font-weight: 850;
+        letter-spacing: -0.045em;
+    }
+
+    .notices-hero p {
+        margin: 10px 0 0;
+        max-width: 720px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .notice-hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .notice-back-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 15px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 13px;
+        font-weight: 800;
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        white-space: nowrap;
+    }
+
+    .notice-back-btn:hover {
+        background: var(--canvas);
+        border-color: #d1d5db;
+        color: var(--ink);
+    }
+
+    .notice-back-btn svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .notice-count-card {
+        min-width: 132px;
+        padding: 15px 16px;
+        border-radius: 18px;
+        background: var(--canvas);
+        border: 1px solid var(--line);
+    }
+
+    .notice-count-label {
+        color: var(--soft-muted);
+        font-size: 10.5px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .notice-count-value {
+        margin-top: 5px;
+        color: var(--ink);
+        font-size: 30px;
+        line-height: 1;
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    /* ---------- Summary ---------- */
+    .notice-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .notice-summary-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 104px;
+        padding: 18px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+    }
+
+    .notice-summary-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--canvas);
+        color: var(--ink-soft);
+        border: 1px solid var(--line);
+    }
+
+    .notice-summary-icon.accent {
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        border-color: var(--accent-line);
+    }
+
+    .notice-summary-icon.success {
+        background: var(--success-soft);
+        color: var(--success);
+        border-color: var(--success-line);
+    }
+
+    .notice-summary-icon.warning {
+        background: var(--warning-soft);
+        color: var(--warning);
+        border-color: var(--warning-line);
+    }
+
+    .notice-summary-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .notice-summary-label {
+        color: var(--soft-muted);
+        font-size: 10.5px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .notice-summary-value {
+        margin-top: 4px;
+        color: var(--ink);
+        font-size: 22px;
+        line-height: 1.1;
+        font-weight: 850;
+        letter-spacing: -0.03em;
+    }
+
+    .notice-summary-desc {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12.5px;
+        font-weight: 600;
+    }
+
+    /* ---------- Board ---------- */
+    .notice-board {
+        padding: 28px;
+        border-radius: 28px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .notice-board-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--line-soft);
+        margin-bottom: 22px;
+    }
+
+    .notice-board-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .notice-board-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--canvas);
+        color: var(--ink-soft);
+        border: 1px solid var(--line);
+    }
+
+    .notice-board-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .notice-board h2 {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(24px, 3vw, 32px);
+        line-height: 1.1;
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .notice-board p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .notice-board-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 13px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        border: 1px solid var(--accent-line);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .notice-board-pill.empty {
+        background: var(--canvas);
+        color: var(--muted);
+        border-color: var(--line);
+    }
+
+    /* ---------- Table ---------- */
+    .notice-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+        background: #ffffff;
+    }
+
+    .notice-board-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .notice-board-table th {
+        background: var(--canvas);
+        color: var(--muted);
+        font-size: 10.5px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 13px 14px;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+        text-align: left;
+    }
+
+    .notice-board-table td {
+        padding: 15px 14px;
+        border-bottom: 1px solid var(--line-soft);
+        vertical-align: middle;
+        color: var(--ink-soft);
+        font-size: 14px;
+    }
+
+    .notice-board-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .notice-board-table tbody tr:hover {
+        background: #fcfcfd;
+    }
+
+    .notice-title-text {
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.45;
+    }
+
+    .notice-message-preview {
+        max-width: 430px;
+        color: var(--muted);
+        font-size: 13.5px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .notice-message-preview p {
+        margin: 0;
+    }
+
+    .notice-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .notice-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 0 9px;
+        border-radius: 999px;
+        background: var(--canvas);
+        color: var(--muted);
+        border: 1px solid var(--line);
+        font-size: 11px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .notice-type-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 30px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        border: 1px solid var(--accent-line);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .notice-type-chip svg {
+        width: 13px;
+        height: 13px;
+    }
+
+    .notice-target-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: var(--canvas);
+        color: var(--ink-soft);
+        border: 1px solid var(--line);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .notice-date {
+        color: var(--ink-soft);
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .notice-file-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 34px;
+        padding: 0 11px;
+        border-radius: 12px;
+        background: var(--ink);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        transition: background 0.15s ease;
+        white-space: nowrap;
+    }
+
+    .notice-file-btn:hover {
+        background: #020617;
+    }
+
+    .notice-file-btn svg {
+        width: 13px;
+        height: 13px;
+    }
+
+    .notice-file-empty {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 11px;
+        border-radius: 12px;
+        background: var(--canvas);
+        color: var(--soft-muted);
+        border: 1px solid var(--line);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    /* ---------- Empty State ---------- */
+    .notice-empty-state {
+        padding: 44px 24px;
+        border-radius: 22px;
+        background: var(--canvas);
+        border: 1px dashed #cbd5e1;
+        text-align: center;
+    }
+
+    .notice-empty-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto;
+        border-radius: 20px;
+        background: #ffffff;
+        color: var(--soft-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+    }
+
+    .notice-empty-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .notice-empty-state h3 {
+        margin: 16px 0 0;
+        color: var(--ink);
+        font-size: 22px;
+        font-weight: 850;
+        letter-spacing: -0.035em;
+    }
+
+    .notice-empty-state p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    @media (max-width: 980px) {
+        .notices-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .notice-hero-actions {
+            align-items: stretch;
+            justify-content: space-between;
+        }
+
+        .notice-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 700px) {
+        .notices-hero,
+        .notice-board {
+            padding: 20px;
+            border-radius: 24px;
+        }
+
+        .notice-hero-actions {
+            flex-direction: column;
+        }
+
+        .notice-back-btn,
+        .notice-count-card {
+            width: 100%;
+        }
+
+        .notice-summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .notice-board-header {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="notices-page">
+
+    <!-- Header -->
+    <section class="notices-hero">
+        <div>
+            <div class="notice-kicker">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                </svg>
+                Announcements
+            </div>
+
+            <h1>My Notices</h1>
+
+            <p>
+                Official announcements, academic updates, and notices published for you.
+            </p>
+        </div>
+
+        <div class="notice-hero-actions">
+            <a href="{% url 'dashboard' %}" class="notice-back-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7 7-7M3 12h18"/>
+                </svg>
+                Back to Overview
+            </a>
+
+            <div class="notice-count-card">
+                <div class="notice-count-label">Total Notices</div>
+                <div class="notice-count-value tabular">{{ notices|length }}</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Cards -->
+    <section class="notice-summary-grid">
+
+        <div class="notice-summary-card">
+            <div class="notice-summary-icon accent">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="notice-summary-label">Available</div>
+                <div class="notice-summary-value tabular">{{ notices|length }}</div>
+                <div class="notice-summary-desc">Notice{{ notices|length|pluralize }}</div>
+            </div>
+        </div>
+
+        <div class="notice-summary-card">
+            <div class="notice-summary-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M5 11h14M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="notice-summary-label">Order</div>
+                <div class="notice-summary-value">Latest</div>
+                <div class="notice-summary-desc">Newest first</div>
+            </div>
+        </div>
+
+        <div class="notice-summary-card">
+            <div class="notice-summary-icon success">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="notice-summary-label">Audience</div>
+                <div class="notice-summary-value">You</div>
+                <div class="notice-summary-desc">Targeted updates</div>
+            </div>
+        </div>
+
+        <div class="notice-summary-card">
+            <div class="notice-summary-icon warning">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2M12 21a9 9 0 100-18 9 9 0 000 18z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="notice-summary-label">Status</div>
+                {% if notices %}
+                    <div class="notice-summary-value" style="color: var(--success);">Active</div>
+                    <div class="notice-summary-desc">Notices found</div>
+                {% else %}
+                    <div class="notice-summary-value">Empty</div>
+                    <div class="notice-summary-desc">No notice yet</div>
+                {% endif %}
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Notice Board -->
+    <section class="notice-board">
+
+        <div class="notice-board-header">
+            <div class="notice-board-title">
+                <div class="notice-board-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <h2>Notice Board</h2>
+                    <p>
+                        Organized table view of all published notices.
+                    </p>
+                </div>
+            </div>
+
+            {% if notices %}
+                <span class="notice-board-pill">
+                    {{ notices|length }} Notice{{ notices|length|pluralize }}
+                </span>
+            {% else %}
+                <span class="notice-board-pill empty">
+                    No Notice
+                </span>
+            {% endif %}
+        </div>
+
+        {% if notices %}
+
+            <div class="notice-table-wrap">
+                <table class="notice-board-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 24%;">Title</th>
+                            <th style="width: 30%;">Message</th>
+                            <th style="width: 14%;">Type</th>
+                            <th style="width: 14%;">Target</th>
+                            <th style="width: 12%;">Published</th>
+                            <th style="width: 6%; text-align:center;">File</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for notice in notices %}
+                            <tr>
+                                <td>
+                                    <div class="notice-title-text">
+                                        {{ notice.title }}
+                                    </div>
+
+                                    <div class="notice-chip-row">
+                                        {% if notice.department %}
+                                            <span class="notice-chip">
+                                                {{ notice.department }}
+                                            </span>
+                                        {% endif %}
+
+                                        {% if notice.batch %}
+                                            <span class="notice-chip">
+                                                {{ notice.batch }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="notice-message-preview">
+                                        {{ notice.message|truncatewords:22 }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="notice-type-chip">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                                        </svg>
+                                        {{ notice.get_notice_type_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="notice-target-chip">
+                                        {{ notice.get_target_audience_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="notice-date">
+                                        {{ notice.published_at }}
+                                    </div>
+                                </td>
+
+                                <td style="text-align:center;">
+                                    {% if notice.attachment %}
+                                        <a href="{{ notice.attachment.url }}" target="_blank" class="notice-file-btn">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/>
+                                            </svg>
+                                            Open
+                                        </a>
+                                    {% else %}
+                                        <span class="notice-file-empty">
+                                            None
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+
+            <div class="notice-empty-state">
+                <div class="notice-empty-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                    </svg>
+                </div>
+
+                <h3>No notice found</h3>
+
+                <p>
+                    Notices published for you will appear here.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

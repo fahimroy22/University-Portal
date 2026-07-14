@@ -1,0 +1,544 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .routine-page {
+        display: grid;
+        gap: 24px;
+    }
+
+    .routine-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #fffafa 0%, #fff1f2 50%, #ffffff 100%);
+        border: 1px solid rgba(254, 202, 202, 0.85);
+        box-shadow: 0 10px 28px rgba(127, 29, 29, 0.07);
+    }
+
+    .routine-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .routine-hero h2 {
+        font-size: clamp(32px, 4vw, 50px);
+        line-height: 1.02;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+        color: var(--navy);
+        margin: 0 0 10px;
+    }
+
+    .routine-hero p {
+        max-width: 720px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .soft-back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 15px;
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        font-weight: 900;
+        box-shadow: 0 6px 16px rgba(127, 29, 29, 0.06);
+        transition: background 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .soft-back-button:hover {
+        background: var(--accent-soft);
+    }
+
+    .panel-card {
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .panel-card h3 {
+        margin: 0 0 8px;
+        color: var(--navy);
+        font-size: 27px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .panel-card p {
+        color: var(--muted);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .routine-form {
+        display: grid;
+        gap: 20px;
+    }
+
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-field {
+        margin: 0;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid #cbd5e1;
+        background: white;
+        color: var(--navy);
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(127, 29, 29, 0.10);
+    }
+
+    .course-select-box {
+        padding: 20px;
+        border-radius: 24px;
+        background: #fffafa;
+        border: 1px solid #fecaca;
+    }
+
+    .publish-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px 20px;
+        border-radius: 24px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+    }
+
+    .publish-text-title {
+        color: var(--navy);
+        font-size: 16px;
+        font-weight: 950;
+        margin-bottom: 4px;
+    }
+
+    .publish-text-desc {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .publish-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--accent);
+        font-size: 14px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .publish-check input {
+        width: 17px;
+        height: 17px;
+        accent-color: var(--accent);
+    }
+
+    .form-action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        padding-top: 4px;
+    }
+
+    .primary-button {
+        min-height: 48px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 16px;
+        background: var(--accent);
+        color: white;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: none;
+        transition: background 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .primary-button:hover {
+        background: var(--accent-dark);
+    }
+
+    .outline-button {
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 18px;
+        border-radius: 16px;
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+        font-weight: 900;
+        transition: background 0.14s ease;
+        white-space: nowrap;
+    }
+
+    .outline-button:hover {
+        background: var(--accent-soft);
+    }
+
+    .current-info-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .info-card {
+        padding: 18px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid var(--border);
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .info-label {
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        color: var(--soft-muted);
+        margin-bottom: 7px;
+    }
+
+    .info-value {
+        color: var(--navy);
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1.35;
+        word-break: break-word;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 950;
+    }
+
+    .status-published {
+        background: #ecfdf5;
+        color: #15803d;
+    }
+
+    .status-draft {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    @media (max-width: 1100px) {
+        .current-info-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .form-grid-3 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .routine-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 26px;
+        }
+
+        .soft-back-button,
+        .primary-button,
+        .outline-button {
+            width: 100%;
+        }
+
+        .panel-card {
+            padding: 20px;
+            border-radius: 22px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+        }
+
+        .panel-header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-grid-2,
+        .form-grid-3,
+        .current-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .publish-box {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .form-action-row {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .routine-hero {
+            padding: 20px;
+            border-radius: 24px;
+        }
+
+        .routine-hero h2 {
+            font-size: 32px;
+        }
+
+        .course-select-box {
+            padding: 18px;
+            border-radius: 20px;
+        }
+    }
+</style>
+
+<div class="routine-page">
+
+    <section class="routine-hero">
+        <div>
+            <div class="routine-pill">Exam Office</div>
+            <h2>Edit Exam Routine</h2>
+            <p>
+                Update the course, exam type, date, time, room, and publication status for this exam routine.
+            </p>
+        </div>
+
+        <a href="{% url 'exam_create_routine' %}" class="soft-back-button">
+            ← Back to Exam Routine
+        </a>
+    </section>
+
+    <section class="current-info-grid">
+        <div class="info-card">
+            <div class="info-label">Course</div>
+            <div class="info-value">
+                {{ routine.course_offering.course.code }} - {{ routine.course_offering.course.title }}
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Exam Type</div>
+            <div class="info-value">{{ routine.get_exam_type_display }}</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Exam Date</div>
+            <div class="info-value">{{ routine.exam_date }}</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Status</div>
+            <div class="info-value">
+                {% if routine.is_published %}
+                    <span class="status-badge status-published">Published</span>
+                {% else %}
+                    <span class="status-badge status-draft">Unpublished</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-header">
+            <div>
+                <h3>Routine Information</h3>
+                <p>Modify the routine details below and save the update.</p>
+            </div>
+
+            <span class="section-chip">Edit Routine</span>
+        </div>
+
+        <form method="POST" class="routine-form">
+            {% csrf_token %}
+
+            <div class="course-select-box">
+                <p class="form-field">
+                    <label>Course Offering</label>
+                    <select name="course_offering" required class="input-control">
+                        {% for offering in course_offerings %}
+                            <option value="{{ offering.id }}"
+                                {% if offering.id == routine.course_offering.id %}selected{% endif %}
+                            >
+                                {{ offering.course.code }} - {{ offering.course.title }}
+                                | {{ offering.batch }} | {{ offering.semester }} | Section {{ offering.section }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </p>
+            </div>
+
+            <div class="form-grid-3">
+                <p class="form-field">
+                    <label>Exam Type</label>
+                    <select name="exam_type" required class="input-control">
+                        <option value="midterm" {% if routine.exam_type == 'midterm' %}selected{% endif %}>
+                            Midterm
+                        </option>
+                        <option value="final" {% if routine.exam_type == 'final' %}selected{% endif %}>
+                            Final
+                        </option>
+                        <option value="recovery" {% if routine.exam_type == 'recovery' %}selected{% endif %}>
+                            Recovery
+                        </option>
+                    </select>
+                </p>
+
+                <p class="form-field">
+                    <label>Exam Date</label>
+                    <input
+                        type="date"
+                        name="exam_date"
+                        value="{{ routine.exam_date|date:'Y-m-d' }}"
+                        required
+                        class="input-control"
+                    >
+                </p>
+
+                <p class="form-field">
+                    <label>Room</label>
+                    <input
+                        type="text"
+                        name="room"
+                        value="{{ routine.room }}"
+                        required
+                        class="input-control"
+                    >
+                </p>
+            </div>
+
+            <div class="form-grid-2">
+                <p class="form-field">
+                    <label>Start Time</label>
+                    <input
+                        type="time"
+                        name="start_time"
+                        value="{{ routine.start_time|time:'H:i' }}"
+                        required
+                        class="input-control"
+                    >
+                </p>
+
+                <p class="form-field">
+                    <label>End Time</label>
+                    <input
+                        type="time"
+                        name="end_time"
+                        value="{{ routine.end_time|time:'H:i' }}"
+                        required
+                        class="input-control"
+                    >
+                </p>
+            </div>
+
+            <div class="publish-box">
+                <div>
+                    <div class="publish-text-title">Publication Status</div>
+                    <div class="publish-text-desc">
+                        Published routines will be visible to students in their exam routine page.
+                    </div>
+                </div>
+
+                <label class="publish-check">
+                    <input
+                        type="checkbox"
+                        name="is_published"
+                        {% if routine.is_published %}checked{% endif %}
+                    >
+                    Published
+                </label>
+            </div>
+
+            <div class="form-action-row">
+                <button type="submit" class="primary-button">
+                    Update Routine
+                </button>
+
+                <a href="{% url 'exam_create_routine' %}" class="outline-button">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </section>
+
+</div>
+
+{% endblock %}

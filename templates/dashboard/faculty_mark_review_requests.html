@@ -1,0 +1,448 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .mr-page {
+        display: grid;
+        gap: 24px;
+    }
+
+    .mr-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background:
+            linear-gradient(135deg, #fffafa 0%, #fff1f2 48%, #ffffff 100%);
+        border: 1px solid #fecaca;
+        box-shadow: 0 24px 60px rgba(127, 29, 29, 0.07);
+    }
+
+    .mr-kicker {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #fff1f2;
+        color: #991b1b;
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .mr-hero h1 {
+        margin: 0 0 10px;
+        font-size: clamp(34px, 4vw, 50px);
+        line-height: 1;
+        letter-spacing: -0.05em;
+        color: var(--navy);
+        font-weight: 950;
+    }
+
+    .mr-hero p {
+        margin: 0;
+        max-width: 760px;
+        color: var(--muted);
+        line-height: 1.65;
+        font-size: 15px;
+    }
+
+    .mr-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .mr-button {
+        min-height: 46px;
+        padding: 0 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        font-weight: 900;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .mr-button-primary {
+        background: var(--accent);
+        color: white;
+        box-shadow: 0 12px 28px rgba(127, 29, 29, 0.18);
+    }
+
+    .mr-button-primary:hover {
+        background: var(--accent-dark);
+        color: white;
+    }
+
+    .mr-button-soft {
+        background: white;
+        border: 1px solid #fecaca;
+        color: var(--accent);
+    }
+
+    .mr-button-soft:hover {
+        background: var(--accent-soft);
+    }
+
+    .mr-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .mr-summary-card {
+        padding: 22px;
+        border-radius: 22px;
+        background: white;
+        border: 1px solid var(--border);
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.04);
+    }
+
+    .mr-summary-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--soft-muted);
+        font-weight: 950;
+        margin-bottom: 8px;
+    }
+
+    .mr-summary-value {
+        font-size: 32px;
+        font-weight: 950;
+        color: var(--navy);
+        line-height: 1;
+    }
+
+    .mr-panel {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.045);
+    }
+
+    .mr-panel-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 28px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .mr-panel-head h2 {
+        margin: 0 0 7px;
+        font-size: 27px;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+        color: var(--navy);
+    }
+
+    .mr-panel-head p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+    }
+
+    .mr-count {
+        padding: 8px 13px;
+        border-radius: 999px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        color: #475569;
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .mr-list {
+        padding: 18px;
+        display: grid;
+        gap: 12px;
+    }
+
+    .mr-item {
+        display: grid;
+        grid-template-columns:
+            minmax(180px, 1.5fr)
+            minmax(150px, 1fr)
+            minmax(180px, 1.2fr)
+            minmax(140px, .9fr)
+            auto;
+        gap: 18px;
+        align-items: center;
+        padding: 18px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: #ffffff;
+        transition: all .16s ease;
+    }
+
+    .mr-item:hover {
+        border-color: #fecaca;
+        background: #fffafa;
+        transform: translateY(-1px);
+    }
+
+    .mr-label {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--soft-muted);
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .mr-value {
+        color: var(--navy);
+        font-size: 14px;
+        font-weight: 850;
+        line-height: 1.45;
+    }
+
+    .mr-subvalue {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .mr-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .mr-status-pending {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        color: #b45309;
+    }
+
+    .mr-status-approved,
+    .mr-status-forwarded {
+        background: #ecfdf5;
+        border: 1px solid #bbf7d0;
+        color: #047857;
+    }
+
+    .mr-status-rejected {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+    }
+
+    .mr-empty {
+        margin: 18px;
+        padding: 38px 24px;
+        text-align: center;
+        border: 1px dashed #cbd5e1;
+        border-radius: 20px;
+        background: #f8fafc;
+        color: var(--muted);
+        font-weight: 800;
+    }
+
+    @media (max-width: 1150px) {
+        .mr-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .mr-item {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .mr-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .mr-actions {
+            width: 100%;
+        }
+
+        .mr-button {
+            width: 100%;
+        }
+
+        .mr-summary-grid,
+        .mr-item {
+            grid-template-columns: 1fr;
+        }
+
+        .mr-panel-head {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="mr-page">
+
+    <section class="mr-hero">
+        <div>
+            <div class="mr-kicker">Academic Review</div>
+
+            <h1>Student Mark Review Requests</h1>
+
+            <p>
+                Review requests submitted by students who believe a published or recorded mark may be incorrect.
+                Verify the concern before escalating any official result correction.
+            </p>
+        </div>
+
+        <div class="mr-actions">
+            <a href="{% url 'faculty_correction_requests' %}" class="mr-button mr-button-primary">
+                My Correction Requests
+            </a>
+
+            <a href="{% url 'faculty_dashboard' %}" class="mr-button mr-button-soft">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </section>
+
+    <section class="mr-summary-grid">
+        <div class="mr-summary-card">
+            <div class="mr-summary-label">Total Requests</div>
+            <div class="mr-summary-value">
+                {{ review_requests|length|default:"0" }}
+            </div>
+        </div>
+
+        <div class="mr-summary-card">
+            <div class="mr-summary-label">Pending Review</div>
+            <div class="mr-summary-value">
+                {{ pending_count|default:"0" }}
+            </div>
+        </div>
+
+        <div class="mr-summary-card">
+            <div class="mr-summary-label">Forwarded</div>
+            <div class="mr-summary-value">
+                {{ forwarded_count|default:"0" }}
+            </div>
+        </div>
+
+        <div class="mr-summary-card">
+            <div class="mr-summary-label">Closed</div>
+            <div class="mr-summary-value">
+                {{ closed_count|default:"0" }}
+            </div>
+        </div>
+    </section>
+
+    <section class="mr-panel">
+        <div class="mr-panel-head">
+            <div>
+                <h2>Review Queue</h2>
+                <p>
+                    Open each request to inspect the student concern, current marks,
+                    evidence, and your available review actions.
+                </p>
+            </div>
+
+            <span class="mr-count">
+                {{ review_requests|length|default:"0" }} Request{{ review_requests|length|pluralize }}
+            </span>
+        </div>
+
+        {% if review_requests %}
+            <div class="mr-list">
+
+                {% for item in review_requests %}
+                    <div class="mr-item">
+
+                        <div>
+                            <span class="mr-label">Student</span>
+
+                            <div class="mr-value">
+                                {{ item.student.student_id|default:"-" }}
+                            </div>
+
+                            <div class="mr-subvalue">
+                                {{ item.student.user.get_full_name|default:item.student.user.username }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="mr-label">Course</span>
+
+                            <div class="mr-value">
+                                {{ item.course_offering.course.code|default:"-" }}
+                            </div>
+
+                            <div class="mr-subvalue">
+                                {{ item.course_offering.course.title|default:"-" }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="mr-label">Student Concern</span>
+
+                            <div class="mr-value">
+                                {{ item.reason|default:"No explanation provided."|truncatechars:85 }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="mr-label">Status</span>
+
+                            {% if item.status == 'pending' %}
+                                <span class="mr-status mr-status-pending">Pending</span>
+
+                            {% elif item.status == 'forwarded' or item.status == 'approved' %}
+                                <span class="mr-status mr-status-forwarded">
+                                    {{ item.get_status_display|default:item.status|title }}
+                                </span>
+
+                            {% elif item.status == 'rejected' %}
+                                <span class="mr-status mr-status-rejected">Rejected</span>
+
+                            {% else %}
+                                <span class="mr-status mr-status-pending">
+                                    {{ item.get_status_display|default:item.status|default:"Pending" }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <a
+                                href="{% url 'faculty_mark_review_request_detail' item.id %}"
+                                class="mr-button mr-button-primary"
+                            >
+                                Review
+                            </a>
+                        </div>
+
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+            <div class="mr-empty">
+                No student mark review requests are currently assigned to you.
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

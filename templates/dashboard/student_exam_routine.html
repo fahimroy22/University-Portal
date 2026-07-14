@@ -1,0 +1,937 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .routine-page {
+        --rt-ink: #0f172a;
+        --rt-text: #334155;
+        --rt-muted: #64748b;
+        --rt-faint: #94a3b8;
+
+        --rt-line: #e2e8f0;
+        --rt-line-soft: #eef2f7;
+        --rt-surface: #ffffff;
+        --rt-canvas: #f8fafc;
+
+        --rt-accent: #9f1c1c;
+        --rt-accent-dark: #7f1717;
+        --rt-accent-soft: #fff1f2;
+        --rt-accent-line: #fecaca;
+
+        --rt-success: #047857;
+        --rt-success-soft: #ecfdf5;
+        --rt-success-line: #bbf7d0;
+
+        --rt-blue: #2563eb;
+        --rt-blue-soft: #eff6ff;
+        --rt-blue-line: #bfdbfe;
+
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        display: grid;
+        gap: 18px;
+    }
+
+    .routine-page,
+    .routine-page * {
+        box-sizing: border-box;
+    }
+
+    .routine-page a {
+        text-decoration: none;
+    }
+
+    .rt-surface {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        background: var(--rt-surface);
+        border: 1px solid var(--rt-line);
+        border-radius: 28px;
+        overflow: hidden;
+    }
+
+    /* =========================================================
+       SHARED
+    ========================================================= */
+
+    .page-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 31px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: var(--rt-accent-soft);
+        color: var(--rt-accent-dark);
+        border: 1px solid var(--rt-accent-line);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .soft-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 15px;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 1px solid var(--rt-line);
+        color: var(--rt-ink);
+        font-size: 13px;
+        font-weight: 850;
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .soft-button:hover {
+        background: var(--rt-canvas);
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .routine-hero {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 270px;
+        gap: 26px;
+        align-items: center;
+        padding: 30px;
+        background:
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.55),
+                transparent 34%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.72),
+                transparent 34%
+            ),
+            #ffffff;
+    }
+
+    .routine-title {
+        margin: 14px 0 0;
+        color: #020617;
+        font-size: clamp(32px, 4.5vw, 46px);
+        line-height: 1.02;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+    }
+
+    .routine-subtitle {
+        margin-top: 12px;
+        max-width: 680px;
+        color: var(--rt-muted);
+        font-size: 14.5px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    .hero-action-row {
+        margin-top: 20px;
+    }
+
+    .routine-summary {
+        padding: 22px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--rt-line);
+    }
+
+    .summary-label {
+        color: var(--rt-faint);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .summary-value {
+        margin-top: 8px;
+        color: var(--rt-ink);
+        font-size: 38px;
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.05em;
+    }
+
+    .summary-desc {
+        margin-top: 8px;
+        color: var(--rt-muted);
+        font-size: 12.5px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       ALERT
+    ========================================================= */
+
+    .routine-alert {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr);
+        gap: 13px;
+        align-items: start;
+        padding: 15px 17px;
+        border-radius: 20px;
+        background: #fffafa;
+        border: 1px solid var(--rt-accent-line);
+    }
+
+    .alert-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        background: var(--rt-accent-soft);
+        color: var(--rt-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 950;
+    }
+
+    .alert-title {
+        color: var(--rt-ink);
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+    .alert-text {
+        margin-top: 4px;
+        color: var(--rt-muted);
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       PANEL
+    ========================================================= */
+
+    .routine-panel {
+        padding: 26px;
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 20px;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: var(--rt-ink);
+        font-size: 27px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.045em;
+    }
+
+    .panel-subtitle {
+        margin: 7px 0 0;
+        color: var(--rt-muted);
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .section-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: var(--rt-accent-soft);
+        border: 1px solid var(--rt-accent-line);
+        color: var(--rt-accent-dark);
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+       TABLE
+    ========================================================= */
+
+    .routine-table-wrap {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow: hidden;
+        border-radius: 20px;
+        border: 1px solid var(--rt-line);
+    }
+
+    .routine-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        background: #ffffff;
+    }
+
+    .routine-table th {
+        padding: 14px 13px;
+        background: var(--rt-canvas);
+        color: #64748b;
+        border-bottom: 1px solid var(--rt-line);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+        text-align: left;
+    }
+
+    .routine-table td {
+        padding: 15px 13px;
+        border-bottom: 1px solid var(--rt-line-soft);
+        vertical-align: middle;
+    }
+
+    .routine-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .routine-table tbody tr:hover td {
+        background: #fffafa;
+    }
+
+    .col-course {
+        width: 34%;
+    }
+
+    .col-type {
+        width: 14%;
+    }
+
+    .col-date {
+        width: 17%;
+    }
+
+    .col-time {
+        width: 22%;
+    }
+
+    .col-room {
+        width: 13%;
+    }
+
+    .table-course-code {
+        color: var(--rt-ink);
+        font-size: 14px;
+        line-height: 1.3;
+        font-weight: 950;
+    }
+
+    .table-course-title {
+        margin-top: 5px;
+        color: var(--rt-muted);
+        font-size: 12.5px;
+        line-height: 1.4;
+        font-weight: 600;
+    }
+
+    .table-date,
+    .table-time {
+        color: var(--rt-text);
+        font-size: 13px;
+        line-height: 1.4;
+        font-weight: 800;
+    }
+
+    .exam-type {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 29px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: var(--rt-accent-soft);
+        color: var(--rt-accent-dark);
+        border: 1px solid var(--rt-accent-line);
+        font-size: 11px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .room-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 29px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: var(--rt-blue-soft);
+        color: var(--rt-blue);
+        border: 1px solid var(--rt-blue-line);
+        font-size: 11.5px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+       EMPTY
+    ========================================================= */
+
+    .empty-state {
+        padding: 38px 22px;
+        border-radius: 22px;
+        background: var(--rt-canvas);
+        border: 1px dashed #cbd5e1;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto;
+        border-radius: 17px;
+        background: #ffffff;
+        border: 1px solid var(--rt-line);
+        color: var(--rt-faint);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+        font-weight: 950;
+    }
+
+    .empty-title {
+        margin-top: 14px;
+        color: var(--rt-ink);
+        font-size: 18px;
+        font-weight: 950;
+    }
+
+    .empty-text {
+        margin-top: 6px;
+        color: var(--rt-muted);
+        font-size: 13px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1000px) {
+        .routine-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .routine-summary {
+            max-width: 480px;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .routine-page {
+            gap: 14px;
+        }
+
+        .rt-surface {
+            border-radius: 22px;
+        }
+
+        /* HERO */
+
+        .routine-hero {
+            padding: 22px 18px;
+            gap: 18px;
+        }
+
+        .page-pill {
+            min-height: 29px;
+            padding: 0 10px;
+            font-size: 9px;
+        }
+
+        .routine-title {
+            margin-top: 12px;
+            font-size: clamp(30px, 9vw, 38px);
+        }
+
+        .routine-subtitle {
+            margin-top: 11px;
+            font-size: 13.5px;
+            line-height: 1.55;
+        }
+
+        .hero-action-row {
+            margin-top: 17px;
+        }
+
+        .soft-button {
+            width: 100%;
+        }
+
+        .routine-summary {
+            width: 100%;
+            max-width: none;
+            padding: 16px;
+            border-radius: 18px;
+
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 8px 18px;
+            align-items: center;
+        }
+
+        .summary-label {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .summary-value {
+            grid-column: 2;
+            grid-row: 1 / span 2;
+            margin-top: 0;
+            font-size: 34px;
+        }
+
+        .summary-desc {
+            grid-column: 1;
+            grid-row: 2;
+            margin-top: 0;
+        }
+
+        /* ALERT */
+
+        .routine-alert {
+            grid-template-columns: 36px minmax(0, 1fr);
+            padding: 13px 14px;
+            border-radius: 18px;
+        }
+
+        .alert-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+        }
+
+        /* PANEL */
+
+        .routine-panel {
+            padding: 20px 14px;
+        }
+
+        .panel-header {
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 17px;
+        }
+
+        .panel-title {
+            font-size: 24px;
+        }
+
+        .panel-subtitle {
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           MOBILE TABLE
+           Real table remains visible.
+           No horizontal scrolling.
+        ===================================================== */
+
+        .routine-table-wrap {
+            overflow: hidden;
+            border-radius: 16px;
+        }
+
+        .routine-table {
+            width: 100%;
+            min-width: 0;
+            table-layout: fixed;
+        }
+
+        .routine-table th,
+        .routine-table td {
+            overflow-wrap: anywhere;
+            word-break: normal;
+        }
+
+        .routine-table th {
+            padding: 9px 4px;
+            font-size: 7px;
+            line-height: 1.15;
+            letter-spacing: 0.04em;
+            text-align: center;
+        }
+
+        .routine-table td {
+            padding: 11px 4px;
+            text-align: center;
+        }
+
+        /*
+           Hide separate desktop course-title column.
+           Title is already inside Course cell below code.
+        */
+        .desktop-title-column {
+            display: none;
+        }
+
+        .col-course {
+            width: 29%;
+        }
+
+        .col-type {
+            width: 15%;
+        }
+
+        .col-date {
+            width: 18%;
+        }
+
+        .col-time {
+            width: 24%;
+        }
+
+        .col-room {
+            width: 14%;
+        }
+
+        .table-course-code {
+            font-size: 10.5px;
+            line-height: 1.2;
+        }
+
+        .table-course-title {
+            margin-top: 4px;
+            font-size: 8px;
+            line-height: 1.25;
+
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .table-date {
+            font-size: 9px;
+            line-height: 1.3;
+        }
+
+        .table-time {
+            font-size: 8.5px;
+            line-height: 1.35;
+        }
+
+        .exam-type {
+            min-height: 24px;
+            max-width: 100%;
+            padding: 0 5px;
+            font-size: 7.5px;
+            white-space: normal;
+            line-height: 1.15;
+            text-align: center;
+        }
+
+        .room-chip {
+            min-height: 24px;
+            max-width: 100%;
+            padding: 0 5px;
+            font-size: 8px;
+            white-space: normal;
+            line-height: 1.15;
+        }
+    }
+
+    @media (max-width: 390px) {
+        .routine-panel {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .routine-table th {
+            padding-left: 2px;
+            padding-right: 2px;
+            font-size: 6.5px;
+        }
+
+        .routine-table td {
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+
+        .table-course-code {
+            font-size: 9.5px;
+        }
+
+        .table-course-title {
+            font-size: 7px;
+        }
+
+        .table-date {
+            font-size: 8px;
+        }
+
+        .table-time {
+            font-size: 7.5px;
+        }
+
+        .exam-type,
+        .room-chip {
+            font-size: 7px;
+            padding-left: 3px;
+            padding-right: 3px;
+        }
+    }
+</style>
+
+
+<div class="routine-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="rt-surface routine-hero">
+
+        <div>
+            <div class="page-pill">
+                Exam Schedule
+            </div>
+
+            <h1 class="routine-title">
+                Published Exam Routine
+            </h1>
+
+            <p class="routine-subtitle">
+                Check your course, examination type, exam date, start and end time,
+                and assigned room in one organized schedule.
+            </p>
+
+            <div class="hero-action-row">
+                <a
+                    href="{% url 'student_dashboard' %}"
+                    class="soft-button"
+                >
+                    ← Back to Overview
+                </a>
+            </div>
+        </div>
+
+
+        <aside class="routine-summary">
+
+            <div class="summary-label">
+                Published Exams
+            </div>
+
+            <div class="summary-value">
+                {{ exam_routines|length }}
+            </div>
+
+            <div class="summary-desc">
+                {% if exam_routines %}
+                    Published routine currently available.
+                {% else %}
+                    No routine has been published yet.
+                {% endif %}
+            </div>
+
+        </aside>
+
+    </section>
+
+
+    <!-- =====================================================
+         ALERT
+    ====================================================== -->
+
+    <section class="routine-alert">
+
+        <div class="alert-icon">
+            !
+        </div>
+
+        <div>
+            <div class="alert-title">
+                Before exam day
+            </div>
+
+            <div class="alert-text">
+                Confirm your exam date, start time, end time, and room before arriving at the examination hall.
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ROUTINE
+    ====================================================== -->
+
+    <section class="rt-surface routine-panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2 class="panel-title">
+                    Exam Routine
+                </h2>
+
+                <p class="panel-subtitle">
+                    Published examination schedule from the exam office.
+                </p>
+            </div>
+
+
+            {% if exam_routines %}
+                <span class="section-chip">
+                    {{ exam_routines|length }}
+                    Exam{{ exam_routines|length|pluralize }}
+                </span>
+            {% else %}
+                <span class="section-chip">
+                    No Routine
+                </span>
+            {% endif %}
+
+        </div>
+
+
+        {% if exam_routines %}
+
+            <div class="routine-table-wrap">
+
+                <table class="routine-table">
+
+                    <thead>
+                        <tr>
+                            <th class="col-course">
+                                Course
+                            </th>
+
+                            <th class="col-type">
+                                Type
+                            </th>
+
+                            <th class="col-date">
+                                Date
+                            </th>
+
+                            <th class="col-time">
+                                Time
+                            </th>
+
+                            <th class="col-room">
+                                Room
+                            </th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for routine in exam_routines %}
+
+                            <tr>
+
+                                <td class="col-course">
+
+                                    <div class="table-course-code">
+                                        {{ routine.course_offering.course.code }}
+                                    </div>
+
+                                    <div class="table-course-title">
+                                        {{ routine.course_offering.course.title }}
+                                    </div>
+
+                                </td>
+
+
+                                <td class="col-type">
+
+                                    <span class="exam-type">
+                                        {{ routine.get_exam_type_display }}
+                                    </span>
+
+                                </td>
+
+
+                                <td class="col-date">
+
+                                    <div class="table-date">
+                                        {{ routine.exam_date }}
+                                    </div>
+
+                                </td>
+
+
+                                <td class="col-time">
+
+                                    <div class="table-time">
+                                        {{ routine.start_time }}
+                                        <br>
+                                        –
+                                        <br>
+                                        {{ routine.end_time }}
+                                    </div>
+
+                                </td>
+
+
+                                <td class="col-room">
+
+                                    <span class="room-chip">
+                                        {{ routine.room|default:"-" }}
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    —
+                </div>
+
+                <div class="empty-title">
+                    No published exam routine yet
+                </div>
+
+                <div class="empty-text">
+                    Your examination routine will appear here after the exam controller publishes it.
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

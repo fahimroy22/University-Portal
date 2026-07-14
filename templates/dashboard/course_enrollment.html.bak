@@ -1,0 +1,3252 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .enrollment-page {
+        --en-ink: #0f172a;
+        --en-text: #334155;
+        --en-muted: #64748b;
+        --en-faint: #94a3b8;
+        --en-line: #e2e8f0;
+        --en-line-soft: #f1f5f9;
+        --en-bg: #f8fafc;
+        --en-white: #ffffff;
+
+        --en-accent: #b21f1f;
+        --en-accent-dark: #8f1717;
+        --en-accent-soft: #fff1f2;
+        --en-accent-line: #fecaca;
+
+        --en-green: #047857;
+        --en-green-soft: #ecfdf5;
+        --en-green-line: #bbf7d0;
+
+        --en-amber: #b45309;
+        --en-amber-soft: #fffbeb;
+        --en-amber-line: #fde68a;
+
+        --en-blue: #2563eb;
+        --en-blue-soft: #eff6ff;
+        --en-blue-line: #bfdbfe;
+
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        display: grid;
+        gap: 20px;
+    }
+
+    .enrollment-page,
+    .enrollment-page * {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .enrollment-page a {
+        text-decoration: none;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .en-hero {
+        position: relative;
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+
+        padding: 32px;
+        border-radius: 28px;
+
+        background:
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.5),
+                transparent 34%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.75),
+                transparent 34%
+            ),
+            #ffffff;
+
+        border: 1px solid var(--en-line);
+    }
+
+    .en-eyebrow {
+        display: inline-flex;
+        align-items: center;
+
+        min-height: 30px;
+        padding: 0 12px;
+
+        border-radius: 999px;
+        background: var(--en-accent-soft);
+        border: 1px solid #ffe4e6;
+
+        color: var(--en-accent-dark);
+
+        font-size: 10.5px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .en-hero-title {
+        margin: 14px 0 0;
+
+        color: var(--en-ink);
+
+        font-size: clamp(32px, 4vw, 48px);
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.055em;
+    }
+
+    .en-hero-text {
+        margin: 12px 0 0;
+        max-width: 760px;
+
+        color: var(--en-muted);
+
+        font-size: 15px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .en-back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 46px;
+        padding: 0 18px;
+
+        border-radius: 14px;
+        border: 1px solid var(--en-accent-line);
+        background: #ffffff;
+
+        color: var(--en-accent-dark);
+
+        font-size: 13px;
+        font-weight: 850;
+        white-space: nowrap;
+
+        transition:
+            background 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .en-back-button:hover {
+        background: var(--en-accent-soft);
+        transform: translateY(-1px);
+    }
+
+    /* =========================================================
+       SUMMARY
+    ========================================================= */
+
+    .en-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .en-summary-card {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+
+        padding: 18px;
+
+        border-radius: 20px;
+        border: 1px solid var(--en-line);
+        background: #ffffff;
+    }
+
+    .en-summary-icon {
+        width: 48px;
+        height: 48px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 15px;
+
+        background: var(--en-accent-soft);
+        border: 1px solid var(--en-accent-line);
+        color: var(--en-accent);
+    }
+
+    .en-summary-icon svg {
+        width: 21px;
+        height: 21px;
+    }
+
+    .en-summary-label {
+        color: var(--en-faint);
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .en-summary-value {
+        margin-top: 4px;
+
+        color: var(--en-ink);
+
+        font-size: 27px;
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -0.045em;
+    }
+
+    /* =========================================================
+       TABS
+    ========================================================= */
+
+    .en-tab-shell {
+        padding: 8px;
+
+        border-radius: 20px;
+        border: 1px solid var(--en-line);
+        background: #ffffff;
+    }
+
+    .en-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .en-tab {
+        min-height: 48px;
+        padding: 8px 14px;
+
+        border: 1px solid transparent;
+        border-radius: 14px;
+
+        background: #f8fafc;
+        color: #475569;
+
+        font-size: 13px;
+        font-weight: 850;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            color 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .en-tab:hover {
+        background: var(--en-accent-soft);
+        border-color: var(--en-accent-line);
+        color: var(--en-accent-dark);
+    }
+
+    .en-tab.active {
+        background: var(--en-accent);
+        border-color: var(--en-accent);
+        color: #ffffff;
+    }
+
+    .en-tab-panel {
+        display: none;
+    }
+
+    .en-tab-panel.active {
+        display: grid;
+        gap: 20px;
+    }
+
+    /* =========================================================
+       PANEL
+    ========================================================= */
+
+    .en-panel {
+        padding: 26px;
+
+        border-radius: 26px;
+        border: 1px solid var(--en-line);
+        background: #ffffff;
+    }
+
+    .en-panel-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+
+        margin-bottom: 22px;
+    }
+
+    .en-panel-title {
+        margin: 0;
+
+        color: var(--en-ink);
+
+        font-size: 26px;
+        line-height: 1.1;
+        font-weight: 950;
+        letter-spacing: -0.045em;
+    }
+
+    .en-panel-text {
+        margin: 7px 0 0;
+        max-width: 760px;
+
+        color: var(--en-muted);
+
+        font-size: 13.5px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    .en-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 32px;
+        padding: 0 11px;
+
+        border-radius: 999px;
+
+        background: var(--en-accent-soft);
+        border: 1px solid #ffe4e6;
+        color: var(--en-accent-dark);
+
+        font-size: 11px;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .en-chip.slate {
+        background: #f8fafc;
+        border-color: var(--en-line);
+        color: #475569;
+    }
+
+    .en-chip.green {
+        background: var(--en-green-soft);
+        border-color: var(--en-green-line);
+        color: var(--en-green);
+    }
+
+    /* =========================================================
+       FORM ELEMENTS
+    ========================================================= */
+
+    .en-field {
+        margin: 0;
+    }
+
+    .en-field label {
+        display: block;
+
+        margin-bottom: 7px;
+
+        color: var(--en-text);
+
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .en-control {
+        width: 100%;
+        min-height: 46px;
+
+        padding: 10px 13px;
+
+        border-radius: 13px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+
+        color: var(--en-ink);
+
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .en-control:focus {
+        outline: none;
+        border-color: var(--en-accent);
+        box-shadow: 0 0 0 3px rgba(178, 31, 31, 0.1);
+    }
+
+    .en-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .en-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+
+        margin-top: 18px;
+    }
+
+    .en-primary-button,
+    .en-secondary-button,
+    .en-danger-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 44px;
+        padding: 0 16px;
+
+        border-radius: 13px;
+
+        font-size: 12.5px;
+        font-weight: 850;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .en-primary-button {
+        border: 1px solid var(--en-accent);
+        background: var(--en-accent);
+        color: #ffffff;
+    }
+
+    .en-primary-button:hover {
+        background: var(--en-accent-dark);
+        border-color: var(--en-accent-dark);
+        transform: translateY(-1px);
+    }
+
+    .en-secondary-button {
+        border: 1px solid var(--en-line);
+        background: #ffffff;
+        color: var(--en-text);
+    }
+
+    .en-secondary-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .en-danger-button {
+        border: 1px solid var(--en-accent-line);
+        background: #fff7f7;
+        color: #b91c1c;
+    }
+
+    .en-danger-button:hover {
+        background: #fee2e2;
+    }
+
+    /* =========================================================
+       BULK ENROLLMENT
+    ========================================================= */
+
+    .en-step {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+    }
+
+    .en-step + .en-step {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--en-line-soft);
+    }
+
+    .en-step-number {
+        width: 38px;
+        height: 38px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 12px;
+
+        background: var(--en-accent-soft);
+        border: 1px solid var(--en-accent-line);
+
+        color: var(--en-accent-dark);
+
+        font-size: 13px;
+        font-weight: 950;
+    }
+
+    .en-step-title {
+        color: var(--en-ink);
+
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .en-step-text {
+        margin-top: 4px;
+
+        color: var(--en-muted);
+
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .en-target-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+
+        margin-top: 18px;
+    }
+
+    .en-target-card {
+        padding: 17px;
+
+        border-radius: 17px;
+        border: 1px solid var(--en-line);
+        background: #f8fafc;
+    }
+
+    .en-target-label {
+        color: var(--en-faint);
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .en-target-value {
+        margin-top: 6px;
+
+        color: var(--en-ink);
+
+        font-size: 25px;
+        font-weight: 950;
+    }
+
+    .en-help {
+        margin-top: 18px;
+        padding: 15px 16px;
+
+        border-radius: 16px;
+
+        background: var(--en-accent-soft);
+        border: 1px solid var(--en-accent-line);
+
+        color: var(--en-accent-dark);
+
+        font-size: 12.5px;
+        line-height: 1.6;
+        font-weight: 700;
+    }
+
+    /* =========================================================
+       SEARCH TOOLBAR
+    ========================================================= */
+
+    .en-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        margin-bottom: 14px;
+    }
+
+    .en-search-wrap {
+        position: relative;
+
+        flex: 1;
+        max-width: 560px;
+    }
+
+    .en-search-icon {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+
+        width: 17px;
+        height: 17px;
+
+        transform: translateY(-50%);
+
+        color: var(--en-faint);
+        pointer-events: none;
+    }
+
+    .en-search {
+        width: 100%;
+        min-height: 44px;
+
+        padding: 9px 13px 9px 40px;
+
+        border-radius: 13px;
+        border: 1px solid var(--en-line);
+        background: #f8fafc;
+
+        color: var(--en-ink);
+
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .en-search:focus {
+        outline: none;
+        background: #ffffff;
+        border-color: var(--en-accent);
+        box-shadow: 0 0 0 3px rgba(178, 31, 31, 0.08);
+    }
+
+    /* =========================================================
+       SELECTION LISTS
+    ========================================================= */
+
+    .en-selection-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .en-select-panel {
+        overflow: hidden;
+
+        border-radius: 20px;
+        border: 1px solid var(--en-line);
+        background: #ffffff;
+    }
+
+    .en-select-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        padding: 16px 17px;
+
+        border-bottom: 1px solid var(--en-line);
+        background: #f8fafc;
+    }
+
+    .en-select-title {
+        color: var(--en-ink);
+
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    .en-select-all {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+
+        color: var(--en-accent-dark);
+
+        font-size: 11.5px;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .en-select-all input,
+    .en-item-checkbox {
+        width: 16px;
+        height: 16px;
+
+        accent-color: var(--en-accent);
+    }
+
+    .en-select-tools {
+        padding: 12px;
+
+        border-bottom: 1px solid var(--en-line-soft);
+    }
+
+    .en-list {
+        max-height: 440px;
+        overflow-y: auto;
+
+        padding: 10px;
+
+        display: grid;
+        gap: 8px;
+    }
+
+    .en-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .en-list::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+    }
+
+    .en-item {
+        display: grid;
+        grid-template-columns: 18px minmax(0, 1fr);
+        gap: 11px;
+        align-items: start;
+
+        padding: 13px;
+
+        border-radius: 15px;
+        border: 1px solid var(--en-line);
+        background: #ffffff;
+
+        cursor: pointer;
+
+        transition:
+            border-color 0.15s ease,
+            background 0.15s ease;
+    }
+
+    .en-item:hover {
+        background: #fffafa;
+        border-color: var(--en-accent-line);
+    }
+
+    .en-item-title {
+        color: var(--en-ink);
+
+        font-size: 13px;
+        line-height: 1.4;
+        font-weight: 850;
+
+        overflow-wrap: anywhere;
+    }
+
+    .en-item-meta {
+        margin-top: 4px;
+
+        color: var(--en-muted);
+
+        font-size: 11.5px;
+        line-height: 1.55;
+        font-weight: 600;
+
+        overflow-wrap: anywhere;
+    }
+
+    .en-empty {
+        padding: 28px 20px;
+
+        border-radius: 16px;
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+
+        color: var(--en-muted);
+
+        text-align: center;
+
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .en-selected-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        padding: 14px 16px;
+
+        border-top: 1px solid var(--en-line);
+        background: #f8fafc;
+    }
+
+    .en-selected-count {
+        color: var(--en-text);
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    /* =========================================================
+       REGISTRATION MANAGEMENT
+    ========================================================= */
+
+    .en-registration-filter {
+        display: grid;
+        grid-template-columns:
+            minmax(220px, 2fr)
+            repeat(4, minmax(135px, 1fr));
+
+        gap: 10px;
+
+        margin-bottom: 18px;
+    }
+
+    .en-reg-result-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        margin-bottom: 12px;
+    }
+
+    .en-reg-count {
+        color: var(--en-muted);
+
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    /* Desktop table */
+
+    .en-table-wrap {
+        overflow: hidden;
+
+        border-radius: 19px;
+        border: 1px solid var(--en-line);
+    }
+
+    .en-table {
+        width: 100%;
+
+        border-collapse: collapse;
+        background: #ffffff;
+    }
+
+    .en-table th {
+        padding: 13px 12px;
+
+        background: #f8fafc;
+        border-bottom: 1px solid var(--en-line);
+
+        color: var(--en-muted);
+
+        text-align: left;
+
+        font-size: 9.5px;
+        font-weight: 900;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .en-table td {
+        padding: 14px 12px;
+
+        border-bottom: 1px solid var(--en-line-soft);
+
+        color: var(--en-text);
+
+        font-size: 12.5px;
+        line-height: 1.45;
+
+        vertical-align: middle;
+    }
+
+    .en-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .en-table tbody tr:hover td {
+        background: #fffafa;
+    }
+
+    .en-table-main {
+        color: var(--en-ink);
+        font-weight: 850;
+    }
+
+    .en-table-sub {
+        margin-top: 3px;
+
+        color: var(--en-muted);
+
+        font-size: 11.5px;
+    }
+
+    .en-status-form {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .en-status-select {
+        min-height: 38px;
+        min-width: 105px;
+
+        padding: 7px 10px;
+
+        border-radius: 11px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+
+        color: var(--en-text);
+
+        font-size: 11.5px;
+        font-weight: 700;
+    }
+
+    .en-small-save {
+        min-height: 38px;
+        padding: 0 11px;
+
+        border: none;
+        border-radius: 10px;
+
+        background: var(--en-accent);
+        color: #ffffff;
+
+        font-size: 11.5px;
+        font-weight: 850;
+
+        cursor: pointer;
+    }
+
+    .en-small-remove {
+        min-height: 38px;
+        padding: 0 11px;
+
+        border: 1px solid var(--en-accent-line);
+        border-radius: 10px;
+
+        background: #fff7f7;
+        color: #b91c1c;
+
+        font-size: 11.5px;
+        font-weight: 850;
+
+        cursor: pointer;
+    }
+
+    /* Mobile registration cards */
+
+    .en-mobile-registrations {
+        display: none;
+        gap: 12px;
+    }
+
+    .en-reg-card {
+        padding: 16px;
+
+        border-radius: 18px;
+        border: 1px solid var(--en-line);
+        background: #ffffff;
+    }
+
+    .en-reg-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .en-reg-student-id {
+        color: var(--en-ink);
+
+        font-size: 16px;
+        font-weight: 950;
+    }
+
+    .en-reg-name {
+        margin-top: 3px;
+
+        color: var(--en-muted);
+
+        font-size: 12.5px;
+        font-weight: 650;
+    }
+
+    .en-reg-course {
+        margin-top: 14px;
+        padding: 13px;
+
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .en-reg-course-code {
+        color: var(--en-ink);
+
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .en-reg-course-title {
+        margin-top: 3px;
+
+        color: var(--en-muted);
+
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .en-reg-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+
+        margin-top: 10px;
+    }
+
+    .en-reg-meta {
+        padding: 11px;
+
+        border-radius: 13px;
+        border: 1px solid var(--en-line);
+    }
+
+    .en-reg-meta-label {
+        color: var(--en-faint);
+
+        font-size: 8.5px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .en-reg-meta-value {
+        margin-top: 4px;
+
+        color: var(--en-ink);
+
+        font-size: 11.5px;
+        line-height: 1.4;
+        font-weight: 800;
+    }
+
+    .en-reg-card-actions {
+        display: grid;
+        gap: 8px;
+
+        margin-top: 12px;
+    }
+
+    .en-reg-mobile-status {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+    }
+
+    .en-reg-mobile-status .en-status-select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1150px) {
+        .en-registration-filter {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .en-registration-filter .en-search-wrap {
+            grid-column: 1 / -1;
+            max-width: none;
+        }
+
+        .en-selection-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .en-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .en-summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .en-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .en-target-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .en-table-wrap {
+            display: none;
+        }
+
+        .en-mobile-registrations {
+            display: grid;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .enrollment-page {
+            gap: 14px;
+        }
+
+        .en-hero {
+            padding: 22px 18px;
+            border-radius: 22px;
+        }
+
+        .en-hero-title {
+            font-size: 32px;
+        }
+
+        .en-back-button {
+            width: 100%;
+        }
+
+        .en-tabs {
+            grid-template-columns: 1fr;
+        }
+
+        .en-tab {
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .en-panel {
+            padding: 20px 16px;
+            border-radius: 22px;
+        }
+
+        .en-panel-header {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .en-panel-title {
+            font-size: 23px;
+        }
+
+        .en-registration-filter {
+            grid-template-columns: 1fr;
+        }
+
+        .en-registration-filter .en-search-wrap {
+            grid-column: auto;
+        }
+
+        .en-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .en-search-wrap {
+            max-width: none;
+        }
+
+        .en-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .en-primary-button,
+        .en-secondary-button,
+        .en-danger-button {
+            width: 100%;
+        }
+
+        .en-select-head {
+            align-items: flex-start;
+        }
+
+        .en-reg-result-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .en-reg-meta-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .en-reg-mobile-status {
+            grid-template-columns: 1fr;
+        }
+
+        .en-small-save,
+        .en-small-remove {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="enrollment-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+    <section class="en-hero">
+
+        <div>
+            <div class="en-eyebrow">
+                Course Registration
+            </div>
+
+            <h1 class="en-hero-title">
+                Course Enrollment
+            </h1>
+
+            <p class="en-hero-text">
+                Enroll complete batches, handle individual exceptions,
+                and manage existing course registrations from one organized workspace.
+            </p>
+        </div>
+
+        <div>
+            {% if user.role == 'super_admin' %}
+                <a href="{% url 'super_admin_dashboard' %}" class="en-back-button">
+                    ← Back to Dashboard
+                </a>
+
+            {% elif user.role == 'admin' %}
+                <a href="{% url 'admin_dashboard' %}" class="en-back-button">
+                    ← Back to Dashboard
+                </a>
+
+            {% elif user.role == 'dept_head' %}
+                <a href="{% url 'dept_head_dashboard' %}" class="en-back-button">
+                    ← Back to Dashboard
+                </a>
+            {% endif %}
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SUMMARY
+    ====================================================== -->
+    <section class="en-summary-grid">
+
+        <div class="en-summary-card">
+            <div class="en-summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m8-4a4 4 0 10-8 0 4 4 0 008 0z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="en-summary-label">
+                    Students
+                </div>
+
+                <div class="en-summary-value">
+                    {{ student_count }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="en-summary-card">
+            <div class="en-summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="en-summary-label">
+                    Course Offerings
+                </div>
+
+                <div class="en-summary-value">
+                    {{ course_offering_count }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="en-summary-card">
+            <div class="en-summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7 4h10a2 2 0 012 2v14H5V6a2 2 0 012-2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="en-summary-label">
+                    Registrations
+                </div>
+
+                <div class="en-summary-value">
+                    {{ registration_count }}
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         WORKSPACE TABS
+    ====================================================== -->
+    <nav class="en-tab-shell">
+        <div class="en-tabs">
+
+            <button
+                type="button"
+                class="en-tab active"
+                data-enrollment-tab="bulk"
+            >
+                Bulk Enrollment
+            </button>
+
+            <button
+                type="button"
+                class="en-tab"
+                data-enrollment-tab="manual"
+            >
+                Manual Enrollment
+            </button>
+
+            <button
+                type="button"
+                class="en-tab"
+                data-enrollment-tab="registrations"
+            >
+                Manage Registrations
+            </button>
+
+        </div>
+    </nav>
+
+
+    <!-- =====================================================
+         BULK ENROLLMENT TAB
+    ====================================================== -->
+    <div
+        id="bulk"
+        class="en-tab-panel active"
+    >
+
+        <!-- Target Filter -->
+        <section class="en-panel">
+
+            <div class="en-panel-header">
+                <div>
+                    <h2 class="en-panel-title">
+                        Bulk Enrollment
+                    </h2>
+
+                    <p class="en-panel-text">
+                        Select one department, batch, and semester.
+                        Then choose the matching course offerings to enroll all matching students together.
+                    </p>
+                </div>
+
+                <span class="en-chip">
+                    Batch Workflow
+                </span>
+            </div>
+
+
+            <div class="en-step">
+
+                <div class="en-step-number">
+                    1
+                </div>
+
+                <div>
+                    <div class="en-step-title">
+                        Choose the target student group
+                    </div>
+
+                    <div class="en-step-text">
+                        Department, batch, and semester define exactly which students will receive the selected courses.
+                    </div>
+
+
+                    <form method="GET">
+
+                        <input
+                            type="hidden"
+                            name="tab"
+                            value="bulk"
+                        >
+
+                        <div
+                            class="en-filter-grid"
+                            style="margin-top: 17px;"
+                        >
+
+                            <p class="en-field">
+                                <label>
+                                    Department
+                                </label>
+
+                                <select
+                                    name="department"
+                                    class="en-control"
+                                >
+                                    <option value="">
+                                        Select Department
+                                    </option>
+
+                                    {% for department in departments %}
+                                        <option
+                                            value="{{ department.id }}"
+                                            {% if selected_department_id == department.id|stringformat:"s" %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ department.code }} - {{ department.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </p>
+
+
+                            <p class="en-field">
+                                <label>
+                                    Batch
+                                </label>
+
+                                <select
+                                    name="batch"
+                                    class="en-control"
+                                >
+                                    <option value="">
+                                        Select Batch
+                                    </option>
+
+                                    {% for batch in batches %}
+                                        <option
+                                            value="{{ batch.id }}"
+                                            {% if selected_batch_id == batch.id|stringformat:"s" %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ batch.department.code }} - {{ batch.batch_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </p>
+
+
+                            <p class="en-field">
+                                <label>
+                                    Semester
+                                </label>
+
+                                <select
+                                    name="semester"
+                                    class="en-control"
+                                >
+                                    <option value="">
+                                        Select Semester
+                                    </option>
+
+                                    {% for semester in semesters %}
+                                        <option
+                                            value="{{ semester.id }}"
+                                            {% if selected_semester_id == semester.id|stringformat:"s" %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ semester.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </p>
+
+                        </div>
+
+
+                        <div class="en-actions">
+                            <button
+                                type="submit"
+                                class="en-primary-button"
+                            >
+                                Load Target Group
+                            </button>
+
+                            <a
+                                href="{% url 'course_enrollment' %}?tab=bulk"
+                                class="en-secondary-button"
+                            >
+                                Clear Selection
+                            </a>
+                        </div>
+
+                    </form>
+
+
+                    {% if selected_department_id and selected_batch_id and selected_semester_id %}
+
+                        <div class="en-target-summary">
+
+                            <div class="en-target-card">
+                                <div class="en-target-label">
+                                    Matching Students
+                                </div>
+
+                                <div class="en-target-value">
+                                    {{ semester_student_count }}
+                                </div>
+                            </div>
+
+
+                            <div class="en-target-card">
+                                <div class="en-target-label">
+                                    Available Offerings
+                                </div>
+
+                                <div class="en-target-value">
+                                    {{ semester_course_offering_count }}
+                                </div>
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="en-step">
+
+                <div class="en-step-number">
+                    2
+                </div>
+
+                <div>
+                    <div class="en-step-title">
+                        Select courses and enroll the group
+                    </div>
+
+                    <div class="en-step-text">
+                        Only course offerings matching the selected target group are shown here.
+                    </div>
+
+
+                    {% if selected_department_id and selected_batch_id and selected_semester_id %}
+
+                        <form
+                            method="POST"
+                            onsubmit="return confirm('Enroll the selected course offerings to all matching students?');"
+                            style="margin-top: 17px;"
+                        >
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="action"
+                                value="enroll_entire_semester"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="selected_department_id"
+                                value="{{ selected_department_id }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="selected_batch_id"
+                                value="{{ selected_batch_id }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="selected_semester_id"
+                                value="{{ selected_semester_id }}"
+                            >
+
+
+                            <div
+                                class="en-filter-grid"
+                                style="margin-bottom: 16px;"
+                            >
+                                <p class="en-field">
+                                    <label>
+                                        Enrollment Status
+                                    </label>
+
+                                    <select
+                                        name="status"
+                                        class="en-control"
+                                    >
+                                        <option value="approved">
+                                            Approved
+                                        </option>
+
+                                        <option value="pending">
+                                            Pending
+                                        </option>
+
+                                        <option value="rejected">
+                                            Rejected
+                                        </option>
+                                    </select>
+                                </p>
+                            </div>
+
+
+                            <div class="en-select-panel">
+
+                                <div class="en-select-head">
+
+                                    <div class="en-select-title">
+                                        Matching Course Offerings
+                                    </div>
+
+                                    <label class="en-select-all">
+                                        <input
+                                            type="checkbox"
+                                            id="select-all-semester-offerings"
+                                        >
+
+                                        Select All
+                                    </label>
+
+                                </div>
+
+
+                                <div class="en-select-tools">
+
+                                    <div class="en-search-wrap">
+                                        <svg
+                                            class="en-search-icon"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <circle cx="11" cy="11" r="7"></circle>
+                                            <path d="M20 20l-3.5-3.5"></path>
+                                        </svg>
+
+                                        <input
+                                            type="search"
+                                            id="bulk-course-search"
+                                            class="en-search"
+                                            placeholder="Search course code, title, faculty, or section..."
+                                        >
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    class="en-list"
+                                    id="bulk-course-list"
+                                >
+
+                                    {% for offering in semester_course_offerings %}
+
+                                        <label
+                                            class="en-item bulk-course-item"
+                                            data-search="
+                                                {{ offering.course.code }}
+                                                {{ offering.course.title }}
+                                                {{ offering.batch }}
+                                                {{ offering.semester }}
+                                                {{ offering.section }}
+                                                {% if offering.faculty %}
+                                                    {{ offering.faculty.get_full_name|default:offering.faculty.username }}
+                                                {% endif %}
+                                            "
+                                        >
+
+                                            <input
+                                                type="checkbox"
+                                                name="semester_course_offerings"
+                                                value="{{ offering.id }}"
+                                                class="en-item-checkbox semester-offering-checkbox"
+                                            >
+
+                                            <span>
+                                                <span class="en-item-title">
+                                                    {{ offering.course.code }}
+                                                    —
+                                                    {{ offering.course.title }}
+                                                </span>
+
+                                                <span class="en-item-meta">
+                                                    Batch: {{ offering.batch }}
+                                                    · Semester: {{ offering.semester }}
+                                                    · Section: {{ offering.section }}
+                                                    · Faculty:
+                                                    {% if offering.faculty %}
+                                                        {{ offering.faculty.get_full_name|default:offering.faculty.username }}
+                                                    {% else %}
+                                                        Not assigned
+                                                    {% endif %}
+                                                </span>
+                                            </span>
+
+                                        </label>
+
+                                    {% empty %}
+
+                                        <div class="en-empty">
+                                            No course offerings match this target group.
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+
+                                <div class="en-selected-footer">
+
+                                    <div class="en-selected-count">
+                                        <span id="bulk-selected-count">
+                                            0
+                                        </span>
+                                        course offering(s) selected
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="en-actions">
+                                <button
+                                    type="submit"
+                                    class="en-primary-button"
+                                >
+                                    Enroll Entire Batch
+                                </button>
+                            </div>
+
+                        </form>
+
+                    {% else %}
+
+                        <div class="en-help">
+                            Select one department, one batch, and one semester above,
+                            then click <strong>Load Target Group</strong>.
+                            Matching students and course offerings will appear here.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =====================================================
+         MANUAL ENROLLMENT TAB
+    ====================================================== -->
+    <div
+        id="manual"
+        class="en-tab-panel"
+    >
+
+        <section class="en-panel">
+
+            <div class="en-panel-header">
+                <div>
+                    <h2 class="en-panel-title">
+                        Manual Enrollment
+                    </h2>
+
+                    <p class="en-panel-text">
+                        Use this workspace for individual students, exceptions,
+                        section changes, or special course registration cases.
+                    </p>
+                </div>
+
+                <span class="en-chip">
+                    Individual Workflow
+                </span>
+            </div>
+
+
+            <!-- Optional data filter -->
+            <form method="GET">
+
+                <input
+                    type="hidden"
+                    name="tab"
+                    value="manual"
+                >
+
+                <div class="en-filter-grid">
+
+                    <p class="en-field">
+                        <label>
+                            Department Filter
+                        </label>
+
+                        <select
+                            name="department"
+                            class="en-control"
+                        >
+                            <option value="">
+                                All Departments
+                            </option>
+
+                            {% for department in departments %}
+                                <option
+                                    value="{{ department.id }}"
+                                    {% if selected_department_id == department.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ department.code }} - {{ department.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+
+                    <p class="en-field">
+                        <label>
+                            Batch Filter
+                        </label>
+
+                        <select
+                            name="batch"
+                            class="en-control"
+                        >
+                            <option value="">
+                                All Batches
+                            </option>
+
+                            {% for batch in batches %}
+                                <option
+                                    value="{{ batch.id }}"
+                                    {% if selected_batch_id == batch.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ batch.department.code }} - {{ batch.batch_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+
+                    <p class="en-field">
+                        <label>
+                            Semester Filter
+                        </label>
+
+                        <select
+                            name="semester"
+                            class="en-control"
+                        >
+                            <option value="">
+                                All Semesters
+                            </option>
+
+                            {% for semester in semesters %}
+                                <option
+                                    value="{{ semester.id }}"
+                                    {% if selected_semester_id == semester.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ semester.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                </div>
+
+
+                <div class="en-actions">
+                    <button
+                        type="submit"
+                        class="en-primary-button"
+                    >
+                        Apply Filters
+                    </button>
+
+                    <a
+                        href="{% url 'course_enrollment' %}?tab=manual"
+                        class="en-secondary-button"
+                    >
+                        Clear
+                    </a>
+                </div>
+
+            </form>
+
+
+            <form
+                method="POST"
+                style="margin-top: 24px;"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="enroll_selected"
+                >
+
+                <input
+                    type="hidden"
+                    name="selected_department_id"
+                    value="{{ selected_department_id|default:'' }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="selected_batch_id"
+                    value="{{ selected_batch_id|default:'' }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="selected_semester_id"
+                    value="{{ selected_semester_id|default:'' }}"
+                >
+
+
+                <div
+                    class="en-filter-grid"
+                    style="margin-bottom: 18px;"
+                >
+
+                    <p class="en-field">
+                        <label>
+                            Enrollment Status
+                        </label>
+
+                        <select
+                            name="status"
+                            class="en-control"
+                        >
+                            <option value="approved">
+                                Approved
+                            </option>
+
+                            <option value="pending">
+                                Pending
+                            </option>
+
+                            <option value="rejected">
+                                Rejected
+                            </option>
+                        </select>
+                    </p>
+
+                </div>
+
+
+                <div class="en-selection-grid">
+
+                    <!-- STUDENTS -->
+                    <section class="en-select-panel">
+
+                        <div class="en-select-head">
+
+                            <div class="en-select-title">
+                                Students
+                            </div>
+
+                            <label class="en-select-all">
+                                <input
+                                    type="checkbox"
+                                    id="select-all-students"
+                                >
+
+                                Select All
+                            </label>
+
+                        </div>
+
+
+                        <div class="en-select-tools">
+
+                            <div class="en-search-wrap">
+
+                                <svg
+                                    class="en-search-icon"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <path d="M20 20l-3.5-3.5"></path>
+                                </svg>
+
+                                <input
+                                    type="search"
+                                    id="student-search"
+                                    class="en-search"
+                                    placeholder="Search student ID or name..."
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="en-list"
+                            id="student-list"
+                        >
+
+                            {% for student in students %}
+
+                                <label
+                                    class="en-item student-item"
+                                    data-search="
+                                        {{ student.student_id }}
+                                        {{ student.user.get_full_name }}
+                                        {{ student.user.username }}
+                                        {{ student.department }}
+                                        {{ student.batch }}
+                                        {{ student.current_semester }}
+                                    "
+                                >
+
+                                    <input
+                                        type="checkbox"
+                                        name="students"
+                                        value="{{ student.id }}"
+                                        class="en-item-checkbox student-checkbox"
+                                    >
+
+                                    <span>
+
+                                        <span class="en-item-title">
+                                            {{ student.student_id }}
+                                            —
+                                            {{ student.user.get_full_name|default:student.user.username }}
+                                        </span>
+
+                                        <span class="en-item-meta">
+                                            Department: {{ student.department }}
+                                            · Batch: {{ student.batch }}
+                                            · Semester: {{ student.current_semester }}
+                                        </span>
+
+                                    </span>
+
+                                </label>
+
+                            {% empty %}
+
+                                <div class="en-empty">
+                                    No students found for the selected filters.
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="en-selected-footer">
+
+                            <div class="en-selected-count">
+                                <span id="student-selected-count">
+                                    0
+                                </span>
+                                student(s) selected
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- COURSE OFFERINGS -->
+                    <section class="en-select-panel">
+
+                        <div class="en-select-head">
+
+                            <div class="en-select-title">
+                                Course Offerings
+                            </div>
+
+                            <label class="en-select-all">
+                                <input
+                                    type="checkbox"
+                                    id="select-all-offerings"
+                                >
+
+                                Select All
+                            </label>
+
+                        </div>
+
+
+                        <div class="en-select-tools">
+
+                            <div class="en-search-wrap">
+
+                                <svg
+                                    class="en-search-icon"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <path d="M20 20l-3.5-3.5"></path>
+                                </svg>
+
+                                <input
+                                    type="search"
+                                    id="offering-search"
+                                    class="en-search"
+                                    placeholder="Search course code, title, section, or faculty..."
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="en-list"
+                            id="offering-list"
+                        >
+
+                            {% for offering in course_offerings %}
+
+                                <label
+                                    class="en-item offering-item"
+                                    data-search="
+                                        {{ offering.course.code }}
+                                        {{ offering.course.title }}
+                                        {{ offering.batch }}
+                                        {{ offering.semester }}
+                                        {{ offering.section }}
+                                        {% if offering.faculty %}
+                                            {{ offering.faculty.get_full_name }}
+                                            {{ offering.faculty.username }}
+                                        {% endif %}
+                                    "
+                                >
+
+                                    <input
+                                        type="checkbox"
+                                        name="course_offerings"
+                                        value="{{ offering.id }}"
+                                        class="en-item-checkbox offering-checkbox"
+                                    >
+
+                                    <span>
+
+                                        <span class="en-item-title">
+                                            {{ offering.course.code }}
+                                            —
+                                            {{ offering.course.title }}
+                                        </span>
+
+                                        <span class="en-item-meta">
+                                            Batch: {{ offering.batch }}
+                                            · Semester: {{ offering.semester }}
+                                            · Section: {{ offering.section }}
+                                            · Faculty:
+                                            {% if offering.faculty %}
+                                                {{ offering.faculty.get_full_name|default:offering.faculty.username }}
+                                            {% else %}
+                                                Not assigned
+                                            {% endif %}
+                                        </span>
+
+                                    </span>
+
+                                </label>
+
+                            {% empty %}
+
+                                <div class="en-empty">
+                                    No course offerings found for the selected filters.
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="en-selected-footer">
+
+                            <div class="en-selected-count">
+                                <span id="offering-selected-count">
+                                    0
+                                </span>
+                                offering(s) selected
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+
+                <div class="en-actions">
+                    <button
+                        type="submit"
+                        class="en-primary-button"
+                    >
+                        Enroll Selected Students
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+
+
+    <!-- =====================================================
+         MANAGE REGISTRATIONS TAB
+    ====================================================== -->
+    <div
+        id="registrations"
+        class="en-tab-panel"
+    >
+
+        <section class="en-panel">
+
+            <div class="en-panel-header">
+
+                <div>
+                    <h2 class="en-panel-title">
+                        Manage Registrations
+                    </h2>
+
+                    <p class="en-panel-text">
+                        Search and filter existing registrations,
+                        update approval status, or remove incorrect enrollment records.
+                    </p>
+                </div>
+
+                <span class="en-chip slate">
+                    {{ registration_count }} Records
+                </span>
+
+            </div>
+
+
+            <!-- Client-side registration filters -->
+            <div class="en-registration-filter">
+
+                <div class="en-search-wrap">
+
+                    <svg
+                        class="en-search-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="M20 20l-3.5-3.5"></path>
+                    </svg>
+
+                    <input
+                        type="search"
+                        id="registration-search"
+                        class="en-search"
+                        placeholder="Search student ID, name, course code, or title..."
+                    >
+
+                </div>
+
+
+                <select
+                    id="registration-department-filter"
+                    class="en-control"
+                >
+                    <option value="">
+                        All Departments
+                    </option>
+
+                    {% for department in departments %}
+                        <option value="{{ department.code|lower }}">
+                            {{ department.code }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+
+                <select
+                    id="registration-batch-filter"
+                    class="en-control"
+                >
+                    <option value="">
+                        All Batches
+                    </option>
+
+                    {% for batch in batches %}
+                        <option value="{{ batch|stringformat:'s'|lower }}">
+                            {{ batch }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+
+                <select
+                    id="registration-semester-filter"
+                    class="en-control"
+                >
+                    <option value="">
+                        All Semesters
+                    </option>
+
+                    {% for semester in semesters %}
+                        <option value="{{ semester|stringformat:'s'|lower }}">
+                            {{ semester }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+
+                <select
+                    id="registration-status-filter"
+                    class="en-control"
+                >
+                    <option value="">
+                        All Statuses
+                    </option>
+
+                    <option value="approved">
+                        Approved
+                    </option>
+
+                    <option value="pending">
+                        Pending
+                    </option>
+
+                    <option value="rejected">
+                        Rejected
+                    </option>
+                </select>
+
+            </div>
+
+
+            <div class="en-reg-result-bar">
+
+                <div class="en-reg-count">
+                    Showing
+                    <strong id="visible-registration-count">
+                        {{ registration_count }}
+                    </strong>
+                    matching registration(s)
+                </div>
+
+
+                <button
+                    type="button"
+                    id="clear-registration-filters"
+                    class="en-secondary-button"
+                >
+                    Clear Filters
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 DESKTOP TABLE
+            ================================================== -->
+            <div class="en-table-wrap">
+
+                <table class="en-table">
+
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Batch</th>
+                            <th>Semester</th>
+                            <th>Status</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for registration in registrations %}
+
+                            <tr
+                                class="registration-record"
+                                data-search="
+                                    {{ registration.student.student_id }}
+                                    {{ registration.student.user.get_full_name }}
+                                    {{ registration.student.user.username }}
+                                    {{ registration.course_offering.course.code }}
+                                    {{ registration.course_offering.course.title }}
+                                "
+                                data-department="{{ registration.student.department.code|default:''|lower }}"
+                                data-batch="{{ registration.course_offering.batch|stringformat:'s'|lower }}"
+                                data-semester="{{ registration.course_offering.semester|stringformat:'s'|lower }}"
+                                data-status="{{ registration.status|lower }}"
+                            >
+
+                                <td>
+                                    <div class="en-table-main">
+                                        {{ registration.student.student_id }}
+                                    </div>
+
+                                    <div class="en-table-sub">
+                                        {{ registration.student.user.get_full_name|default:registration.student.user.username }}
+                                    </div>
+                                </td>
+
+
+                                <td>
+                                    <div class="en-table-main">
+                                        {{ registration.course_offering.course.code }}
+                                    </div>
+
+                                    <div class="en-table-sub">
+                                        {{ registration.course_offering.course.title }}
+                                    </div>
+                                </td>
+
+
+                                <td>
+                                    {{ registration.course_offering.batch }}
+                                </td>
+
+
+                                <td>
+                                    {{ registration.course_offering.semester }}
+                                </td>
+
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        class="en-status-form"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="update_registration"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="registration_id"
+                                            value="{{ registration.id }}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="selected_department_id"
+                                            value="{{ selected_department_id|default:'' }}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="selected_batch_id"
+                                            value="{{ selected_batch_id|default:'' }}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="selected_semester_id"
+                                            value="{{ selected_semester_id|default:'' }}"
+                                        >
+
+
+                                        <select
+                                            name="status"
+                                            class="en-status-select"
+                                        >
+                                            <option
+                                                value="pending"
+                                                {% if registration.status == 'pending' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                Pending
+                                            </option>
+
+                                            <option
+                                                value="approved"
+                                                {% if registration.status == 'approved' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                Approved
+                                            </option>
+
+                                            <option
+                                                value="rejected"
+                                                {% if registration.status == 'rejected' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                Rejected
+                                            </option>
+                                        </select>
+
+
+                                        <button
+                                            type="submit"
+                                            class="en-small-save"
+                                        >
+                                            Save
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        onsubmit="return confirm('Remove this course registration?');"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="remove_registration"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="registration_id"
+                                            value="{{ registration.id }}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="selected_department_id"
+                                            value="{{ selected_department_id|default:'' }}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="selected_batch_id"
+                                            value="{{ selected_batch_id|default:'' }}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="selected_semester_id"
+                                            value="{{ selected_semester_id|default:'' }}"
+                                        >
+
+
+                                        <button
+                                            type="submit"
+                                            class="en-small-remove"
+                                        >
+                                            Remove
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+                                <td colspan="6">
+                                    <div class="en-empty">
+                                        No course registrations found.
+                                    </div>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- =================================================
+                 MOBILE REGISTRATION CARDS
+            ================================================== -->
+            <div class="en-mobile-registrations">
+
+                {% for registration in registrations %}
+
+                    <article
+                        class="en-reg-card registration-record-mobile"
+                        data-search="
+                            {{ registration.student.student_id }}
+                            {{ registration.student.user.get_full_name }}
+                            {{ registration.student.user.username }}
+                            {{ registration.course_offering.course.code }}
+                            {{ registration.course_offering.course.title }}
+                        "
+                        data-department="{{ registration.student.department.code|default:''|lower }}"
+                        data-batch="{{ registration.course_offering.batch|stringformat:'s'|lower }}"
+                        data-semester="{{ registration.course_offering.semester|stringformat:'s'|lower }}"
+                        data-status="{{ registration.status|lower }}"
+                    >
+
+                        <div class="en-reg-card-top">
+
+                            <div>
+                                <div class="en-reg-student-id">
+                                    {{ registration.student.student_id }}
+                                </div>
+
+                                <div class="en-reg-name">
+                                    {{ registration.student.user.get_full_name|default:registration.student.user.username }}
+                                </div>
+                            </div>
+
+                            <span class="
+                                en-chip
+                                {% if registration.status == 'approved' %}
+                                    green
+                                {% endif %}
+                            ">
+                                {{ registration.get_status_display }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="en-reg-course">
+
+                            <div class="en-reg-course-code">
+                                {{ registration.course_offering.course.code }}
+                            </div>
+
+                            <div class="en-reg-course-title">
+                                {{ registration.course_offering.course.title }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="en-reg-meta-grid">
+
+                            <div class="en-reg-meta">
+                                <div class="en-reg-meta-label">
+                                    Department
+                                </div>
+
+                                <div class="en-reg-meta-value">
+                                    {{ registration.student.department }}
+                                </div>
+                            </div>
+
+
+                            <div class="en-reg-meta">
+                                <div class="en-reg-meta-label">
+                                    Batch
+                                </div>
+
+                                <div class="en-reg-meta-value">
+                                    {{ registration.course_offering.batch }}
+                                </div>
+                            </div>
+
+
+                            <div class="en-reg-meta">
+                                <div class="en-reg-meta-label">
+                                    Semester
+                                </div>
+
+                                <div class="en-reg-meta-value">
+                                    {{ registration.course_offering.semester }}
+                                </div>
+                            </div>
+
+
+                            <div class="en-reg-meta">
+                                <div class="en-reg-meta-label">
+                                    Section
+                                </div>
+
+                                <div class="en-reg-meta-value">
+                                    {{ registration.course_offering.section }}
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="en-reg-card-actions">
+
+                            <form
+                                method="POST"
+                                class="en-reg-mobile-status"
+                            >
+
+                                {% csrf_token %}
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="update_registration"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="registration_id"
+                                    value="{{ registration.id }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="selected_department_id"
+                                    value="{{ selected_department_id|default:'' }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="selected_batch_id"
+                                    value="{{ selected_batch_id|default:'' }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="selected_semester_id"
+                                    value="{{ selected_semester_id|default:'' }}"
+                                >
+
+
+                                <select
+                                    name="status"
+                                    class="en-status-select"
+                                >
+                                    <option
+                                        value="pending"
+                                        {% if registration.status == 'pending' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Pending
+                                    </option>
+
+                                    <option
+                                        value="approved"
+                                        {% if registration.status == 'approved' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Approved
+                                    </option>
+
+                                    <option
+                                        value="rejected"
+                                        {% if registration.status == 'rejected' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Rejected
+                                    </option>
+                                </select>
+
+
+                                <button
+                                    type="submit"
+                                    class="en-small-save"
+                                >
+                                    Save
+                                </button>
+
+                            </form>
+
+
+                            <form
+                                method="POST"
+                                onsubmit="return confirm('Remove this course registration?');"
+                            >
+
+                                {% csrf_token %}
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="remove_registration"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="registration_id"
+                                    value="{{ registration.id }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="selected_department_id"
+                                    value="{{ selected_department_id|default:'' }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="selected_batch_id"
+                                    value="{{ selected_batch_id|default:'' }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="selected_semester_id"
+                                    value="{{ selected_semester_id|default:'' }}"
+                                >
+
+
+                                <button
+                                    type="submit"
+                                    class="en-danger-button"
+                                    style="width: 100%;"
+                                >
+                                    Remove Registration
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+
+                {% empty %}
+
+                    <div class="en-empty">
+                        No course registrations found.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<script>
+    (function () {
+
+        /* =====================================================
+           TABS
+        ====================================================== */
+
+        const tabButtons = document.querySelectorAll('[data-enrollment-tab]');
+        const tabPanels = document.querySelectorAll('.en-tab-panel');
+
+        function activateEnrollmentTab(tabName) {
+            tabButtons.forEach(function (button) {
+                button.classList.toggle(
+                    'active',
+                    button.dataset.enrollmentTab === tabName
+                );
+            });
+
+            tabPanels.forEach(function (panel) {
+                panel.classList.toggle(
+                    'active',
+                    panel.id === tabName
+                );
+            });
+
+            sessionStorage.setItem(
+                'courseEnrollmentActiveTab',
+                tabName
+            );
+        }
+
+
+        tabButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                activateEnrollmentTab(
+                    button.dataset.enrollmentTab
+                );
+            });
+        });
+
+
+        const urlTab = new URLSearchParams(
+            window.location.search
+        ).get('tab');
+
+        const savedTab = sessionStorage.getItem(
+            'courseEnrollmentActiveTab'
+        );
+
+        if (
+            urlTab === 'bulk' ||
+            urlTab === 'manual' ||
+            urlTab === 'registrations'
+        ) {
+            activateEnrollmentTab(urlTab);
+
+        } else if (savedTab) {
+            activateEnrollmentTab(savedTab);
+        }
+
+
+        document.querySelectorAll('form').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                const activeTab = document.querySelector(
+                    '.en-tab.active'
+                );
+
+                if (activeTab) {
+                    sessionStorage.setItem(
+                        'courseEnrollmentActiveTab',
+                        activeTab.dataset.enrollmentTab
+                    );
+                }
+            });
+        });
+
+
+        /* =====================================================
+           GENERIC LIST SEARCH
+        ====================================================== */
+
+        function setupListSearch(
+            inputId,
+            itemSelector
+        ) {
+            const input = document.getElementById(inputId);
+
+            if (!input) {
+                return;
+            }
+
+            const items = document.querySelectorAll(itemSelector);
+
+            input.addEventListener('input', function () {
+                const query = input.value
+                    .toLowerCase()
+                    .trim();
+
+                items.forEach(function (item) {
+                    const searchText = (
+                        item.dataset.search || ''
+                    ).toLowerCase();
+
+                    item.style.display = searchText.includes(query)
+                        ? ''
+                        : 'none';
+                });
+            });
+        }
+
+
+        setupListSearch(
+            'bulk-course-search',
+            '.bulk-course-item'
+        );
+
+        setupListSearch(
+            'student-search',
+            '.student-item'
+        );
+
+        setupListSearch(
+            'offering-search',
+            '.offering-item'
+        );
+
+
+        /* =====================================================
+           CHECKBOX COUNTERS
+        ====================================================== */
+
+        function setupCheckboxGroup(
+            selectAllId,
+            checkboxSelector,
+            countId
+        ) {
+            const selectAll = document.getElementById(selectAllId);
+            const checkboxes = document.querySelectorAll(
+                checkboxSelector
+            );
+            const countElement = document.getElementById(countId);
+
+            function updateCount() {
+                const checkedCount = Array.from(
+                    checkboxes
+                ).filter(function (checkbox) {
+                    return checkbox.checked;
+                }).length;
+
+                if (countElement) {
+                    countElement.textContent = checkedCount;
+                }
+
+                if (selectAll) {
+                    if (checkboxes.length === 0) {
+                        selectAll.checked = false;
+                        selectAll.indeterminate = false;
+                        return;
+                    }
+
+                    selectAll.checked =
+                        checkedCount === checkboxes.length;
+
+                    selectAll.indeterminate =
+                        checkedCount > 0 &&
+                        checkedCount < checkboxes.length;
+                }
+            }
+
+
+            if (selectAll) {
+                selectAll.addEventListener(
+                    'change',
+                    function () {
+                        checkboxes.forEach(function (checkbox) {
+                            checkbox.checked = selectAll.checked;
+                        });
+
+                        updateCount();
+                    }
+                );
+            }
+
+
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener(
+                    'change',
+                    updateCount
+                );
+            });
+
+
+            updateCount();
+        }
+
+
+        setupCheckboxGroup(
+            'select-all-semester-offerings',
+            '.semester-offering-checkbox',
+            'bulk-selected-count'
+        );
+
+        setupCheckboxGroup(
+            'select-all-students',
+            '.student-checkbox',
+            'student-selected-count'
+        );
+
+        setupCheckboxGroup(
+            'select-all-offerings',
+            '.offering-checkbox',
+            'offering-selected-count'
+        );
+
+
+        /* =====================================================
+           REGISTRATION FILTERING
+        ====================================================== */
+
+        const registrationSearch = document.getElementById(
+            'registration-search'
+        );
+
+        const departmentFilter = document.getElementById(
+            'registration-department-filter'
+        );
+
+        const batchFilter = document.getElementById(
+            'registration-batch-filter'
+        );
+
+        const semesterFilter = document.getElementById(
+            'registration-semester-filter'
+        );
+
+        const statusFilter = document.getElementById(
+            'registration-status-filter'
+        );
+
+        const clearRegistrationFilters = document.getElementById(
+            'clear-registration-filters'
+        );
+
+        const visibleCount = document.getElementById(
+            'visible-registration-count'
+        );
+
+        const desktopRecords = document.querySelectorAll(
+            '.registration-record'
+        );
+
+        const mobileRecords = document.querySelectorAll(
+            '.registration-record-mobile'
+        );
+
+
+        function recordMatches(record) {
+            const query = registrationSearch
+                ? registrationSearch.value.toLowerCase().trim()
+                : '';
+
+            const department = departmentFilter
+                ? departmentFilter.value.toLowerCase().trim()
+                : '';
+
+            const batch = batchFilter
+                ? batchFilter.value.toLowerCase().trim()
+                : '';
+
+            const semester = semesterFilter
+                ? semesterFilter.value.toLowerCase().trim()
+                : '';
+
+            const status = statusFilter
+                ? statusFilter.value.toLowerCase().trim()
+                : '';
+
+
+            const searchText = (
+                record.dataset.search || ''
+            ).toLowerCase();
+
+            const recordDepartment = (
+                record.dataset.department || ''
+            ).toLowerCase();
+
+            const recordBatch = (
+                record.dataset.batch || ''
+            ).toLowerCase();
+
+            const recordSemester = (
+                record.dataset.semester || ''
+            ).toLowerCase();
+
+            const recordStatus = (
+                record.dataset.status || ''
+            ).toLowerCase();
+
+
+            return (
+                (!query || searchText.includes(query)) &&
+                (!department || recordDepartment === department) &&
+                (!batch || recordBatch === batch) &&
+                (!semester || recordSemester === semester) &&
+                (!status || recordStatus === status)
+            );
+        }
+
+
+        function filterRegistrations() {
+            let matchCount = 0;
+
+            desktopRecords.forEach(function (record) {
+                const matches = recordMatches(record);
+
+                record.style.display = matches
+                    ? ''
+                    : 'none';
+
+                if (matches) {
+                    matchCount += 1;
+                }
+            });
+
+
+            mobileRecords.forEach(function (record) {
+                const matches = recordMatches(record);
+
+                record.style.display = matches
+                    ? ''
+                    : 'none';
+            });
+
+
+            if (visibleCount) {
+                visibleCount.textContent = matchCount;
+            }
+        }
+
+
+        [
+            registrationSearch,
+            departmentFilter,
+            batchFilter,
+            semesterFilter,
+            statusFilter
+        ].forEach(function (element) {
+            if (!element) {
+                return;
+            }
+
+            element.addEventListener(
+                element.tagName === 'INPUT'
+                    ? 'input'
+                    : 'change',
+                filterRegistrations
+            );
+        });
+
+
+        if (clearRegistrationFilters) {
+            clearRegistrationFilters.addEventListener(
+                'click',
+                function () {
+                    if (registrationSearch) {
+                        registrationSearch.value = '';
+                    }
+
+                    if (departmentFilter) {
+                        departmentFilter.value = '';
+                    }
+
+                    if (batchFilter) {
+                        batchFilter.value = '';
+                    }
+
+                    if (semesterFilter) {
+                        semesterFilter.value = '';
+                    }
+
+                    if (statusFilter) {
+                        statusFilter.value = '';
+                    }
+
+                    filterRegistrations();
+                }
+            );
+        }
+
+
+        filterRegistrations();
+
+    })();
+</script>
+
+{% endblock %}

@@ -1,0 +1,1298 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .ecd-page {
+        display: grid;
+        gap: 22px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .ecd-page,
+    .ecd-page * {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .ecd-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 30px 32px;
+        border: 1px solid #fecaca;
+        border-radius: 28px;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(254, 226, 226, 0.82),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #fffafa 0%,
+                #fff1f2 52%,
+                #ffffff 100%
+            );
+    }
+
+    .ecd-kicker {
+        margin-bottom: 10px;
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .ecd-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(32px, 4vw, 47px);
+        font-weight: 950;
+        letter-spacing: -0.05em;
+        line-height: 1.04;
+    }
+
+    .ecd-description {
+        max-width: 820px;
+        margin: 10px 0 0;
+        color: #64748b;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.65;
+    }
+
+    .ecd-back {
+        min-height: 46px;
+        padding: 0 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border: 1px solid #fecaca;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #9f1c1c;
+        font-size: 13px;
+        font-weight: 900;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .ecd-workflow {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 17px 20px;
+        border: 1px solid #dbe3ef;
+        border-radius: 19px;
+        background: #f8fafc;
+    }
+
+    .ecd-workflow-icon {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .ecd-workflow-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .ecd-workflow p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .ecd-workflow strong {
+        color: #0f172a;
+    }
+
+    .ecd-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.72fr);
+        gap: 22px;
+        align-items: start;
+    }
+
+    .ecd-stack {
+        display: grid;
+        gap: 22px;
+    }
+
+    .ecd-card {
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        background: #ffffff;
+    }
+
+    .ecd-card-header {
+        padding: 22px 24px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .ecd-card-header-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .ecd-card-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 23px;
+        font-weight: 950;
+        letter-spacing: -0.035em;
+        line-height: 1.15;
+    }
+
+    .ecd-card-text {
+        margin: 7px 0 0;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.55;
+    }
+
+    .ecd-card-body {
+        padding: 24px;
+    }
+
+    .ecd-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .ecd-status-pending {
+        border: 1px solid #fde68a;
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    .ecd-status-verified {
+        border: 1px solid #bbf7d0;
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .ecd-status-rejected {
+        border: 1px solid #fecaca;
+        background: #fff1f2;
+        color: #b91c1c;
+    }
+
+    .ecd-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 13px;
+    }
+
+    .ecd-info-item {
+        padding: 16px;
+        border: 1px solid #dbe3ef;
+        border-radius: 16px;
+        background: #f8fafc;
+    }
+
+    .ecd-label {
+        display: block;
+        margin-bottom: 6px;
+        color: #94a3b8;
+        font-size: 9px;
+        font-weight: 950;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .ecd-value {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 850;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .ecd-reason {
+        padding: 18px;
+        border: 1px solid #fecaca;
+        border-radius: 17px;
+        background: #fffafa;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 650;
+        line-height: 1.75;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .ecd-note {
+        padding: 18px;
+        border: 1px solid #dbe3ef;
+        border-radius: 17px;
+        background: #f8fafc;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 650;
+        line-height: 1.75;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .ecd-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .ecd-table {
+        width: 100%;
+        min-width: 690px;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 17px;
+    }
+
+    .ecd-table th {
+        padding: 13px 15px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.09em;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    .ecd-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .ecd-table tbody tr:last-child td,
+    .ecd-table tfoot tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .ecd-table .ecd-changed td {
+        background: #fffafa;
+    }
+
+    .ecd-table .ecd-total-row td {
+        border-top: 2px solid #e2e8f0;
+        background: #f8fafc;
+        color: #0f172a;
+        font-weight: 950;
+    }
+
+    .ecd-old-mark {
+        color: #64748b;
+    }
+
+    .ecd-new-mark {
+        color: #9f1c1c;
+        font-weight: 950;
+    }
+
+    .ecd-difference-positive {
+        color: #047857;
+        font-weight: 950;
+    }
+
+    .ecd-difference-negative {
+        color: #b91c1c;
+        font-weight: 950;
+    }
+
+    .ecd-difference-neutral {
+        color: #94a3b8;
+        font-weight: 850;
+    }
+
+    .ecd-requested-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 22px;
+        margin-left: 7px;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: #fee2e2;
+        color: #b91c1c;
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        vertical-align: middle;
+    }
+
+    .ecd-attachment-list {
+        display: grid;
+        gap: 13px;
+    }
+
+    .ecd-attachment {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 16px;
+        border: 1px solid #dbe3ef;
+        border-radius: 17px;
+        background: #f8fafc;
+    }
+
+    .ecd-attachment-icon {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .ecd-attachment-icon svg {
+        width: 21px;
+        height: 21px;
+    }
+
+    .ecd-attachment-info {
+        flex: 1;
+    }
+
+    .ecd-attachment-info strong {
+        display: block;
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .ecd-attachment-info span {
+        display: block;
+        margin-top: 4px;
+        overflow: hidden;
+        color: #64748b;
+        font-size: 11px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ecd-attachment-link {
+        min-height: 40px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        background: #ffffff;
+        color: #9f1c1c;
+        font-size: 12px;
+        font-weight: 900;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .ecd-empty {
+        padding: 17px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 16px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.55;
+        text-align: center;
+    }
+
+    .ecd-side-card {
+        position: sticky;
+        top: 20px;
+    }
+
+    .ecd-warning {
+        margin-bottom: 18px;
+        padding: 16px;
+        border: 1px solid #fde68a;
+        border-radius: 16px;
+        background: #fffbeb;
+        color: #92400e;
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.6;
+    }
+
+    .ecd-field {
+        margin-top: 17px;
+    }
+
+    .ecd-field:first-child {
+        margin-top: 0;
+    }
+
+    .ecd-field-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .ecd-field-help {
+        margin: -1px 0 8px;
+        color: #94a3b8;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .ecd-textarea {
+        width: 100%;
+        min-height: 145px;
+        padding: 13px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 15px;
+        background: #ffffff;
+        color: #0f172a;
+        font: inherit;
+        font-size: 13px;
+        line-height: 1.6;
+        resize: vertical;
+        outline: none;
+    }
+
+    .ecd-textarea:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+    }
+
+    .ecd-file-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #334155;
+        font-size: 12px;
+    }
+
+    .ecd-actions {
+        display: grid;
+        gap: 10px;
+        margin-top: 19px;
+    }
+
+    .ecd-button {
+        width: 100%;
+        min-height: 49px;
+        padding: 0 14px;
+        border-radius: 14px;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 950;
+        cursor: pointer;
+    }
+
+    .ecd-verify-button {
+        border: 1px solid #9f1c1c;
+        background: #9f1c1c;
+        color: #ffffff;
+    }
+
+    .ecd-reject-button {
+        border: 1px solid #fecaca;
+        background: #ffffff;
+        color: #b91c1c;
+    }
+
+    .ecd-action-help {
+        margin-top: 17px;
+        padding-top: 17px;
+        border-top: 1px solid #eef2f7;
+        color: #64748b;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    .ecd-reviewed {
+        padding: 17px;
+        border: 1px solid #dbe3ef;
+        border-radius: 16px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.65;
+    }
+
+    .ecd-reviewed-note {
+        margin-top: 14px;
+        padding: 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #334155;
+        white-space: pre-wrap;
+    }
+
+    @media (max-width: 1000px) {
+        .ecd-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .ecd-side-card {
+            position: static;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .ecd-hero {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 24px 21px;
+        }
+
+        .ecd-back {
+            width: 100%;
+        }
+
+        .ecd-card-header,
+        .ecd-card-body {
+            padding: 19px;
+        }
+
+        .ecd-card-header-row {
+            flex-direction: column;
+        }
+
+        .ecd-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ecd-attachment {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .ecd-attachment-link {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="ecd-page">
+
+    <section class="ecd-hero">
+
+        <div>
+            <div class="ecd-kicker">
+                Exam Controller Review
+            </div>
+
+            <h1 class="ecd-title">
+                Review Result Correction
+            </h1>
+
+            <p class="ecd-description">
+                Verify the faculty-submitted correction against the current
+                official result, student concern, supporting documents, and
+                proposed mark values before forwarding it for final approval.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'exam_correction_requests' %}"
+            class="ecd-back"
+        >
+            ← Back to Requests
+        </a>
+
+    </section>
+
+    <section class="ecd-workflow">
+
+        <div class="ecd-workflow-icon">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 12h14m-6-6l6 6-6 6"
+                />
+            </svg>
+        </div>
+
+        <p>
+            <strong>Current workflow stage:</strong>
+            Faculty submitted the proposed correction. Verification forwards
+            the request to Super Admin. No official marks are changed at this stage.
+        </p>
+
+    </section>
+
+    <div class="ecd-layout">
+
+        <main class="ecd-stack">
+
+            <section class="ecd-card">
+
+                <div class="ecd-card-header">
+
+                    <div class="ecd-card-header-row">
+
+                        <div>
+                            <h2 class="ecd-card-title">
+                                Student &amp; Course Information
+                            </h2>
+
+                            <p class="ecd-card-text">
+                                Confirm the student, course, semester, and faculty
+                                member connected to this correction request.
+                            </p>
+                        </div>
+
+                        {% if correction_request.status == 'faculty_submitted' %}
+
+                            <span class="ecd-status ecd-status-pending">
+                                Awaiting Verification
+                            </span>
+
+                        {% elif correction_request.status == 'exam_verified' %}
+
+                            <span class="ecd-status ecd-status-verified">
+                                Verified
+                            </span>
+
+                        {% elif correction_request.status == 'exam_rejected' %}
+
+                            <span class="ecd-status ecd-status-rejected">
+                                Rejected
+                            </span>
+
+                        {% else %}
+
+                            <span class="ecd-status ecd-status-pending">
+                                {{ correction_request.get_status_display }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <div class="ecd-card-body">
+
+                    <div class="ecd-info-grid">
+
+                        <div class="ecd-info-item">
+                            <span class="ecd-label">Student ID</span>
+
+                            <div class="ecd-value">
+                                {{ correction_request.student.student_id|default:"-" }}
+                            </div>
+                        </div>
+
+                        <div class="ecd-info-item">
+                            <span class="ecd-label">Student Name</span>
+
+                            <div class="ecd-value">
+                                {{ correction_request.student.user.get_full_name|default:correction_request.student.user.username }}
+                            </div>
+                        </div>
+
+                        <div class="ecd-info-item">
+                            <span class="ecd-label">Department</span>
+
+                            <div class="ecd-value">
+                                {{ correction_request.student.department|default:"-" }}
+                            </div>
+                        </div>
+
+                        <div class="ecd-info-item">
+                            <span class="ecd-label">Batch</span>
+
+                            <div class="ecd-value">
+                                {{ correction_request.student.batch|default:"-" }}
+                            </div>
+                        </div>
+
+                        <div class="ecd-info-item">
+                            <span class="ecd-label">Course</span>
+
+                            <div class="ecd-value">
+                                {{ correction_request.course_offering.course.code|default:"-" }}
+                                —
+                                {{ correction_request.course_offering.course.title|default:"-" }}
+                            </div>
+                        </div>
+
+                        <div class="ecd-info-item">
+                            <span class="ecd-label">Semester</span>
+
+                            <div class="ecd-value">
+                                {{ correction_request.course_offering.semester|default:"-" }}
+                            </div>
+                        </div>
+
+                        <div class="ecd-info-item">
+                            <span class="ecd-label">Section</span>
+
+                            <div class="ecd-value">
+                                {{ correction_request.course_offering.section|default:"-" }}
+                            </div>
+                        </div>
+
+                        <div class="ecd-info-item">
+                            <span class="ecd-label">Submitted By</span>
+
+                            <div class="ecd-value">
+                                {% if correction_request.requested_by %}
+                                    {{ correction_request.requested_by.get_full_name|default:correction_request.requested_by.username }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="ecd-card">
+
+                <div class="ecd-card-header">
+                    <h2 class="ecd-card-title">
+                        Original vs Proposed Marks
+                    </h2>
+
+                    <p class="ecd-card-text">
+                        Highlighted rows contain a proposed change. Components
+                        requested by the student are also identified.
+                    </p>
+                </div>
+
+                <div class="ecd-card-body">
+
+                    <div class="ecd-table-wrap">
+
+                        <table class="ecd-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Assessment</th>
+                                    <th>Current Mark</th>
+                                    <th>Proposed Mark</th>
+                                    <th>Difference</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for change in mark_changes %}
+
+                                    <tr class="{% if change.changed %}ecd-changed{% endif %}">
+
+                                        <td>
+                                            {{ change.label }}
+
+                                            {% if change.student_requested %}
+                                                <span class="ecd-requested-badge">
+                                                    Student Requested
+                                                </span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td class="ecd-old-mark">
+                                            {{ change.old }}
+                                        </td>
+
+                                        <td class="{% if change.changed %}ecd-new-mark{% endif %}">
+                                            {{ change.new }}
+                                        </td>
+
+                                        <td>
+                                            {% if change.difference > 0 %}
+
+                                                <span class="ecd-difference-positive">
+                                                    +{{ change.difference }}
+                                                </span>
+
+                                            {% elif change.difference < 0 %}
+
+                                                <span class="ecd-difference-negative">
+                                                    {{ change.difference }}
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="ecd-difference-neutral">
+                                                    No change
+                                                </span>
+
+                                            {% endif %}
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                            <tfoot>
+                                <tr class="ecd-total-row">
+                                    <td>Total</td>
+                                    <td>{{ old_total }}</td>
+                                    <td>{{ new_total }}</td>
+                                    <td>
+                                        {% if total_difference > 0 %}
+
+                                            <span class="ecd-difference-positive">
+                                                +{{ total_difference }}
+                                            </span>
+
+                                        {% elif total_difference < 0 %}
+
+                                            <span class="ecd-difference-negative">
+                                                {{ total_difference }}
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="ecd-difference-neutral">
+                                                No change
+                                            </span>
+
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tfoot>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            {% if correction_request.student_review_request %}
+
+                <section class="ecd-card">
+
+                    <div class="ecd-card-header">
+                        <h2 class="ecd-card-title">
+                            Original Student Concern
+                        </h2>
+
+                        <p class="ecd-card-text">
+                            Explanation initially submitted by the student.
+                        </p>
+                    </div>
+
+                    <div class="ecd-card-body">
+                        <div class="ecd-reason">
+                            {{ correction_request.student_review_request.reason|default:"No student explanation was provided." }}
+                        </div>
+                    </div>
+
+                </section>
+
+            {% endif %}
+
+            <section class="ecd-card">
+
+                <div class="ecd-card-header">
+                    <h2 class="ecd-card-title">
+                        Faculty Correction Reason
+                    </h2>
+
+                    <p class="ecd-card-text">
+                        Official explanation supplied by the faculty member when
+                        proposing the corrected values.
+                    </p>
+                </div>
+
+                <div class="ecd-card-body">
+                    <div class="ecd-reason">
+                        {{ correction_request.reason|default:"No correction reason was provided." }}
+                    </div>
+                </div>
+
+            </section>
+
+            {% if correction_request.student_review_request %}
+
+                <section class="ecd-card">
+
+                    <div class="ecd-card-header">
+                        <h2 class="ecd-card-title">
+                            Faculty Verification Note
+                        </h2>
+
+                        <p class="ecd-card-text">
+                            Faculty's explanation of the records checked during
+                            the initial review.
+                        </p>
+                    </div>
+
+                    <div class="ecd-card-body">
+                        <div class="ecd-note">
+                            {{ correction_request.student_review_request.faculty_note|default:"No faculty verification note was provided." }}
+                        </div>
+                    </div>
+
+                </section>
+
+            {% endif %}
+
+            <section class="ecd-card">
+
+                <div class="ecd-card-header">
+                    <h2 class="ecd-card-title">
+                        Supporting Evidence
+                    </h2>
+
+                    <p class="ecd-card-text">
+                        Review available documents submitted by the student and faculty.
+                    </p>
+                </div>
+
+                <div class="ecd-card-body">
+
+                    <div class="ecd-attachment-list">
+
+                        {% if correction_request.student_review_request.attachment %}
+
+                            <div class="ecd-attachment">
+
+                                <div class="ecd-attachment-icon">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="1.8"
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div class="ecd-attachment-info">
+                                    <strong>Student Evidence</strong>
+
+                                    <span>
+                                        {{ correction_request.student_review_request.attachment.name }}
+                                    </span>
+                                </div>
+
+                                <a
+                                    href="{{ correction_request.student_review_request.attachment.url }}"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="ecd-attachment-link"
+                                >
+                                    Open File
+                                </a>
+
+                            </div>
+
+                        {% endif %}
+
+                        {% if correction_request.faculty_attachment %}
+
+                            <div class="ecd-attachment">
+
+                                <div class="ecd-attachment-icon">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="1.8"
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div class="ecd-attachment-info">
+                                    <strong>Faculty Evidence</strong>
+
+                                    <span>
+                                        {{ correction_request.faculty_attachment.name }}
+                                    </span>
+                                </div>
+
+                                <a
+                                    href="{{ correction_request.faculty_attachment.url }}"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="ecd-attachment-link"
+                                >
+                                    Open File
+                                </a>
+
+                            </div>
+
+                        {% endif %}
+
+                        {% if not correction_request.faculty_attachment and not correction_request.student_review_request.attachment %}
+
+                            <div class="ecd-empty">
+                                No supporting evidence is attached to this request.
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <aside class="ecd-card ecd-side-card">
+
+            <div class="ecd-card-header">
+                <h2 class="ecd-card-title">
+                    Exam Controller Decision
+                </h2>
+
+                <p class="ecd-card-text">
+                    Verify and forward the request or reject it with an explanation.
+                </p>
+            </div>
+
+            <div class="ecd-card-body">
+
+                {% if is_pending_exam_review %}
+
+                    <div class="ecd-warning">
+                        Verification does not update the official result. It only
+                        forwards the request to Super Admin for final approval.
+                    </div>
+
+                    <form
+                        method="POST"
+                        enctype="multipart/form-data"
+                    >
+
+                        {% csrf_token %}
+
+                        <div class="ecd-field">
+
+                            <label
+                                for="exam_note"
+                                class="ecd-field-label"
+                            >
+                                Exam Controller Note
+                            </label>
+
+                            <div class="ecd-field-help">
+                                Required for both verification and rejection.
+                                Explain what was reviewed and the reason for your decision.
+                            </div>
+
+                            <textarea
+                                id="exam_note"
+                                name="exam_note"
+                                class="ecd-textarea"
+                                placeholder="Example: Compared the faculty correction with the submitted mark sheet and verified that the proposed value is accurate."
+                            >{{ request.POST.exam_note|default:"" }}</textarea>
+
+                        </div>
+
+                        <div class="ecd-field">
+
+                            <label
+                                for="exam_attachment"
+                                class="ecd-field-label"
+                            >
+                                Supporting Attachment
+                            </label>
+
+                            <div class="ecd-field-help">
+                                Optional when verifying. Attach an examination
+                                record, official sheet, PDF, or supporting image.
+                            </div>
+
+                            <input
+                                id="exam_attachment"
+                                type="file"
+                                name="exam_attachment"
+                                class="ecd-file-input"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                            >
+
+                        </div>
+
+                        <div class="ecd-actions">
+
+                            <button
+                                type="submit"
+                                name="action"
+                                value="verify"
+                                class="ecd-button ecd-verify-button"
+                                onclick="return confirm('Verify this correction request and forward it to Super Admin?');"
+                            >
+                                Verify &amp; Forward to Super Admin
+                            </button>
+
+                            <button
+                                type="submit"
+                                name="action"
+                                value="reject"
+                                class="ecd-button ecd-reject-button"
+                                formnovalidate
+                                onclick="return confirm('Reject this correction request?');"
+                            >
+                                Reject Request
+                            </button>
+
+                        </div>
+
+                        <div class="ecd-action-help">
+                            <strong>Verify</strong> forwards the request to the final
+                            Super Admin approval stage.
+
+                            <br><br>
+
+                            <strong>Reject</strong> closes the request without changing
+                            any official marks.
+                        </div>
+
+                    </form>
+
+                {% else %}
+
+                    <div class="ecd-reviewed">
+
+                        <strong>
+                            This Exam Controller review has already been completed.
+                        </strong>
+
+                        <br><br>
+
+                        Current status:
+
+                        <br>
+
+                        <strong>
+                            {{ correction_request.get_status_display }}
+                        </strong>
+
+                        {% if correction_request.exam_reviewed_by %}
+
+                            <br><br>
+
+                            Reviewed by:
+
+                            <br>
+
+                            <strong>
+                                {{ correction_request.exam_reviewed_by.get_full_name|default:correction_request.exam_reviewed_by.username }}
+                            </strong>
+
+                        {% endif %}
+
+                        {% if correction_request.exam_reviewed_at %}
+
+                            <br><br>
+
+                            Reviewed at:
+
+                            <br>
+
+                            <strong>
+                                {{ correction_request.exam_reviewed_at|date:"d M Y, h:i A" }}
+                            </strong>
+
+                        {% endif %}
+
+                        {% if correction_request.exam_note %}
+
+                            <div class="ecd-reviewed-note">
+                                {{ correction_request.exam_note }}
+                            </div>
+
+                        {% endif %}
+
+                        {% if correction_request.exam_attachment %}
+
+                            <div class="ecd-attachment" style="margin-top:14px;">
+
+                                <div class="ecd-attachment-info">
+                                    <strong>Exam Controller Attachment</strong>
+
+                                    <span>
+                                        {{ correction_request.exam_attachment.name }}
+                                    </span>
+                                </div>
+
+                                <a
+                                    href="{{ correction_request.exam_attachment.url }}"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="ecd-attachment-link"
+                                >
+                                    Open
+                                </a>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </aside>
+
+    </div>
+
+</div>
+
+{% endblock %}

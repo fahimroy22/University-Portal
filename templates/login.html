@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        {% if system_settings %}
+            Login - {{ system_settings.short_name }} Smart University Portal
+        {% else %}
+            Login - UGV Smart University Portal
+        {% endif %}
+    </title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --accent: #7f1d1d;
+            --accent-dark: #5f1414;
+            --accent-soft: #fff1f2;
+            --accent-mid: #991b1b;
+            --navy: #080b1f;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #dc2626;
+            --danger-soft: #fef2f2;
+            --blue-soft: #eff6ff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #ffffff;
+            color: var(--navy);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 13% 14%, rgba(127, 29, 29, 0.16), transparent 26%),
+                radial-gradient(circle at 85% 18%, rgba(153, 27, 27, 0.12), transparent 28%),
+                radial-gradient(circle at 52% 90%, rgba(127, 29, 29, 0.14), transparent 36%),
+                linear-gradient(180deg, #ffffff 0%, #fffafa 46%, #ffffff 100%);
+        }
+
+        .liquid-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.58;
+        }
+
+        .page-glow-one,
+        .page-glow-two,
+        .page-glow-three {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(42px);
+            pointer-events: none;
+        }
+
+        .page-glow-one {
+            width: 560px;
+            height: 560px;
+            top: -180px;
+            left: -120px;
+            background: rgba(127, 29, 29, 0.13);
+        }
+
+        .page-glow-two {
+            width: 480px;
+            height: 480px;
+            right: -130px;
+            bottom: -130px;
+            background: rgba(153, 27, 27, 0.11);
+        }
+
+        .page-glow-three {
+            width: 320px;
+            height: 320px;
+            right: 34%;
+            top: 16%;
+            background: rgba(255, 228, 230, 0.65);
+        }
+
+        .login-page {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            width: 100%;
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(380px, 0.95fr);
+            align-items: center;
+            gap: 36px;
+            padding: 40px;
+        }
+
+        .hero-panel {
+            min-height: calc(100vh - 80px);
+            border-radius: 38px;
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            box-shadow: 0 30px 90px rgba(127, 29, 29, 0.12);
+            padding: 44px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background:
+                radial-gradient(circle at 85% 12%, rgba(127, 29, 29, 0.12), transparent 30%),
+                radial-gradient(circle at 10% 90%, rgba(127, 29, 29, 0.08), transparent 32%),
+                rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(20px);
+        }
+
+        .hero-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 250, 250, 0.62));
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-content,
+        .hero-bottom {
+            position: relative;
+            z-index: 2;
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-frame {
+            width: 72px;
+            height: 72px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+            padding: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-fallback {
+            width: 72px;
+            height: 72px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--accent), #b91c1c);
+            color: white;
+            font-size: 22px;
+            font-weight: 950;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 18px 40px rgba(127, 29, 29, 0.24);
+            flex-shrink: 0;
+        }
+
+        .brand-kicker {
+            font-size: 12px;
+            font-weight: 950;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .brand-title {
+            margin-top: 6px;
+            font-size: clamp(27px, 4vw, 42px);
+            line-height: 1.03;
+            letter-spacing: -0.055em;
+            font-weight: 950;
+            color: var(--navy);
+        }
+
+        .brand-title span {
+            color: var(--accent);
+        }
+
+        .hero-heading {
+            margin-top: 76px;
+            max-width: 620px;
+            font-size: clamp(34px, 5vw, 58px);
+            line-height: 1;
+            letter-spacing: -0.07em;
+            font-weight: 950;
+            color: var(--navy);
+        }
+
+        .hero-text {
+            margin-top: 18px;
+            max-width: 470px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.65;
+            font-weight: 650;
+        }
+
+        .visual-shortcuts {
+            margin-top: 34px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            max-width: 560px;
+        }
+
+        .visual-item {
+            min-height: 96px;
+            border-radius: 26px;
+            background: rgba(255, 255, 255, 0.76);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow:
+                0 18px 42px rgba(15, 23, 42, 0.045),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(14px);
+        }
+
+        .visual-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 16px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .visual-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .visual-label {
+            font-size: 12px;
+            font-weight: 900;
+            color: #334155;
+        }
+
+        .hero-bottom {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 40px;
+        }
+
+        .mini-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 26px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(226, 232, 240, 0.88);
+            padding: 20px;
+            box-shadow:
+                0 18px 40px rgba(15, 23, 42, 0.045),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+        }
+
+        .mini-card::before {
+            content: "";
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 34px;
+            height: 34px;
+            border-radius: 14px;
+            background: rgba(127, 29, 29, 0.08);
+        }
+
+        .mini-label {
+            position: relative;
+            font-size: 10px;
+            font-weight: 950;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+
+        .mini-value {
+            position: relative;
+            margin-top: 10px;
+            font-size: 23px;
+            line-height: 1;
+            font-weight: 950;
+            letter-spacing: -0.045em;
+            color: var(--navy);
+        }
+
+        .form-area {
+            width: 100%;
+            max-width: 500px;
+            justify-self: center;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.91);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 34px;
+            padding: 34px;
+            box-shadow: 0 30px 90px rgba(15, 23, 42, 0.10);
+            backdrop-filter: blur(24px);
+        }
+
+        .mobile-brand {
+            display: none;
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .mobile-brand .logo-frame,
+        .mobile-brand .logo-fallback {
+            margin: 0 auto 14px;
+            width: 78px;
+            height: 78px;
+            border-radius: 26px;
+        }
+
+        .mobile-brand-title {
+            font-size: 26px;
+            line-height: 1.05;
+            font-weight: 950;
+            letter-spacing: -0.045em;
+            color: var(--navy);
+        }
+
+        .mobile-brand-title span {
+            color: var(--accent);
+        }
+
+        .mobile-subtitle {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .login-top-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 15px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 950;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .login-title {
+            margin: 18px 0 8px;
+            font-size: clamp(34px, 7vw, 48px);
+            line-height: 1.02;
+            font-weight: 950;
+            letter-spacing: -0.07em;
+            color: var(--navy);
+        }
+
+        .login-subtitle {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+            font-weight: 650;
+            margin-bottom: 24px;
+        }
+
+        .field-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 900;
+            color: #334155;
+            font-size: 13px;
+        }
+
+        .input-shell {
+            position: relative;
+        }
+
+        .login-input {
+            display: block;
+            width: 100%;
+            height: 56px;
+            min-height: 56px;
+            padding: 0 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.96);
+            color: var(--navy);
+            font-size: 16px;
+            font-weight: 650;
+            line-height: 56px;
+            outline: none;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .login-input.with-button {
+            padding-right: 92px;
+        }
+
+        .login-input::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent);
+            background: #ffffff;
+            box-shadow:
+                0 0 0 4px rgba(127, 29, 29, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .show-pass-btn {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            height: 40px;
+            padding: 0 14px;
+            border-radius: 14px;
+            border: 1px solid #fecaca;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 950;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .show-pass-btn:hover {
+            background: #fee2e2;
+            color: var(--accent-dark);
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+            -webkit-text-fill-color: var(--navy);
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset, 0 0 0 4px rgba(127, 29, 29, 0.08);
+            border: 1px solid var(--accent);
+            transition: background-color 9999s ease-in-out 0s;
+        }
+
+        .human-check {
+            margin: 18px 0;
+            border-radius: 22px;
+            border: 1px solid #fecaca;
+            background: rgba(255, 241, 242, 0.7);
+            padding: 16px;
+        }
+
+        .human-row {
+            display: grid;
+            grid-template-columns: 1fr 150px;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .human-question {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 950;
+        }
+
+        .human-question span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 10px;
+            background: white;
+            border: 1px solid #fecaca;
+        }
+
+        .human-error {
+            display: none;
+            margin-top: 10px;
+            color: #b91c1c;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .login-button {
+            width: 100%;
+            min-height: 56px;
+            background: linear-gradient(135deg, var(--accent), #b91c1c);
+            color: white;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 18px;
+            font-weight: 950;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 18px 38px rgba(127, 29, 29, 0.26);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 22px 46px rgba(127, 29, 29, 0.32);
+            filter: brightness(0.98);
+        }
+
+        .error-box,
+        .message {
+            padding: 13px 15px;
+            border-radius: 18px;
+            margin-bottom: 14px;
+            font-weight: 850;
+            font-size: 14px;
+            border: 1px solid;
+            line-height: 1.5;
+        }
+
+        .error-box,
+        .message-error {
+            background: var(--danger-soft);
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        .message-success {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+
+        .message-warning {
+            background: #fffbeb;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        .message-info {
+            background: var(--blue-soft);
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+
+        .login-note {
+            margin-top: 20px;
+            border-radius: 22px;
+            background: rgba(248, 250, 252, 0.85);
+            border: 1px solid var(--border);
+            padding: 16px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+            font-weight: 650;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        @media (max-width: 1050px) {
+            .login-page {
+                grid-template-columns: 1fr;
+                padding: 28px;
+            }
+
+            .hero-panel {
+                display: none;
+            }
+
+            .form-area {
+                max-width: 560px;
+            }
+
+            .mobile-brand {
+                display: block;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .login-page {
+                min-height: 100vh;
+                padding: 18px;
+                align-items: center;
+            }
+
+            .login-wrapper {
+                border-radius: 28px;
+                padding: 24px;
+            }
+
+            .mobile-brand-title {
+                font-size: 23px;
+            }
+
+            .login-title {
+                font-size: 36px;
+            }
+
+            .human-row {
+                grid-template-columns: 1fr;
+            }
+
+            .visual-shortcuts {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 360px) {
+            .login-page {
+                padding: 12px;
+            }
+
+            .login-wrapper {
+                padding: 20px;
+            }
+
+            .login-title {
+                font-size: 32px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .liquid-canvas {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page-bg">
+    <canvas id="liquidOceanCanvas" class="liquid-canvas"></canvas>
+    <div class="page-glow-one"></div>
+    <div class="page-glow-two"></div>
+    <div class="page-glow-three"></div>
+</div>
+
+<div class="login-page">
+
+    <!-- Left Hero Section -->
+    <section class="hero-panel">
+
+        <div class="hero-content">
+            <div class="brand-row">
+                {% if system_settings and system_settings.logo %}
+                    <div class="logo-frame">
+                        <img src="{{ system_settings.logo.url }}" alt="University Logo">
+                    </div>
+                {% else %}
+                    <div class="logo-fallback">
+                        {% if system_settings %}
+                            {{ system_settings.short_name|slice:":2" }}
+                        {% else %}
+                            UGV
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div>
+                    <div class="brand-kicker">
+                        {% if system_settings %}
+                            {{ system_settings.short_name }}
+                        {% else %}
+                            UGV
+                        {% endif %}
+                    </div>
+
+                    <div class="brand-title">
+                        Smart University <span>Portal</span>
+                    </div>
+                </div>
+            </div>
+
+            <h1 class="hero-heading">
+                Your campus, one secure portal.
+            </h1>
+
+            <p class="hero-text">
+                Login to access academic, exam, finance, and notice services.
+            </p>
+
+            <div class="visual-shortcuts">
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"/>
+                        </svg>
+                    </div>
+                    <div class="visual-label">Courses</div>
+                </div>
+
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m4 14v-6m4 6V9m4 10v-3m4 3V7"/>
+                        </svg>
+                    </div>
+                    <div class="visual-label">Results</div>
+                </div>
+
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h.01M11 15h2M5 7h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z"/>
+                        </svg>
+                    </div>
+                    <div class="visual-label">Payments</div>
+                </div>
+
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 01-6 0"/>
+                        </svg>
+                    </div>
+                    <div class="visual-label">Notices</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-bottom">
+            <div class="mini-card">
+                <div class="mini-label">Access</div>
+                <div class="mini-value">24/7</div>
+            </div>
+
+            <div class="mini-card">
+                <div class="mini-label">Services</div>
+                <div class="mini-value">Unified</div>
+            </div>
+
+            <div class="mini-card">
+                <div class="mini-label">Status</div>
+                <div class="mini-value">Secure</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Form -->
+    <main class="form-area">
+        <div class="login-wrapper">
+
+            <div class="mobile-brand">
+                {% if system_settings and system_settings.logo %}
+                    <div class="logo-frame">
+                        <img src="{{ system_settings.logo.url }}" alt="University Logo">
+                    </div>
+                {% else %}
+                    <div class="logo-fallback">
+                        {% if system_settings %}
+                            {{ system_settings.short_name|slice:":2" }}
+                        {% else %}
+                            UGV
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div class="mobile-brand-title">
+                    {% if system_settings %}
+                        {{ system_settings.short_name }}
+                    {% else %}
+                        UGV
+                    {% endif %}
+                    <span>Portal</span>
+                </div>
+
+                <div class="mobile-subtitle">
+                    {% if system_settings and system_settings.university_name %}
+                        {{ system_settings.university_name }}
+                    {% else %}
+                        University of Global Village
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="login-top-badge">
+                Secure Portal
+            </div>
+
+            <h2 class="login-title">Sign in</h2>
+
+            <p class="login-subtitle">
+                Enter your portal credentials.
+            </p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'success' %}
+                        <div class="message message-success">{{ message }}</div>
+                    {% elif message.tags == 'error' %}
+                        <div class="message message-error">{{ message }}</div>
+                    {% elif message.tags == 'warning' %}
+                        <div class="message message-warning">{{ message }}</div>
+                    {% else %}
+                        <div class="message message-info">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            {% if form.errors %}
+                <div class="error-box">
+                    Invalid username or password.
+                </div>
+            {% endif %}
+
+            <form method="POST" id="loginForm">
+                {% csrf_token %}
+
+                <div class="field-group">
+                    <label>Username</label>
+                    <input
+                        class="login-input"
+                        type="text"
+                        name="username"
+                        placeholder="Enter username"
+                        required
+                        autofocus
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="field-group">
+                    <label>Password</label>
+                    <div class="input-shell">
+                        <input
+                            class="login-input with-button"
+                            type="password"
+                            name="password"
+                            id="passwordInput"
+                            placeholder="Enter password"
+                            required
+                            autocomplete="current-password"
+                        >
+
+                        <button type="button" class="show-pass-btn" id="showPasswordBtn">
+                            Show
+                        </button>
+                    </div>
+                </div>
+
+                <div class="human-check">
+                    <div class="human-question">
+                        <span>?</span>
+                        <strong>Human check:</strong>
+                        <span id="mathQuestionText" style="width:auto; height:auto; border:none; background:transparent;"></span>
+                    </div>
+
+                    <div class="human-row">
+                        <div>
+                            <label>Answer</label>
+                            <input
+                                class="login-input"
+                                type="number"
+                                id="humanAnswer"
+                                placeholder="Enter result"
+                                required
+                                autocomplete="off"
+                            >
+                        </div>
+
+                        <button type="button" class="show-pass-btn" id="newQuestionBtn" style="position:static; transform:none; height:56px;">
+                            New Question
+                        </button>
+                    </div>
+
+                    <div class="human-error" id="humanError">
+                        Incorrect answer. Please solve the calculation correctly.
+                    </div>
+                </div>
+
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                <button type="submit" class="login-button">
+                    Login to Portal
+                </button>
+            </form>
+
+            <div class="login-note">
+                Use your official university account.
+            </div>
+
+            <div class="footer-text">
+                {% if system_settings and system_settings.short_name %}
+                    © {{ system_settings.short_name }} Smart University Portal
+                {% else %}
+                    © UGV Smart University Portal
+                {% endif %}
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<script>
+    (function () {
+        const canvas = document.getElementById("liquidOceanCanvas");
+        if (!canvas) return;
+
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (prefersReducedMotion) return;
+
+        const ctx = canvas.getContext("2d");
+        let width = 0;
+        let height = 0;
+        let animationId = null;
+        let time = 0;
+
+        const theme = {
+            grid: "rgba(127, 29, 29, 0.26)",
+            accent: "rgba(127, 29, 29, 0.40)",
+            accentStrong: "rgba(153, 27, 27, 0.62)",
+            soft: "rgba(255, 228, 230, 0.48)"
+        };
+
+        const boxes = [];
+        const orbs = [];
+
+        function resize() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+            width = window.innerWidth;
+            height = window.innerHeight;
+
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            createObjects();
+        }
+
+        function createObjects() {
+            boxes.length = 0;
+            orbs.length = 0;
+
+            const boxCount = Math.max(14, Math.floor(width / 130));
+            const orbCount = Math.max(7, Math.floor(width / 260));
+
+            for (let i = 0; i < boxCount; i++) {
+                boxes.push({
+                    x: Math.random() * width,
+                    y: height * 0.25 + Math.random() * height * 0.70,
+                    size: 10 + Math.random() * 28,
+                    speed: 0.004 + Math.random() * 0.014,
+                    offset: Math.random() * Math.PI * 2,
+                    alpha: 0.06 + Math.random() * 0.16
+                });
+            }
+
+            for (let i = 0; i < orbCount; i++) {
+                orbs.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: 60 + Math.random() * 150,
+                    offset: Math.random() * Math.PI * 2,
+                    alpha: 0.025 + Math.random() * 0.055
+                });
+            }
+        }
+
+        function roundRect(context, x, y, w, h, r) {
+            context.beginPath();
+            context.moveTo(x + r, y);
+            context.arcTo(x + w, y, x + w, y + h, r);
+            context.arcTo(x + w, y + h, x, y + h, r);
+            context.arcTo(x, y + h, x, y, r);
+            context.arcTo(x, y, x + w, y, r);
+            context.closePath();
+        }
+
+        function drawOrbs() {
+            orbs.forEach((orb) => {
+                const x = orb.x + Math.sin(time * 0.6 + orb.offset) * 28;
+                const y = orb.y + Math.cos(time * 0.5 + orb.offset) * 22;
+
+                const g = ctx.createRadialGradient(x, y, 0, x, y, orb.r);
+                g.addColorStop(0, `rgba(127, 29, 29, ${orb.alpha})`);
+                g.addColorStop(0.45, `rgba(153, 27, 27, ${orb.alpha * 0.45})`);
+                g.addColorStop(1, "rgba(127, 29, 29, 0)");
+
+                ctx.fillStyle = g;
+                ctx.fillRect(x - orb.r, y - orb.r, orb.r * 2, orb.r * 2);
+            });
+        }
+
+        function drawSoftLines() {
+            for (let i = 0; i < 7; i++) {
+                ctx.beginPath();
+
+                const yBase = height * (0.12 + i * 0.12);
+
+                for (let x = -40; x <= width + 40; x += 10) {
+                    const y =
+                        yBase +
+                        Math.sin(x * 0.011 + time * (1.1 + i * 0.18)) * (14 + i * 2) +
+                        Math.cos(x * 0.017 + time * 0.8) * 6;
+
+                    if (x === -40) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+
+                ctx.strokeStyle = i % 2 === 0 ? theme.accent : theme.soft;
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+            }
+        }
+
+        function projectPoint(x, y, z) {
+            const perspective = 640;
+            const scale = perspective / (perspective + z);
+
+            return {
+                x: width / 2 + (x - width / 2) * scale,
+                y: height * 0.78 + (y - height / 2) * scale,
+                scale: scale
+            };
+        }
+
+        function drawOceanGrid() {
+            const rows = 20;
+            const cols = 34;
+            const planeWidth = width * 1.65;
+            const planeHeight = height * 0.90;
+
+            const startX = width / 2 - planeWidth / 2;
+            const startY = height * 0.36;
+
+            ctx.lineWidth = 1;
+
+            for (let r = 0; r <= rows; r++) {
+                ctx.beginPath();
+
+                for (let c = 0; c <= cols; c++) {
+                    const gx = startX + (c / cols) * planeWidth;
+                    const gy = startY + (r / rows) * planeHeight;
+
+                    const wave =
+                        Math.sin(c * 0.75 + time * 1.55) * 12 +
+                        Math.cos(r * 0.95 + time * 1.15) * 9;
+
+                    const z = r * 30 + wave;
+                    const p = projectPoint(gx, gy + wave, z);
+
+                    if (c === 0) {
+                        ctx.moveTo(p.x, p.y);
+                    } else {
+                        ctx.lineTo(p.x, p.y);
+                    }
+                }
+
+                ctx.strokeStyle = r % 4 === 0 ? theme.accentStrong : theme.grid;
+                ctx.stroke();
+            }
+
+            for (let c = 0; c <= cols; c++) {
+                ctx.beginPath();
+
+                for (let r = 0; r <= rows; r++) {
+                    const gx = startX + (c / cols) * planeWidth;
+                    const gy = startY + (r / rows) * planeHeight;
+
+                    const wave =
+                        Math.sin(c * 0.8 + time * 1.35) * 12 +
+                        Math.cos(r * 0.85 + time * 1.05) * 9;
+
+                    const z = r * 30 + wave;
+                    const p = projectPoint(gx, gy + wave, z);
+
+                    if (r === 0) {
+                        ctx.moveTo(p.x, p.y);
+                    } else {
+                        ctx.lineTo(p.x, p.y);
+                    }
+                }
+
+                ctx.strokeStyle = c % 5 === 0 ? theme.accent : theme.grid;
+                ctx.stroke();
+            }
+        }
+
+        function drawFloatingBoxes() {
+            boxes.forEach((box) => {
+                const bob = Math.sin(time * 2.4 + box.offset) * 10;
+                const rotate = Math.sin(time + box.offset) * 0.35;
+
+                ctx.save();
+                ctx.translate(box.x, box.y + bob);
+                ctx.rotate(rotate);
+
+                ctx.fillStyle = `rgba(127, 29, 29, ${box.alpha})`;
+                ctx.strokeStyle = "rgba(127, 29, 29, 0.24)";
+                ctx.lineWidth = 1.1;
+
+                roundRect(ctx, -box.size / 2, -box.size / 2, box.size, box.size, 7);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.restore();
+
+                box.x += Math.sin(time + box.offset) * box.speed * 20;
+
+                if (box.x < -60) box.x = width + 60;
+                if (box.x > width + 60) box.x = -60;
+            });
+        }
+
+        function render() {
+            time += 0.012;
+
+            ctx.clearRect(0, 0, width, height);
+
+            drawOrbs();
+            drawSoftLines();
+            drawOceanGrid();
+            drawFloatingBoxes();
+
+            animationId = requestAnimationFrame(render);
+        }
+
+        resize();
+        render();
+
+        window.addEventListener("resize", resize);
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.hidden) {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            } else if (!animationId) {
+                render();
+            }
+        });
+    })();
+
+    (function () {
+        const passwordInput = document.getElementById("passwordInput");
+        const showPasswordBtn = document.getElementById("showPasswordBtn");
+
+        if (passwordInput && showPasswordBtn) {
+            showPasswordBtn.addEventListener("click", function () {
+                const isPassword = passwordInput.type === "password";
+                passwordInput.type = isPassword ? "text" : "password";
+                showPasswordBtn.textContent = isPassword ? "Hide" : "Show";
+            });
+        }
+
+        const form = document.getElementById("loginForm");
+        const questionText = document.getElementById("mathQuestionText");
+        const answerInput = document.getElementById("humanAnswer");
+        const errorBox = document.getElementById("humanError");
+        const newQuestionBtn = document.getElementById("newQuestionBtn");
+
+        let correctAnswer = 0;
+
+        function makeQuestion() {
+            const a = Math.floor(Math.random() * 8) + 2;
+            const b = Math.floor(Math.random() * 8) + 2;
+            correctAnswer = a + b;
+            questionText.textContent = a + " + " + b + " = ?";
+            answerInput.value = "";
+            errorBox.style.display = "none";
+        }
+
+        if (questionText && answerInput) {
+            makeQuestion();
+        }
+
+        if (newQuestionBtn) {
+            newQuestionBtn.addEventListener("click", makeQuestion);
+        }
+
+        if (form) {
+            form.addEventListener("submit", function (event) {
+                const userAnswer = parseInt(answerInput.value, 10);
+
+                if (userAnswer !== correctAnswer) {
+                    event.preventDefault();
+                    errorBox.style.display = "block";
+                    answerInput.focus();
+                }
+            });
+        }
+    })();
+</script>
+
+</body>
+</html>

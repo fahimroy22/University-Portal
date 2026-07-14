@@ -1,0 +1,1776 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .rr-page {
+        display: grid;
+        gap: 18px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .rr-page,
+    .rr-page * {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .rr-hero {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 28px 30px;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        background:
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(254, 226, 226, 0.9),
+                transparent 35%
+            ),
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.7),
+                transparent 36%
+            ),
+            #ffffff;
+    }
+
+    .rr-hero-copy {
+        max-width: 760px;
+    }
+
+    .rr-kicker {
+        margin-bottom: 9px;
+        color: #b91c1c;
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+    }
+
+    .rr-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(31px, 4vw, 43px);
+        font-weight: 950;
+        letter-spacing: -0.05em;
+        line-height: 1.04;
+    }
+
+    .rr-subtitle {
+        max-width: 760px;
+        margin: 10px 0 0;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.6;
+    }
+
+    .rr-back {
+        min-height: 44px;
+        padding: 0 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        background: #ffffff;
+        color: #b91c1c;
+        font-size: 13px;
+        font-weight: 900;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: 0.2s ease;
+    }
+
+    .rr-back:hover {
+        background: #fff1f2;
+        transform: translateY(-1px);
+    }
+
+    .rr-top-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.72fr);
+        gap: 16px;
+        align-items: start;
+    }
+
+    .rr-main-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.72fr);
+        gap: 16px;
+        align-items: start;
+    }
+
+    .rr-left-stack,
+    .rr-right-stack {
+        display: grid;
+        gap: 16px;
+    }
+
+    .rr-card {
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.02);
+    }
+
+    .rr-card-head {
+        padding: 19px 20px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .rr-card-head-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .rr-card-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .rr-card-icon.red {
+        background: #fff1f2;
+        color: #dc2626;
+    }
+
+    .rr-card-icon.green {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    .rr-card-icon svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .rr-card-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 950;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+    }
+
+    .rr-card-text {
+        margin: 4px 0 0;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    .rr-card-body {
+        padding: 18px 20px;
+    }
+
+    .rr-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .rr-info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 62px;
+        padding: 12px 13px;
+        border: 1px solid #dbe3ef;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .rr-info-icon {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+    }
+
+    .rr-info-icon svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .rr-info-label {
+        color: #94a3b8;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .rr-info-value {
+        margin-top: 3px;
+        color: #0f172a;
+        font-size: 12px;
+        font-weight: 850;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .rr-detail-list {
+        display: grid;
+    }
+
+    .rr-detail-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 12px 0;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .rr-detail-row:first-child {
+        padding-top: 0;
+    }
+
+    .rr-detail-row:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .rr-detail-key {
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .rr-detail-value {
+        color: #0f172a;
+        font-size: 11px;
+        font-weight: 900;
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    .rr-status {
+        min-height: 29px;
+        padding: 0 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 950;
+        white-space: nowrap;
+    }
+
+    .rr-status-pending {
+        border: 1px solid #fcd34d;
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    .rr-status-approved {
+        border: 1px solid #bbf7d0;
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .rr-status-rejected {
+        border: 1px solid #fecaca;
+        background: #fff1f2;
+        color: #b91c1c;
+    }
+
+    .rr-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .rr-table {
+        width: 100%;
+        min-width: 620px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .rr-table th {
+        padding: 11px 13px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 9px;
+        font-weight: 950;
+        letter-spacing: 0.08em;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    .rr-table td {
+        padding: 12px 13px;
+        border-bottom: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .rr-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .rr-changed td {
+        background: #fffafa;
+    }
+
+    .rr-mark-old {
+        color: #64748b;
+    }
+
+    .rr-mark-new {
+        color: #991b1b;
+        font-weight: 950;
+    }
+
+    .rr-diff-positive {
+        color: #047857;
+        font-weight: 950;
+    }
+
+    .rr-diff-negative {
+        color: #b91c1c;
+        font-weight: 950;
+    }
+
+    .rr-diff-neutral {
+        color: #94a3b8;
+        font-weight: 850;
+    }
+
+    .rr-decision-form {
+        display: grid;
+        gap: 13px;
+    }
+
+    .rr-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+    .rr-textarea {
+        width: 100%;
+        min-height: 105px;
+        padding: 12px 13px;
+        resize: vertical;
+        border: 1px solid #cbd5e1;
+        border-radius: 13px;
+        background: #ffffff;
+        color: #0f172a;
+        font: inherit;
+        font-size: 12px;
+        line-height: 1.55;
+        outline: none;
+    }
+
+    .rr-textarea:focus {
+        border-color: #9f1c1c;
+        box-shadow: 0 0 0 3px rgba(159, 28, 28, 0.08);
+    }
+
+    .rr-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+    }
+
+    .rr-button {
+        min-height: 42px;
+        border-radius: 11px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 950;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .rr-button:hover {
+        transform: translateY(-1px);
+    }
+
+    .rr-approve {
+        border: 1px solid #16a34a;
+        background: #16a34a;
+        color: #ffffff;
+    }
+
+    .rr-approve:hover {
+        background: #15803d;
+    }
+
+    .rr-reject {
+        border: 1px solid #fecaca;
+        background: #ffffff;
+        color: #b91c1c;
+    }
+
+    .rr-reject:hover {
+        background: #fff1f2;
+    }
+
+    .rr-reviewed {
+        padding: 15px;
+        border: 1px solid #dbe3ef;
+        border-radius: 14px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 650;
+        line-height: 1.6;
+    }
+
+    .rr-note-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .rr-note-card {
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: #ffffff;
+    }
+
+    .rr-note-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 15px 10px;
+    }
+
+    .rr-note-head-icon {
+        width: 31px;
+        height: 31px;
+        flex: 0 0 31px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #fff1f2;
+        color: #dc2626;
+    }
+
+    .rr-note-head-icon.blue {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .rr-note-head-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .rr-note-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 950;
+        line-height: 1.25;
+    }
+
+    .rr-note-description {
+        margin: 3px 0 0;
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .rr-note-body {
+        padding: 0 14px 14px;
+    }
+
+    .rr-note-box {
+        min-height: 74px;
+        padding: 13px 14px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        background: #fffafa;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.55;
+        text-align: left;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .rr-note-box.blue {
+        border-color: #bfdbfe;
+        background: #f8fbff;
+    }
+
+    .rr-bottom-grid {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.55fr) minmax(0, 1.45fr);
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .rr-evidence-list {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .rr-evidence {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 12px;
+        border: 1px solid #dbe3ef;
+        border-radius: 13px;
+        background: #f8fafc;
+    }
+
+    .rr-evidence-icon {
+        width: 33px;
+        height: 33px;
+        flex: 0 0 33px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .rr-evidence-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .rr-evidence-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .rr-evidence-info strong {
+        display: block;
+        color: #0f172a;
+        font-size: 11px;
+        font-weight: 950;
+    }
+
+    .rr-evidence-info span {
+        display: block;
+        margin-top: 3px;
+        overflow: hidden;
+        color: #64748b;
+        font-size: 9px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .rr-evidence-link {
+        min-height: 33px;
+        padding: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #fecaca;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #b91c1c;
+        font-size: 10px;
+        font-weight: 950;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .rr-empty {
+        padding: 16px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 13px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+        .rr-top-grid,
+        .rr-main-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .rr-note-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .rr-bottom-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .rr-evidence-list {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .rr-hero {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 23px 20px;
+        }
+
+        .rr-back {
+            width: 100%;
+        }
+
+        .rr-info-grid,
+        .rr-note-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .rr-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .rr-card-head,
+        .rr-card-body {
+            padding-left: 17px;
+            padding-right: 17px;
+        }
+
+        .rr-evidence {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .rr-evidence-link {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="rr-page">
+
+    <section class="rr-hero">
+
+        <div class="rr-hero-copy">
+
+            <div class="rr-kicker">
+                Result Administration
+            </div>
+
+            <h1 class="rr-title">
+                Review Correction Request
+            </h1>
+
+            <p class="rr-subtitle">
+                Compare the recorded marks with the requested correction,
+                inspect all supporting evidence, and review the verification
+                history before approving or rejecting the official result change.
+            </p>
+
+        </div>
+
+        <a
+            href="{% url 'result_correction_requests' %}"
+            class="rr-back"
+        >
+            ← Back to Requests
+        </a>
+
+    </section>
+
+
+    <section class="rr-top-grid">
+
+        <div class="rr-card">
+
+            <div class="rr-card-head">
+
+                <div class="rr-card-head-row">
+
+                    <div class="rr-card-icon">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.8"
+                                d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+                            />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h2 class="rr-card-title">
+                            Student &amp; Course Information
+                        </h2>
+
+                        <p class="rr-card-text">
+                            Verify that the correction request belongs to the correct
+                            student and course.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="rr-card-body">
+
+                <div class="rr-info-grid">
+
+                    <div class="rr-info-item">
+
+                        <div class="rr-info-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.8"
+                                    d="M5 5h14v14H5zM8 9h3M8 13h5"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="rr-info-label">
+                                Student ID
+                            </div>
+
+                            <div class="rr-info-value">
+                                {{ correction_request.student.student_id|default:"-" }}
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="rr-info-item">
+
+                        <div class="rr-info-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.8"
+                                    d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="rr-info-label">
+                                Student Name
+                            </div>
+
+                            <div class="rr-info-value">
+                                {{ correction_request.student.user.get_full_name|default:correction_request.student.user.username }}
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="rr-info-item">
+
+                        <div class="rr-info-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.8"
+                                    d="M4 21h16M6 21V8l6-4 6 4v13M9 12h1m4 0h1M9 16h1m4 0h1"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="rr-info-label">
+                                Department
+                            </div>
+
+                            <div class="rr-info-value">
+                                {{ correction_request.student.department|default:"-" }}
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="rr-info-item">
+
+                        <div class="rr-info-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.8"
+                                    d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="rr-info-label">
+                                Batch
+                            </div>
+
+                            <div class="rr-info-value">
+                                {{ correction_request.student.batch|default:"-" }}
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="rr-info-item">
+
+                        <div class="rr-info-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.8"
+                                    d="M4 19.5V5a2 2 0 012-2h12v18H6a2 2 0 01-2-1.5z"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="rr-info-label">
+                                Course
+                            </div>
+
+                            <div class="rr-info-value">
+                                {{ correction_request.course_offering.course.code|default:"-" }}
+                                —
+                                {{ correction_request.course_offering.course.title|default:"-" }}
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="rr-info-item">
+
+                        <div class="rr-info-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.8"
+                                    d="M12 3l9 5-9 5-9-5 9-5zm0 10l7-4v6l-7 4-7-4V9l7 4z"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="rr-info-label">
+                                Semester
+                            </div>
+
+                            <div class="rr-info-value">
+                                {{ correction_request.course_offering.semester|default:"-" }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="rr-card">
+
+            <div class="rr-card-head">
+
+                <div class="rr-card-head-row">
+
+                    <div class="rr-card-icon">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.8"
+                                d="M12 9v3m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h2 class="rr-card-title">
+                            Request Details
+                        </h2>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="rr-card-body">
+
+                <div class="rr-detail-list">
+
+                    <div class="rr-detail-row">
+
+                        <div class="rr-detail-key">
+                            Status
+                        </div>
+
+                        <div class="rr-detail-value">
+
+                            {% if correction_request.status == 'exam_verified' %}
+
+                                <span class="rr-status rr-status-pending">
+                                    Awaiting Final Approval
+                                </span>
+
+                            {% elif correction_request.status == 'approved' %}
+
+                                <span class="rr-status rr-status-approved">
+                                    Approved
+                                </span>
+
+                            {% elif correction_request.status == 'rejected' %}
+
+                                <span class="rr-status rr-status-rejected">
+                                    Rejected
+                                </span>
+
+                            {% else %}
+
+                                <span class="rr-status rr-status-pending">
+                                    {{ correction_request.get_status_display }}
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rr-detail-row">
+
+                        <div class="rr-detail-key">
+                            Requested By
+                        </div>
+
+                        <div class="rr-detail-value">
+
+                            {% if correction_request.requested_by %}
+                                {{ correction_request.requested_by.get_full_name|default:correction_request.requested_by.username }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rr-detail-row">
+
+                        <div class="rr-detail-key">
+                            Submitted
+                        </div>
+
+                        <div class="rr-detail-value">
+                            {{ correction_request.created_at|date:"d M Y, h:i A" }}
+                        </div>
+
+                    </div>
+
+
+                    {% if correction_request.exam_reviewed_by %}
+
+                        <div class="rr-detail-row">
+
+                            <div class="rr-detail-key">
+                                Exam Verified By
+                            </div>
+
+                            <div class="rr-detail-value">
+                                {{ correction_request.exam_reviewed_by.get_full_name|default:correction_request.exam_reviewed_by.username }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if correction_request.exam_reviewed_at %}
+
+                        <div class="rr-detail-row">
+
+                            <div class="rr-detail-key">
+                                Exam Verified At
+                            </div>
+
+                            <div class="rr-detail-value">
+                                {{ correction_request.exam_reviewed_at|date:"d M Y, h:i A" }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if correction_request.reviewed_by %}
+
+                        <div class="rr-detail-row">
+
+                            <div class="rr-detail-key">
+                                Final Reviewed By
+                            </div>
+
+                            <div class="rr-detail-value">
+                                {{ correction_request.reviewed_by.get_full_name|default:correction_request.reviewed_by.username }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if correction_request.reviewed_at %}
+
+                        <div class="rr-detail-row">
+
+                            <div class="rr-detail-key">
+                                Final Reviewed At
+                            </div>
+
+                            <div class="rr-detail-value">
+                                {{ correction_request.reviewed_at|date:"d M Y, h:i A" }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="rr-main-grid">
+
+        <div class="rr-left-stack">
+
+            <div class="rr-card">
+
+                <div class="rr-card-head">
+
+                    <div class="rr-card-head-row">
+
+                        <div class="rr-card-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.8"
+                                    d="M4 19V5m4 14v-6m4 6V9m4 10v-3m4 3V7"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <h2 class="rr-card-title">
+                                Requested Mark Changes
+                            </h2>
+
+                            <p class="rr-card-text">
+                                Rows highlighted in red contain an actual change.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="rr-card-body">
+
+                    <div class="rr-table-wrap">
+
+                        <table class="rr-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Assessment</th>
+                                    <th>Current Mark</th>
+                                    <th>Requested Mark</th>
+                                    <th>Difference</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for change in mark_changes %}
+
+                                    <tr class="{% if change.changed %}rr-changed{% endif %}">
+
+                                        <td>
+                                            {{ change.label }}
+                                        </td>
+
+                                        <td class="rr-mark-old">
+                                            {{ change.old }}
+                                        </td>
+
+                                        <td class="{% if change.changed %}rr-mark-new{% endif %}">
+                                            {{ change.new }}
+                                        </td>
+
+                                        <td>
+
+                                            {% if change.difference > 0 %}
+
+                                                <span class="rr-diff-positive">
+                                                    +{{ change.difference }}
+                                                </span>
+
+                                            {% elif change.difference < 0 %}
+
+                                                <span class="rr-diff-negative">
+                                                    {{ change.difference }}
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="rr-diff-neutral">
+                                                    No change
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="rr-right-stack">
+
+            <div class="rr-card">
+
+                <div class="rr-card-head">
+
+                    <div class="rr-card-head-row">
+
+                        <div class="rr-card-icon">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.8"
+                                    d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L8 18l-4 1 1-4 11.5-11.5z"
+                                />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <h2 class="rr-card-title">
+                                Review Decision
+                            </h2>
+
+                            <p class="rr-card-text">
+                                Approving immediately updates the official mark record.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="rr-card-body">
+
+                    {% if is_pending %}
+
+                        <form
+                            method="POST"
+                            class="rr-decision-form"
+                        >
+                            {% csrf_token %}
+
+                            <div>
+
+                                <label
+                                    for="admin_note"
+                                    class="rr-label"
+                                >
+                                    Administrative Note
+                                </label>
+
+                                <textarea
+                                    id="admin_note"
+                                    name="admin_note"
+                                    class="rr-textarea"
+                                    placeholder="Optional when approving. Required when rejecting the request."
+                                >{{ request.POST.admin_note|default:"" }}</textarea>
+
+                            </div>
+
+                            <div class="rr-actions">
+
+                                <button
+                                    type="submit"
+                                    name="action"
+                                    value="approve"
+                                    class="rr-button rr-approve"
+                                    onclick="return confirm('Approve this correction and update the official marks?');"
+                                >
+                                    ✓ Approve Correction
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    name="action"
+                                    value="reject"
+                                    class="rr-button rr-reject"
+                                    onclick="return confirm('Reject this correction request?');"
+                                >
+                                    ✕ Reject Request
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    {% else %}
+
+                        <div class="rr-reviewed">
+
+                            {% if correction_request.status == 'approved' %}
+
+                                This correction request has been approved and the
+                                official mark record has been updated.
+
+                            {% elif correction_request.status == 'rejected' %}
+
+                                This correction request has been rejected and the
+                                official mark record was not changed.
+
+                            {% else %}
+
+                                This request is not currently available for final approval.
+
+                            {% endif %}
+
+
+                            {% if correction_request.admin_note %}
+
+                                <br><br>
+
+                                <strong>
+                                    Administrative note:
+                                </strong>
+
+                                <br>
+
+                                {{ correction_request.admin_note|linebreaksbr }}
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="rr-note-grid">
+
+        {% if correction_request.student_review_request %}
+
+            <article class="rr-note-card">
+
+                <div class="rr-note-head">
+
+                    <div class="rr-note-head-icon">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.8"
+                                d="M12 14c3 0 5-2 5-5s-2-5-5-5-5 2-5 5 2 5 5 5zm-7 6c1-3 4-5 7-5s6 2 7 5"
+                            />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3 class="rr-note-title">
+                            Original Student Concern
+                        </h3>
+
+                        <p class="rr-note-description">
+                            Explanation originally submitted by the student.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="rr-note-body">
+                    <div class="rr-note-box">
+                        {{ correction_request.student_review_request.reason|default:"No student explanation was provided." }}
+                    </div>
+                </div>
+
+            </article>
+
+        {% endif %}
+
+
+        <article class="rr-note-card">
+
+            <div class="rr-note-head">
+
+                <div class="rr-note-head-icon">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M12 14c3 0 5-2 5-5s-2-5-5-5-5 2-5 5 2 5 5 5zm-7 6c1-3 4-5 7-5s6 2 7 5"
+                        />
+                    </svg>
+                </div>
+
+                <div>
+                    <h3 class="rr-note-title">
+                        Faculty Correction Reason
+                    </h3>
+
+                    <p class="rr-note-description">
+                        Official explanation supplied by the faculty member.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="rr-note-body">
+                <div class="rr-note-box">
+                    {{ correction_request.reason|default:"No correction reason was provided." }}
+                </div>
+            </div>
+
+        </article>
+
+
+        {% if correction_request.student_review_request %}
+
+            <article class="rr-note-card">
+
+                <div class="rr-note-head">
+
+                    <div class="rr-note-head-icon blue">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.8"
+                                d="M8 4h8l4 4v12H4V4h4zM8 12h8M8 16h5"
+                            />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h3 class="rr-note-title">
+                            Faculty Verification Note
+                        </h3>
+
+                        <p class="rr-note-description">
+                            Faculty explanation of the records checked.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="rr-note-body">
+                    <div class="rr-note-box blue">
+                        {{ correction_request.student_review_request.faculty_note|default:"No faculty verification note was provided." }}
+                    </div>
+                </div>
+
+            </article>
+
+        {% endif %}
+
+    </section>
+
+
+    <section class="rr-bottom-grid">
+
+        <article class="rr-note-card">
+
+            <div class="rr-note-head">
+
+                <div class="rr-note-head-icon blue">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"
+                        />
+                    </svg>
+                </div>
+
+                <div>
+                    <h3 class="rr-note-title">
+                        Exam Controller Verification
+                    </h3>
+
+                    <p class="rr-note-description">
+                        Review the verification note before final approval.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="rr-note-body">
+                <div class="rr-note-box blue">
+                    {{ correction_request.exam_note|default:"No Exam Controller verification note was provided." }}
+                </div>
+            </div>
+
+        </article>
+
+
+        <div class="rr-card">
+
+            <div class="rr-card-head">
+
+                <div class="rr-card-head-row">
+
+                    <div class="rr-card-icon">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.8"
+                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"
+                            />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h2 class="rr-card-title">
+                            Supporting Evidence
+                        </h2>
+
+                        <p class="rr-card-text">
+                            Open all documents submitted by the student, faculty,
+                            and Exam Controller before making the final decision.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="rr-card-body">
+
+                <div class="rr-evidence-list">
+
+                    {% if correction_request.student_review_request %}
+
+                        {% if correction_request.student_review_request.attachment %}
+
+                            <div class="rr-evidence">
+
+                                <div class="rr-evidence-icon">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="1.8"
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div class="rr-evidence-info">
+                                    <strong>
+                                        Student Evidence
+                                    </strong>
+
+                                    <span>
+                                        {{ correction_request.student_review_request.attachment.name }}
+                                    </span>
+                                </div>
+
+                                <a
+                                    href="{{ correction_request.student_review_request.attachment.url }}"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="rr-evidence-link"
+                                >
+                                    Open File
+                                </a>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endif %}
+
+
+                    {% if correction_request.faculty_attachment %}
+
+                        <div class="rr-evidence">
+
+                            <div class="rr-evidence-icon">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"
+                                    />
+                                </svg>
+                            </div>
+
+                            <div class="rr-evidence-info">
+                                <strong>
+                                    Faculty Evidence
+                                </strong>
+
+                                <span>
+                                    {{ correction_request.faculty_attachment.name }}
+                                </span>
+                            </div>
+
+                            <a
+                                href="{{ correction_request.faculty_attachment.url }}"
+                                target="_blank"
+                                rel="noopener"
+                                class="rr-evidence-link"
+                            >
+                                Open File
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if correction_request.exam_attachment %}
+
+                        <div class="rr-evidence">
+
+                            <div class="rr-evidence-icon">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"
+                                    />
+                                </svg>
+                            </div>
+
+                            <div class="rr-evidence-info">
+                                <strong>
+                                    Exam Controller Evidence
+                                </strong>
+
+                                <span>
+                                    {{ correction_request.exam_attachment.name }}
+                                </span>
+                            </div>
+
+                            <a
+                                href="{{ correction_request.exam_attachment.url }}"
+                                target="_blank"
+                                rel="noopener"
+                                class="rr-evidence-link"
+                            >
+                                Open File
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if not correction_request.faculty_attachment and not correction_request.exam_attachment %}
+
+                    {% if correction_request.student_review_request %}
+
+                        {% if not correction_request.student_review_request.attachment %}
+
+                            <div class="rr-empty">
+                                No supporting evidence is attached to this request.
+                            </div>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        <div class="rr-empty">
+                            No supporting evidence is attached to this request.
+                        </div>
+
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,1365 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    /* =========================================================
+       AUDIT LOGS
+    ========================================================= */
+
+    .audit-page {
+        --audit-ink: #0f172a;
+        --audit-text: #334155;
+        --audit-muted: #64748b;
+        --audit-faint: #94a3b8;
+
+        --audit-line: #e2e8f0;
+        --audit-line-soft: #eef2f7;
+
+        --audit-surface: #ffffff;
+        --audit-soft: #f8fafc;
+
+        --audit-accent: #9f1c1c;
+        --audit-accent-dark: #7f1717;
+        --audit-accent-soft: #fff1f2;
+        --audit-accent-line: #fecaca;
+
+        --audit-green: #047857;
+        --audit-green-soft: #ecfdf5;
+        --audit-green-line: #bbf7d0;
+
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        display: grid;
+        gap: 18px;
+    }
+
+    .audit-page,
+    .audit-page * {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .audit-page a {
+        text-decoration: none;
+    }
+
+    /* =========================================================
+       SHARED SURFACE
+    ========================================================= */
+
+    .audit-surface {
+        width: 100%;
+        max-width: 100%;
+
+        background: var(--audit-surface);
+        border: 1px solid var(--audit-line);
+        border-radius: 24px;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .audit-hero {
+        position: relative;
+        overflow: hidden;
+
+        padding: 26px 28px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+
+        background:
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(219, 234, 254, 0.46),
+                transparent 34%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(255, 228, 230, 0.72),
+                transparent 36%
+            ),
+            #ffffff;
+    }
+
+    .audit-kicker {
+        margin-bottom: 9px;
+
+        color: var(--audit-accent);
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+
+    .audit-title {
+        margin: 0;
+
+        color: var(--audit-ink);
+
+        font-size: clamp(30px, 4vw, 42px);
+        line-height: 1.04;
+        font-weight: 900;
+        letter-spacing: -0.055em;
+    }
+
+    .audit-subtitle {
+        max-width: 760px;
+        margin: 9px 0 0;
+
+        color: var(--audit-muted);
+
+        font-size: 14px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    .audit-button {
+        min-height: 42px;
+        padding: 0 15px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        border: 1px solid var(--audit-line);
+        border-radius: 12px;
+
+        background: #ffffff;
+        color: var(--audit-text);
+
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 800;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .audit-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+
+    .audit-button.primary {
+        background: var(--audit-accent);
+        border-color: var(--audit-accent);
+        color: #ffffff;
+    }
+
+    .audit-button.primary:hover {
+        background: var(--audit-accent-dark);
+        border-color: var(--audit-accent-dark);
+    }
+
+    .audit-button.export {
+        background: var(--audit-green-soft);
+        border-color: var(--audit-green-line);
+        color: var(--audit-green);
+    }
+
+    .audit-button.export:hover {
+        background: #dcfce7;
+    }
+
+    /* =========================================================
+       SUMMARY
+    ========================================================= */
+
+    .audit-summary {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 1fr)
+            minmax(0, 1fr);
+
+        overflow: hidden;
+    }
+
+    .audit-summary-item {
+        min-height: 88px;
+        padding: 17px 20px;
+
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        border-right: 1px solid var(--audit-line-soft);
+    }
+
+    .audit-summary-item:last-child {
+        border-right: none;
+    }
+
+    .audit-summary-icon {
+        width: 42px;
+        height: 42px;
+        flex: none;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 13px;
+
+        background: var(--audit-accent-soft);
+        border: 1px solid var(--audit-accent-line);
+
+        color: var(--audit-accent);
+    }
+
+    .audit-summary-icon svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .audit-summary-label {
+        color: var(--audit-faint);
+
+        font-size: 9.5px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .audit-summary-value {
+        margin-top: 4px;
+
+        color: var(--audit-ink);
+
+        font-size: 23px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    /* =========================================================
+       FILTER WORKSPACE
+    ========================================================= */
+
+    .audit-filter-card {
+        overflow: hidden;
+    }
+
+    .audit-section-header {
+        padding: 22px 24px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+
+        border-bottom: 1px solid var(--audit-line-soft);
+    }
+
+    .audit-section-title {
+        margin: 0;
+
+        color: var(--audit-ink);
+
+        font-size: 23px;
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    .audit-section-description {
+        margin: 5px 0 0;
+
+        color: var(--audit-muted);
+
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .audit-chip {
+        min-height: 30px;
+        padding: 0 11px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px;
+
+        background: var(--audit-accent-soft);
+        border: 1px solid var(--audit-accent-line);
+
+        color: var(--audit-accent-dark);
+
+        font-size: 11px;
+        font-weight: 850;
+
+        white-space: nowrap;
+    }
+
+    .audit-filter-body {
+        padding: 20px 24px 22px;
+    }
+
+    .audit-filter-grid {
+        display: grid;
+        grid-template-columns:
+            minmax(240px, 1.6fr)
+            repeat(2, minmax(150px, 0.8fr))
+            repeat(2, minmax(145px, 0.7fr));
+        gap: 12px;
+        align-items: end;
+    }
+
+    .audit-field {
+        margin: 0;
+    }
+
+    .audit-field label {
+        display: block;
+        margin-bottom: 7px;
+
+        color: var(--audit-text);
+
+        font-size: 11.5px;
+        font-weight: 800;
+    }
+
+    .audit-input {
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 12px;
+
+        border: 1px solid #cbd5e1;
+        border-radius: 11px;
+
+        background: #ffffff;
+        color: var(--audit-ink);
+
+        font-family: inherit;
+        font-size: 13px;
+
+        outline: none;
+
+        transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .audit-input:focus {
+        border-color: var(--audit-accent);
+        box-shadow: 0 0 0 3px rgba(159, 28, 28, 0.09);
+    }
+
+    .audit-filter-actions {
+        margin-top: 14px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .audit-filter-actions-left,
+    .audit-filter-actions-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* =========================================================
+       LOG WORKSPACE
+    ========================================================= */
+
+    .audit-log-card {
+        overflow: hidden;
+    }
+
+    .audit-result-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .audit-count-chip {
+        min-height: 30px;
+        padding: 0 11px;
+
+        display: inline-flex;
+        align-items: center;
+
+        border-radius: 999px;
+
+        background: #f8fafc;
+        border: 1px solid var(--audit-line);
+
+        color: #475569;
+
+        font-size: 11px;
+        font-weight: 850;
+    }
+
+    /* =========================================================
+       TABLE
+    ========================================================= */
+
+    .audit-table-wrap {
+        width: 100%;
+        max-width: 100%;
+
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .audit-table {
+        width: 100%;
+        min-width: 1120px;
+
+        border-collapse: separate;
+        border-spacing: 0;
+
+        background: #ffffff;
+    }
+
+    .audit-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+    }
+
+    .audit-table th {
+        padding: 13px 15px;
+
+        background: #f8fafc;
+        border-bottom: 1px solid var(--audit-line);
+
+        color: var(--audit-faint);
+
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .audit-table td {
+        padding: 15px;
+
+        border-bottom: 1px solid var(--audit-line-soft);
+
+        color: var(--audit-text);
+
+        font-size: 13px;
+        line-height: 1.5;
+
+        vertical-align: top;
+    }
+
+    .audit-table tbody tr {
+        transition:
+            background 0.15s ease;
+    }
+
+    .audit-table tbody tr:hover td {
+        background: #fffafa;
+    }
+
+    .audit-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .audit-time {
+        display: grid;
+        gap: 2px;
+
+        white-space: nowrap;
+    }
+
+    .audit-time-primary {
+        color: var(--audit-ink);
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .audit-time-secondary {
+        color: var(--audit-muted);
+
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .audit-actor-name {
+        color: var(--audit-ink);
+
+        font-size: 13px;
+        font-weight: 850;
+    }
+
+    .audit-actor-role {
+        margin-top: 2px;
+
+        color: var(--audit-muted);
+
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .audit-module-badge,
+    .audit-action-badge {
+        min-height: 27px;
+        padding: 0 9px;
+
+        display: inline-flex;
+        align-items: center;
+
+        border-radius: 999px;
+
+        font-size: 10.5px;
+        font-weight: 850;
+
+        white-space: nowrap;
+    }
+
+    .audit-module-badge {
+        background: var(--audit-accent-soft);
+        border: 1px solid var(--audit-accent-line);
+        color: var(--audit-accent-dark);
+    }
+
+    .audit-action-badge {
+        background: #f1f5f9;
+        border: 1px solid var(--audit-line);
+        color: #475569;
+    }
+
+    .audit-action-badge.create,
+    .audit-action-badge.activate {
+        background: #ecfdf5;
+        border-color: #bbf7d0;
+        color: #047857;
+    }
+
+    .audit-action-badge.update,
+    .audit-action-badge.password_reset {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1d4ed8;
+    }
+
+    .audit-action-badge.delete,
+    .audit-action-badge.deactivate {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #b91c1c;
+    }
+
+    .audit-action-badge.login {
+        background: #faf5ff;
+        border-color: #e9d5ff;
+        color: #7e22ce;
+    }
+
+    .audit-target {
+        display: grid;
+        gap: 2px;
+    }
+
+    .audit-target-primary {
+        color: var(--audit-ink);
+
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .audit-target-secondary {
+        color: var(--audit-muted);
+
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .audit-description {
+        max-width: 380px;
+
+        color: var(--audit-text);
+
+        overflow-wrap: anywhere;
+    }
+
+    .audit-ip {
+        color: var(--audit-muted);
+
+        font-family:
+            ui-monospace,
+            SFMono-Regular,
+            Menlo,
+            Monaco,
+            Consolas,
+            monospace;
+
+        font-size: 11px;
+
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+       EMPTY STATE
+    ========================================================= */
+
+    .audit-empty {
+        padding: 42px 20px;
+
+        text-align: center;
+    }
+
+    .audit-empty-title {
+        color: var(--audit-ink);
+
+        font-size: 16px;
+        font-weight: 850;
+    }
+
+    .audit-empty-text {
+        margin-top: 5px;
+
+        color: var(--audit-muted);
+
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       PAGINATION
+    ========================================================= */
+
+    .audit-pagination {
+        padding: 16px 20px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+
+        border-top: 1px solid var(--audit-line-soft);
+
+        background: #ffffff;
+    }
+
+    .audit-page-summary {
+        color: var(--audit-muted);
+
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .audit-page-summary strong {
+        color: var(--audit-ink);
+    }
+
+    .audit-page-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .audit-page-number {
+        min-width: 64px;
+
+        text-align: center;
+
+        color: var(--audit-text);
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .audit-button.disabled {
+        pointer-events: none;
+
+        background: #f8fafc;
+        border-color: var(--audit-line);
+        color: var(--audit-faint);
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1280px) {
+        .audit-filter-grid {
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .audit-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .audit-summary-item {
+            border-right: none;
+            border-bottom: 1px solid var(--audit-line-soft);
+        }
+
+        .audit-summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .audit-filter-grid {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .audit-page {
+            gap: 14px;
+        }
+
+        .audit-hero {
+            padding: 20px 18px;
+
+            flex-direction: column;
+            align-items: stretch;
+
+            border-radius: 20px;
+        }
+
+        .audit-title {
+            font-size: 30px;
+        }
+
+        .audit-hero .audit-button {
+            width: 100%;
+        }
+
+        .audit-filter-card,
+        .audit-log-card,
+        .audit-summary {
+            border-radius: 20px;
+        }
+
+        .audit-section-header {
+            padding: 18px;
+
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .audit-filter-body {
+            padding: 16px;
+        }
+
+        .audit-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .audit-filter-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .audit-filter-actions-left,
+        .audit-filter-actions-right {
+            width: 100%;
+
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .audit-filter-actions .audit-button {
+            width: 100%;
+        }
+
+        .audit-pagination {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .audit-page-summary {
+            text-align: center;
+        }
+
+        .audit-page-actions {
+            justify-content: center;
+        }
+    }
+</style>
+
+
+<div class="audit-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="audit-surface audit-hero">
+
+        <div>
+            <div class="audit-kicker">
+                System Activity
+            </div>
+
+            <h1 class="audit-title">
+                Audit Logs
+            </h1>
+
+            <p class="audit-subtitle">
+                Review important actions performed throughout the university portal,
+                including account changes, academic operations, access updates,
+                and administrative activity.
+            </p>
+        </div>
+
+
+        <a
+            href="{% url 'super_admin_dashboard' %}"
+            class="audit-button"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </section>
+
+
+    <!-- =====================================================
+         SUMMARY STRIP
+    ====================================================== -->
+
+    <section class="audit-surface audit-summary">
+
+        <div class="audit-summary-item">
+            <div class="audit-summary-icon">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12h6m-6 4h6M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="audit-summary-label">
+                    Matching Logs
+                </div>
+
+                <div class="audit-summary-value">
+                    {{ total_logs }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="audit-summary-item">
+            <div class="audit-summary-icon">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="audit-summary-label">
+                    Current View
+                </div>
+
+                <div class="audit-summary-value">
+                    {{ logs|length }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="audit-summary-item">
+            <div class="audit-summary-icon">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4 6h16M7 12h10M10 18h4"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="audit-summary-label">
+                    Filter Status
+                </div>
+
+                <div class="audit-summary-value">
+                    {% if search_query or selected_module or selected_action or start_date or end_date %}
+                        Active
+                    {% else %}
+                        All
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FILTER WORKSPACE
+    ====================================================== -->
+
+    <section class="audit-surface audit-filter-card">
+
+        <div class="audit-section-header">
+
+            <div>
+                <h2 class="audit-section-title">
+                    Search & Filter
+                </h2>
+
+                <p class="audit-section-description">
+                    Narrow activity records by text, module, action, or date range.
+                </p>
+            </div>
+
+            <span class="audit-chip">
+                Audit Controls
+            </span>
+
+        </div>
+
+
+        <div class="audit-filter-body">
+
+            <form method="GET">
+
+                <div class="audit-filter-grid">
+
+                    <div class="audit-field">
+                        <label>
+                            Search
+                        </label>
+
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ search_query }}"
+                            placeholder="Actor, module, target, description..."
+                            class="audit-input"
+                        >
+                    </div>
+
+
+                    <div class="audit-field">
+                        <label>
+                            Module
+                        </label>
+
+                        <select
+                            name="module"
+                            class="audit-input"
+                        >
+                            <option value="">
+                                All Modules
+                            </option>
+
+                            {% for module in module_choices %}
+                                <option
+                                    value="{{ module }}"
+                                    {% if selected_module == module %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ module }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div class="audit-field">
+                        <label>
+                            Action
+                        </label>
+
+                        <select
+                            name="action"
+                            class="audit-input"
+                        >
+                            <option value="">
+                                All Actions
+                            </option>
+
+                            {% for action in action_choices %}
+                                <option
+                                    value="{{ action }}"
+                                    {% if selected_action == action %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ action }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div class="audit-field">
+                        <label>
+                            Start Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="start_date"
+                            value="{{ start_date }}"
+                            class="audit-input"
+                        >
+                    </div>
+
+
+                    <div class="audit-field">
+                        <label>
+                            End Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="end_date"
+                            value="{{ end_date }}"
+                            class="audit-input"
+                        >
+                    </div>
+
+                </div>
+
+
+                <div class="audit-filter-actions">
+
+                    <div class="audit-filter-actions-left">
+
+                        <button
+                            type="submit"
+                            class="audit-button primary"
+                        >
+                            Apply Filters
+                        </button>
+
+
+                        <a
+                            href="{% url 'audit_logs' %}"
+                            class="audit-button"
+                        >
+                            Clear Filters
+                        </a>
+
+                    </div>
+
+
+                    <div class="audit-filter-actions-right">
+
+                        <a
+                            href="{% url 'export_audit_logs' %}?q={{ search_query|urlencode }}&module={{ selected_module|urlencode }}&action={{ selected_action|urlencode }}&start_date={{ start_date }}&end_date={{ end_date }}"
+                            class="audit-button export"
+                        >
+                            Export CSV
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         LOG DIRECTORY
+    ====================================================== -->
+
+    <section class="audit-surface audit-log-card">
+
+        <div class="audit-section-header">
+
+            <div>
+                <h2 class="audit-section-title">
+                    Activity Records
+                </h2>
+
+                <p class="audit-section-description">
+                    Review the latest matching system activity and administrative changes.
+                </p>
+            </div>
+
+
+            <div class="audit-result-meta">
+                <span class="audit-count-chip">
+                    {{ total_logs }}
+                    Log{{ total_logs|pluralize }}
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="audit-table-wrap">
+
+            <table class="audit-table">
+
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Actor</th>
+                        <th>Module</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Description</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for log in logs %}
+
+                        <tr>
+
+                            <td>
+                                <div class="audit-time">
+                                    <div class="audit-time-primary">
+                                        {{ log.created_at|date:"d M Y" }}
+                                    </div>
+
+                                    <div class="audit-time-secondary">
+                                        {{ log.created_at|date:"h:i A" }}
+                                    </div>
+                                </div>
+                            </td>
+
+
+                            <td>
+                                {% if log.actor %}
+                                    <div class="audit-actor-name">
+                                        {{ log.actor.username }}
+                                    </div>
+
+                                    <div class="audit-actor-role">
+                                        {{ log.actor.get_role_display }}
+                                    </div>
+                                {% else %}
+                                    <span class="audit-time-secondary">
+                                        Unknown
+                                    </span>
+                                {% endif %}
+                            </td>
+
+
+                            <td>
+                                <span class="audit-module-badge">
+                                    {{ log.module }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                <span
+                                    class="
+                                        audit-action-badge
+                                        {{ log.action|lower }}
+                                    "
+                                >
+                                    {{ log.action }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                <div class="audit-target">
+
+                                    {% if log.target_repr %}
+                                        <div class="audit-target-primary">
+                                            {{ log.target_repr }}
+                                        </div>
+
+                                    {% elif log.target_model %}
+                                        <div class="audit-target-primary">
+                                            {{ log.target_model }}
+                                        </div>
+                                    {% endif %}
+
+
+                                    {% if log.target_model and log.target_repr %}
+                                        <div class="audit-target-secondary">
+                                            {{ log.target_model }}
+                                        </div>
+                                    {% endif %}
+
+
+                                    {% if log.target_id %}
+                                        <div class="audit-target-secondary">
+                                            ID: {{ log.target_id }}
+                                        </div>
+                                    {% endif %}
+
+
+                                    {% if not log.target_model and not log.target_id and not log.target_repr %}
+                                        <div class="audit-target-secondary">
+                                            —
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+                            </td>
+
+
+                            <td>
+                                <div class="audit-description">
+                                    {{ log.description|default:"-" }}
+                                </div>
+                            </td>
+
+
+                            <td>
+                                <span class="audit-ip">
+                                    {{ log.ip_address|default:"-" }}
+                                </span>
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+
+                        <tr>
+                            <td colspan="7">
+
+                                <div class="audit-empty">
+                                    <div class="audit-empty-title">
+                                        No audit logs found
+                                    </div>
+
+                                    <div class="audit-empty-text">
+                                        Try changing or clearing the current filters.
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% if page_obj %}
+
+            <div class="audit-pagination">
+
+                <div class="audit-page-summary">
+                    Page
+                    <strong>{{ page_obj.number }}</strong>
+                    of
+                    <strong>{{ page_obj.paginator.num_pages }}</strong>
+
+                    ·
+
+                    <strong>{{ total_logs }}</strong>
+                    matching log{{ total_logs|pluralize }}
+                </div>
+
+
+                <div class="audit-page-actions">
+
+                    {% if page_obj.has_previous %}
+
+                        <a
+                            href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                            class="audit-button"
+                        >
+                            ← Previous
+                        </a>
+
+                    {% else %}
+
+                        <span class="audit-button disabled">
+                            ← Previous
+                        </span>
+
+                    {% endif %}
+
+
+                    <span class="audit-page-number">
+                        {{ page_obj.number }}
+                        /
+                        {{ page_obj.paginator.num_pages }}
+                    </span>
+
+
+                    {% if page_obj.has_next %}
+
+                        <a
+                            href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}"
+                            class="audit-button"
+                        >
+                            Next →
+                        </a>
+
+                    {% else %}
+
+                        <span class="audit-button disabled">
+                            Next →
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

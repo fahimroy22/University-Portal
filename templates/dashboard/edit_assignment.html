@@ -1,0 +1,862 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .assignment-edit-page {
+        --ink: #0f172a;
+        --ink-soft: #334155;
+        --muted: #64748b;
+        --soft-muted: #94a3b8;
+        --line: #e5e7eb;
+        --line-soft: #f1f5f9;
+        --canvas: #f8fafc;
+        --surface: #ffffff;
+
+        --accent: #b4232a;
+        --accent-dark: #8f1d23;
+        --accent-soft: #fff1f2;
+        --accent-line: #fecdd3;
+
+        --success: #047857;
+        --success-soft: #ecfdf5;
+        --success-line: #bbf7d0;
+
+        --warning: #b45309;
+        --warning-soft: #fffbeb;
+        --warning-line: #fde68a;
+
+        --danger: #b91c1c;
+        --danger-soft: #fef2f2;
+        --danger-line: #fecaca;
+
+        --info: #1d4ed8;
+        --info-soft: #eff6ff;
+        --info-line: #bfdbfe;
+
+        width: 100%;
+        max-width: 1120px;
+        margin: 0 auto;
+        display: grid;
+        gap: 24px;
+        overflow: visible;
+    }
+
+    .assignment-edit-page,
+    .assignment-edit-page * {
+        box-sizing: border-box;
+    }
+
+    .assignment-edit-page .tabular {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .assignment-edit-page svg {
+        flex-shrink: 0;
+    }
+
+    /* ---------- Header ---------- */
+    .assignment-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 24px;
+        align-items: center;
+        padding: 28px;
+        border-radius: 28px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .assignment-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        border: 1px solid var(--accent-line);
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .assignment-kicker svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .assignment-hero h1 {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(30px, 4vw, 46px);
+        line-height: 1.04;
+        font-weight: 850;
+        letter-spacing: -0.045em;
+    }
+
+    .assignment-subtitle {
+        margin-top: 10px;
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.65;
+        font-weight: 600;
+    }
+
+    .assignment-meta {
+        margin-top: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .assignment-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: var(--canvas);
+        color: var(--ink-soft);
+        border: 1px solid var(--line);
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .assignment-pill.success {
+        background: var(--success-soft);
+        color: var(--success);
+        border-color: var(--success-line);
+    }
+
+    .assignment-pill.warning {
+        background: var(--warning-soft);
+        color: var(--warning);
+        border-color: var(--warning-line);
+    }
+
+    .assignment-pill.danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+        border-color: var(--danger-line);
+    }
+
+    .assignment-back-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 0 15px;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .assignment-back-btn:hover {
+        background: var(--canvas);
+        border-color: #d1d5db;
+        color: var(--ink);
+    }
+
+    .assignment-back-btn svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    /* ---------- Summary ---------- */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .summary-card {
+        min-height: 116px;
+        padding: 18px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+    }
+
+    .summary-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .summary-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--canvas);
+        color: var(--ink-soft);
+        border: 1px solid var(--line);
+    }
+
+    .summary-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .summary-label {
+        margin-top: 14px;
+        color: var(--soft-muted);
+        font-size: 10.5px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .summary-value {
+        color: var(--ink);
+        font-size: 22px;
+        line-height: 1.1;
+        font-weight: 850;
+        letter-spacing: -0.03em;
+        word-break: break-word;
+    }
+
+    .summary-desc {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12.5px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    /* ---------- Form card ---------- */
+    .assignment-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 28px;
+        border-radius: 28px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        overflow: hidden;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--line-soft);
+        margin-bottom: 22px;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(24px, 3vw, 32px);
+        line-height: 1.1;
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    .card-header p {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .field-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--soft-muted);
+        font-size: 11px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.10em;
+    }
+
+    .field-label svg {
+        width: 14px;
+        height: 14px;
+        color: var(--ink-soft);
+    }
+
+    .field-control {
+        margin-top: 8px;
+        width: 100%;
+        min-height: 40px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: var(--canvas);
+        padding: 0 12px;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 650;
+        outline: none;
+    }
+
+    textarea.field-control {
+        min-height: 130px;
+        resize: vertical;
+        padding: 12px;
+        line-height: 1.6;
+    }
+
+    .field-control:focus {
+        border-color: var(--accent);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(180, 35, 42, 0.08);
+    }
+
+    .field-help {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .attachment-box {
+        margin-top: 8px;
+        min-height: 72px;
+        padding: 14px;
+        border-radius: 16px;
+        background: var(--canvas);
+        border: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .attachment-text {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .attachment-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 34px;
+        padding: 0 12px;
+        border-radius: 11px;
+        background: #ffffff;
+        color: var(--ink-soft);
+        border: 1px solid var(--line);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .attachment-link:hover {
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        border-color: var(--accent-line);
+    }
+
+    .attachment-link svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* ---------- Settings ---------- */
+    .settings-grid {
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .setting-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px;
+        border-radius: 20px;
+        background: var(--canvas);
+        border: 1px solid var(--line);
+        cursor: pointer;
+    }
+
+    .setting-card:hover {
+        background: #ffffff;
+        border-color: #d1d5db;
+    }
+
+    .setting-title {
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 850;
+        line-height: 1.3;
+    }
+
+    .setting-desc {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12.5px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    .setting-check {
+        flex: none;
+        width: 20px;
+        height: 20px;
+        accent-color: var(--accent);
+    }
+
+    /* ---------- Save bar ---------- */
+    .save-bar {
+        position: sticky;
+        bottom: 16px;
+        z-index: 30;
+        margin-top: 22px;
+        padding: 16px;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .save-bar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .save-title {
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 850;
+    }
+
+    .save-subtitle {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12.5px;
+        font-weight: 600;
+    }
+
+    .save-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 0 16px;
+        border: none;
+        border-radius: 12px;
+        background: var(--accent);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s ease;
+    }
+
+    .save-button:hover {
+        background: var(--accent-dark);
+    }
+
+    .save-button svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    @media (min-width: 1181px) {
+        body:not(.sidebar-collapsed) .assignment-edit-page {
+            max-width: 1040px;
+        }
+
+        body.sidebar-collapsed .assignment-edit-page {
+            max-width: 1180px;
+        }
+    }
+
+    @media (max-width: 1180px) {
+        .assignment-edit-page {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .assignment-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-grid,
+        .form-grid,
+        .settings-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card-header {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .assignment-hero,
+        .assignment-card {
+            padding: 20px;
+            border-radius: 24px;
+        }
+
+        .save-bar-inner {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .save-button,
+        .assignment-back-btn {
+            width: 100%;
+        }
+
+        .attachment-box {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .attachment-link {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="assignment-edit-page">
+
+    <!-- Page Header -->
+    <section class="assignment-hero">
+        <div>
+            <div class="assignment-kicker">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 12h6"></path>
+                    <path d="M9 16h6"></path>
+                    <path d="M9 8h6"></path>
+                    <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"></path>
+                </svg>
+                Edit Assignment
+            </div>
+
+            <h1>Update Assignment</h1>
+
+            <div class="assignment-subtitle">
+                {{ assignment.course_offering.course.code }} &mdash; {{ assignment.course_offering.course.title }}
+            </div>
+
+            <div class="assignment-meta">
+                <span class="assignment-pill success">{{ assignment.course_offering.batch }}</span>
+                <span class="assignment-pill">{{ assignment.course_offering.semester }}</span>
+                <span class="assignment-pill">Section {{ assignment.course_offering.section }}</span>
+
+                {% if assignment.is_published %}
+                    <span class="assignment-pill success">Published</span>
+                {% else %}
+                    <span class="assignment-pill danger">Draft</span>
+                {% endif %}
+
+                {% if assignment.accepting_submissions %}
+                    <span class="assignment-pill success">Submissions Open</span>
+                {% else %}
+                    <span class="assignment-pill warning">Submissions Paused</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="{% url 'faculty_assignments' assignment.course_offering.id %}" class="assignment-back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5"></path>
+                <path d="M12 19l-7-7 7-7"></path>
+            </svg>
+            Back to Assignments
+        </a>
+    </section>
+
+    <!-- Current Assignment Summary -->
+    <section class="summary-grid">
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <div class="summary-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                    </svg>
+                </div>
+                <div class="summary-value">Edit</div>
+            </div>
+            <div class="summary-label">Assignment</div>
+            <div class="summary-desc">Update title and description.</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <div class="summary-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3M12 22a10 10 0 110-20 10 10 0 010 20z"/>
+                    </svg>
+                </div>
+                <div class="summary-value" style="font-size: 15px;">
+                    {{ assignment.deadline }}
+                </div>
+            </div>
+            <div class="summary-label">Current Deadline</div>
+            <div class="summary-desc">Set a new deadline below if needed.</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <div class="summary-icon">
+                    <span class="tabular" style="font-weight:850;">M</span>
+                </div>
+                <div class="summary-value tabular">{{ assignment.total_marks }}</div>
+            </div>
+            <div class="summary-label">Total Marks</div>
+            <div class="summary-desc">Current assignment marks.</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <div class="summary-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"/>
+                    </svg>
+                </div>
+                <div class="summary-value">
+                    {% if assignment.attachment %}
+                        Added
+                    {% else %}
+                        None
+                    {% endif %}
+                </div>
+            </div>
+            <div class="summary-label">Attachment</div>
+            <div class="summary-desc">Replace file if necessary.</div>
+        </div>
+
+    </section>
+
+    <!-- Edit Form -->
+    <section class="assignment-card">
+
+        <div class="card-header">
+            <div>
+                <h2>Update Assignment Information</h2>
+                <p>
+                    Change assignment details carefully. Leaving the deadline empty keeps the current deadline unchanged.
+                </p>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-grid">
+
+                <div class="form-field full">
+                    <label class="field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 12h6"></path>
+                            <path d="M9 16h6"></path>
+                            <path d="M5 4h14a2 2 0 012 2v14H3V6a2 2 0 012-2z"></path>
+                        </svg>
+                        Title
+                    </label>
+                    <input type="text"
+                           name="title"
+                           value="{{ assignment.title }}"
+                           required
+                           class="field-control"
+                           placeholder="Assignment title">
+                </div>
+
+                <div class="form-field full">
+                    <label class="field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 6h16"></path>
+                            <path d="M4 12h16"></path>
+                            <path d="M4 18h10"></path>
+                        </svg>
+                        Description
+                    </label>
+                    <textarea name="description"
+                              rows="5"
+                              class="field-control"
+                              placeholder="Write assignment description or instruction">{{ assignment.description }}</textarea>
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="5" width="18" height="16" rx="3"></rect>
+                            <path d="M3 10h18"></path>
+                            <path d="M8 3v4"></path>
+                            <path d="M16 3v4"></path>
+                        </svg>
+                        New Deadline
+                    </label>
+                    <input type="datetime-local"
+                           name="deadline"
+                           class="field-control">
+
+                    <p class="field-help">
+                        Current deadline: {{ assignment.deadline }}
+                    </p>
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19V5"></path>
+                            <path d="M8 19v-6"></path>
+                            <path d="M12 19V9"></path>
+                            <path d="M16 19v-3"></path>
+                            <path d="M20 19V7"></path>
+                        </svg>
+                        Total Marks
+                    </label>
+                    <input type="number"
+                           name="total_marks"
+                           step="0.01"
+                           value="{{ assignment.total_marks }}"
+                           class="field-control">
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828a4 4 0 10-5.657-5.657L5.757 10.757a6 6 0 108.486 8.486L20.5 13"></path>
+                        </svg>
+                        Current Attachment
+                    </label>
+
+                    <div class="attachment-box">
+                        {% if assignment.attachment %}
+                            <span class="attachment-text">Current assignment file is available.</span>
+                            <a href="{{ assignment.attachment.url }}"
+                               target="_blank"
+                               class="attachment-link">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 4v12"></path>
+                                    <path d="M8 12l4 4 4-4"></path>
+                                    <path d="M4 20h16"></path>
+                                </svg>
+                                View File
+                            </a>
+                        {% else %}
+                            <span class="attachment-text">No attachment added.</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 16V4"></path>
+                            <path d="M8 8l4-4 4 4"></path>
+                            <path d="M4 20h16"></path>
+                        </svg>
+                        Replace Attachment
+                    </label>
+                    <input type="file"
+                           name="attachment"
+                           class="field-control">
+
+                    <p class="field-help">
+                        Uploading a new file will replace the current attachment.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="settings-grid">
+
+                <label class="setting-card">
+                    <div>
+                        <div class="setting-title">Published</div>
+                        <div class="setting-desc">
+                            Students can see this assignment.
+                        </div>
+                    </div>
+
+                    <input type="checkbox"
+                           name="is_published"
+                           {% if assignment.is_published %}checked{% endif %}
+                           class="setting-check">
+                </label>
+
+                <label class="setting-card">
+                    <div>
+                        <div class="setting-title">Accepting Submissions</div>
+                        <div class="setting-desc">
+                            Students can submit or update work.
+                        </div>
+                    </div>
+
+                    <input type="checkbox"
+                           name="accepting_submissions"
+                           {% if assignment.accepting_submissions %}checked{% endif %}
+                           class="setting-check">
+                </label>
+
+            </div>
+
+            <div class="save-bar">
+                <div class="save-bar-inner">
+                    <div>
+                        <div class="save-title">Save assignment changes?</div>
+                        <div class="save-subtitle">
+                            Review title, deadline, marks, file, and publication settings before saving.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path>
+                            <path d="M17 21v-8H7v8"></path>
+                            <path d="M7 3v5h8"></path>
+                        </svg>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,885 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .course-table-wrap {
+        width: 100%;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        background: #ffffff;
+    }
+
+    .course-table {
+        width: 100%;
+        max-width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    .course-table th {
+        padding: 16px 14px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 900;
+        line-height: 1.3;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        text-align: left;
+    }
+
+    .course-table td {
+        padding: 17px 14px;
+        border-bottom: 1px solid #eef2f7;
+
+        color: #334155;
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 700;
+        vertical-align: middle;
+    }
+
+    .course-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .course-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .course-table .text-center {
+        text-align: center;
+    }
+
+    .course-code {
+        color: #0f172a !important;
+        font-weight: 900 !important;
+    }
+
+    .course-title {
+        color: #64748b !important;
+    }
+
+    .course-credit-badge,
+    .course-status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        line-height: 1;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .course-credit-badge {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+
+    .course-status-badge {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #bbf7d0;
+    }
+
+    /* Desktop column widths */
+    .course-table th:nth-child(1),
+    .course-table td:nth-child(1) {
+        width: 18%;
+    }
+
+    .course-table th:nth-child(2),
+    .course-table td:nth-child(2) {
+        width: 38%;
+    }
+
+    .course-table th:nth-child(3),
+    .course-table td:nth-child(3) {
+        width: 12%;
+    }
+
+    .course-table th:nth-child(4),
+    .course-table td:nth-child(4) {
+        width: 20%;
+    }
+
+    .course-table th:nth-child(5),
+    .course-table td:nth-child(5) {
+        width: 12%;
+    }
+
+    @media (max-width: 700px) {
+        .course-table-section-inner {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+
+        .course-table-wrap {
+            width: 100%;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .course-table {
+            width: 100%;
+            max-width: 100%;
+            table-layout: fixed;
+        }
+
+        .course-table th {
+            padding: 9px 2px;
+
+            font-size: 6.3px;
+            line-height: 1.2;
+            letter-spacing: 0.025em;
+            text-align: center;
+
+            overflow-wrap: anywhere;
+        }
+
+        .course-table td {
+            padding: 11px 3px;
+
+            font-size: 8px;
+            line-height: 1.25;
+            text-align: center;
+
+            overflow-wrap: anywhere;
+            word-break: normal;
+        }
+
+        .course-code {
+            font-size: 7.7px !important;
+            line-height: 1.2 !important;
+        }
+
+        .course-title {
+            font-size: 7.7px !important;
+            line-height: 1.25 !important;
+        }
+
+        .course-faculty {
+            font-size: 7.5px !important;
+            line-height: 1.25 !important;
+        }
+
+        .course-credit-badge,
+        .course-status-badge {
+            min-height: 23px;
+            width: 100%;
+            padding: 0 2px;
+            font-size: 7px;
+        }
+
+        .course-table th:nth-child(1),
+        .course-table td:nth-child(1) {
+            width: 23%;
+        }
+
+        .course-table th:nth-child(2),
+        .course-table td:nth-child(2) {
+            width: 31%;
+        }
+
+        .course-table th:nth-child(3),
+        .course-table td:nth-child(3) {
+            width: 11%;
+        }
+
+        .course-table th:nth-child(4),
+        .course-table td:nth-child(4) {
+            width: 21%;
+        }
+
+        .course-table th:nth-child(5),
+        .course-table td:nth-child(5) {
+            width: 14%;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .course-table-section-inner {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+        }
+
+        .course-table th {
+            padding-left: 1px;
+            padding-right: 1px;
+            font-size: 5.7px;
+        }
+
+        .course-table td {
+            padding-left: 2px;
+            padding-right: 2px;
+            font-size: 7.2px;
+        }
+
+        .course-code,
+        .course-title,
+        .course-faculty {
+            font-size: 6.8px !important;
+        }
+
+        .course-credit-badge,
+        .course-status-badge {
+            font-size: 6.2px;
+        }
+    }
+</style>
+
+
+<div class="space-y-6 sm:space-y-8">
+
+    <!-- Page Header -->
+    <section class="glass-panel overflow-hidden rounded-[28px] sm:rounded-[34px]">
+        <div class="relative p-5 sm:p-7 lg:p-9">
+
+            <div class="absolute -right-20 -top-20 h-44 w-44 rounded-full bg-blue-100 blur-3xl"></div>
+            <div class="absolute -left-12 bottom-0 h-36 w-36 rounded-full bg-cyan-100 blur-3xl"></div>
+
+            <div class="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+
+                <div>
+                    <span class="eyebrow">
+                        Course Enrollment
+                    </span>
+
+                    <h1 class="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+                        My Courses
+                    </h1>
+
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
+                        View your current semester courses and browse your approved course history from previous semesters.
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <a
+                        href="{% url 'student_dashboard' %}"
+                        class="btn btn-outline w-full justify-center sm:w-auto"
+                    >
+                        ← Back to Overview
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Summary Cards -->
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <!-- Current Courses -->
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 6.3A9 9 0 013 4.5v13A9 9 0 0012 19.3m0-13A9 9 0 0121 4.5v13a9 9 0 01-9 1.8m0-13v13"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">
+                    Current Courses
+                </div>
+
+                <div class="stat-value">
+                    {{ current_courses|length }}
+                </div>
+
+                <div class="stat-desc">
+                    Approved courses for your current semester.
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Enrollment Status -->
+        <div class="stat-card">
+
+            <div class="stat-icon" style="background:#16a34a;">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12l2 2 4-4M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">
+                    Enrollment Status
+                </div>
+
+                {% if current_courses %}
+                    <div class="stat-value text-emerald-700">
+                        Active
+                    </div>
+
+                    <div class="stat-desc">
+                        You have approved current semester registrations.
+                    </div>
+                {% else %}
+                    <div class="stat-value text-slate-500">
+                        Pending
+                    </div>
+
+                    <div class="stat-desc">
+                        No approved current semester courses found.
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        <!-- Current Semester -->
+        <div class="stat-card">
+
+            <div class="stat-icon" style="background:#7c3aed;">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5 13l4 4L19 7"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">
+                    Current Semester
+                </div>
+
+                <div class="stat-value">
+                    {% if current_semester %}
+                        {{ current_semester }}
+                    {% else %}
+                        Not Assigned
+                    {% endif %}
+                </div>
+
+                <div class="stat-desc">
+                    Your currently active academic semester.
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Total Enrolled -->
+        <div class="stat-card">
+
+            <div class="stat-icon" style="background:#0891b2;">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">
+                    Total Enrolled
+                </div>
+
+                <div class="stat-value">
+                    {{ total_approved_courses }}
+                </div>
+
+                <div class="stat-desc">
+                    Approved courses across all semesters.
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Current Semester Courses -->
+    <section
+        class="overflow-hidden rounded-[28px] border border-red-100 bg-white shadow-[0_18px_45px_rgba(127,29,29,0.06)] sm:rounded-[32px]"
+    >
+
+        <!-- Current Semester Highlight Strip -->
+        <div class="h-1.5 w-full bg-gradient-to-r from-red-800 via-red-600 to-rose-300"></div>
+
+        <div class="course-table-section-inner p-5 sm:p-7">
+
+            <div class="mb-6 flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+
+                <div>
+                    <div class="mb-3 inline-flex items-center rounded-full bg-red-50 px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-red-800">
+                        Current Semester
+                    </div>
+
+                    <h2 class="text-2xl font-black text-slate-950 sm:text-3xl">
+                        {% if current_semester %}
+                            {{ current_semester }}
+                        {% else %}
+                            Current Semester
+                        {% endif %}
+                    </h2>
+
+                    <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">
+                        These are your currently active and approved courses.
+                    </p>
+                </div>
+
+
+                <div class="flex flex-wrap items-center gap-3">
+
+                    <a
+                        href="{% url 'student_course_summary_page' %}"
+                        class="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-700 px-4 text-sm font-black text-white shadow-[0_10px_24px_rgba(127,29,29,0.16)] transition hover:-translate-y-0.5 hover:bg-red-900"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            class="h-4 w-4"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M4 19V5m4 14v-6m4 6V9m4 10v-3m4 3V7"
+                            />
+                        </svg>
+
+                        View Course Summary
+                    </a>
+
+
+                    {% if current_courses %}
+                        <span class="badge">
+                            {{ current_courses|length }}
+                            Course{{ current_courses|length|pluralize }}
+                        </span>
+                    {% else %}
+                        <span class="badge badge-slate">
+                            No Course
+                        </span>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            {% if current_courses %}
+
+                <div class="course-table-wrap">
+
+                    <table class="course-table">
+
+                        <thead>
+                            <tr>
+                                <th>
+                                    Course
+                                </th>
+
+                                <th>
+                                    Title
+                                </th>
+
+                                <th class="text-center">
+                                    Credit
+                                </th>
+
+                                <th>
+                                    Faculty
+                                </th>
+
+                                <th class="text-center">
+                                    Status
+                                </th>
+                            </tr>
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for reg in current_courses %}
+
+                                <tr>
+
+                                    <td class="course-code">
+                                        {{ reg.course_offering.course.code }}
+                                    </td>
+
+
+                                    <td class="course-title">
+                                        {{ reg.course_offering.course.title }}
+                                    </td>
+
+
+                                    <td class="text-center">
+                                        <span class="course-credit-badge">
+                                            {{ reg.course_offering.course.credit }}
+                                        </span>
+                                    </td>
+
+
+                                    <td class="course-faculty">
+
+                                        {% if reg.course_offering.faculty %}
+
+                                            {% if reg.course_offering.faculty.get_full_name %}
+                                                {{ reg.course_offering.faculty.get_full_name }}
+                                            {% else %}
+                                                {{ reg.course_offering.faculty.username }}
+                                            {% endif %}
+
+                                        {% else %}
+                                            Not assigned
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td class="text-center">
+                                        <span class="course-status-badge">
+                                            {{ reg.get_status_display }}
+                                        </span>
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+                        —
+                    </div>
+
+                    <h3 class="mt-4 text-lg font-black text-slate-700">
+                        No current semester courses found
+                    </h3>
+
+                    <p class="mt-2 text-sm text-slate-500">
+                        Your approved current semester courses will appear here after course enrollment is confirmed.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- Previous Semester Courses -->
+    <section class="space-y-5">
+
+        <div class="flex flex-col gap-2">
+
+            <div class="inline-flex w-fit items-center rounded-full bg-red-50 px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-red-800">
+                Course History
+            </div>
+
+            <h2 class="text-2xl font-black text-slate-950 sm:text-3xl">
+                Previous Semester Courses
+            </h2>
+
+            <p class="max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">
+                Your previously approved courses are grouped by semester, with the most recent previous semester shown first.
+            </p>
+
+        </div>
+
+
+        {% if previous_semesters %}
+
+            <div class="space-y-6">
+
+                {% for semester_group in previous_semesters %}
+
+                    <section class="course-table-section-inner glass-panel rounded-[28px] p-5 sm:p-7">
+
+                        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+
+                            <div>
+
+                                <p class="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+                                    Previous Semester
+                                </p>
+
+                                <h3 class="mt-2 text-2xl font-black text-slate-950">
+                                    {{ semester_group.semester }}
+                                </h3>
+
+                                <p class="mt-2 text-sm leading-6 text-slate-500">
+                                    Approved courses from {{ semester_group.semester }}.
+                                </p>
+
+                            </div>
+
+
+                            <span class="badge badge-slate">
+                                {{ semester_group.courses|length }}
+                                Course{{ semester_group.courses|length|pluralize }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="course-table-wrap">
+
+                            <table class="course-table">
+
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Course
+                                        </th>
+
+                                        <th>
+                                            Title
+                                        </th>
+
+                                        <th class="text-center">
+                                            Credit
+                                        </th>
+
+                                        <th>
+                                            Faculty
+                                        </th>
+
+                                        <th class="text-center">
+                                            Status
+                                        </th>
+                                    </tr>
+                                </thead>
+
+
+                                <tbody>
+
+                                    {% for reg in semester_group.courses %}
+
+                                        <tr>
+
+                                            <td class="course-code">
+                                                {{ reg.course_offering.course.code }}
+                                            </td>
+
+
+                                            <td class="course-title">
+                                                {{ reg.course_offering.course.title }}
+                                            </td>
+
+
+                                            <td class="text-center">
+                                                <span class="course-credit-badge">
+                                                    {{ reg.course_offering.course.credit }}
+                                                </span>
+                                            </td>
+
+
+                                            <td class="course-faculty">
+
+                                                {% if reg.course_offering.faculty %}
+
+                                                    {% if reg.course_offering.faculty.get_full_name %}
+                                                        {{ reg.course_offering.faculty.get_full_name }}
+                                                    {% else %}
+                                                        {{ reg.course_offering.faculty.username }}
+                                                    {% endif %}
+
+                                                {% else %}
+                                                    Not assigned
+                                                {% endif %}
+
+                                            </td>
+
+
+                                            <td class="text-center">
+                                                <span class="course-status-badge">
+                                                    {{ reg.get_status_display }}
+                                                </span>
+                                            </td>
+
+                                        </tr>
+
+                                    {% endfor %}
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </section>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="glass-panel rounded-[28px] p-8 text-center">
+
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
+                    —
+                </div>
+
+                <h3 class="mt-4 text-lg font-black text-slate-700">
+                    No previous semester courses
+                </h3>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    Your completed previous semester course history will appear here.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- Quick Links -->
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+        <a
+            href="{% url 'student_attendance_page' %}"
+            class="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 hover:bg-blue-50"
+        >
+
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                        Next
+                    </p>
+
+                    <h3 class="mt-1 text-lg font-black text-slate-950">
+                        Attendance
+                    </h3>
+
+                </div>
+
+                <span class="text-2xl font-black text-blue-600">
+                    →
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <a
+            href="{% url 'student_materials_page' %}"
+            class="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 hover:bg-blue-50"
+        >
+
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                        Resources
+                    </p>
+
+                    <h3 class="mt-1 text-lg font-black text-slate-950">
+                        Materials
+                    </h3>
+
+                </div>
+
+                <span class="text-2xl font-black text-blue-600">
+                    →
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <a
+            href="{% url 'student_assignments_page' %}"
+            class="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 hover:bg-blue-50"
+        >
+
+            <div class="flex items-center justify-between gap-4">
+
+                <div>
+
+                    <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                        Tasks
+                    </p>
+
+                    <h3 class="mt-1 text-lg font-black text-slate-950">
+                        Assignments
+                    </h3>
+
+                </div>
+
+                <span class="text-2xl font-black text-blue-600">
+                    →
+                </span>
+
+            </div>
+
+        </a>
+
+    </section>
+
+</div>
+
+{% endblock %}

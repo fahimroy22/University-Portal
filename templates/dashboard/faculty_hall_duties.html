@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="space-y-6 sm:space-y-8">
+
+    <!-- Page Header -->
+    <section class="glass-panel overflow-hidden rounded-[28px] sm:rounded-[34px]">
+        <div class="relative p-5 sm:p-7 lg:p-9">
+            <div class="absolute -right-20 -top-20 h-44 w-44 rounded-full bg-emerald-100 blur-3xl"></div>
+            <div class="absolute -left-12 bottom-0 h-36 w-36 rounded-full bg-green-100 blur-3xl"></div>
+
+            <div class="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-widest text-emerald-700">
+                        Exam Duty
+                    </span>
+
+                    <h1 class="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+                        My Exam Hall Duties
+                    </h1>
+
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
+                        View all exam hall duties assigned to you by the Exam Controller, including room, time, course, and duty notes.
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <a href="{% url 'faculty_dashboard' %}" class="btn btn-outline w-full justify-center sm:w-auto">
+                        ← Back to Faculty Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Cards -->
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#16a34a;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M5 11h14M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Total Duties</div>
+                <div class="stat-value">{{ hall_duties|length }}</div>
+                <div class="stat-desc">Assigned hall duties.</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#16a34a;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3M12 22a10 10 0 110-20 10 10 0 010 20z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Schedule</div>
+                <div class="stat-value">Listed</div>
+                <div class="stat-desc">Date and time shown clearly.</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#16a34a;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V9l7-4 7 4v12M9 21v-6h6v6"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Rooms</div>
+                <div class="stat-value">Assigned</div>
+                <div class="stat-desc">Exam room and duty room included.</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#16a34a;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h10M7 11h10M7 15h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-label">Duty Notes</div>
+                <div class="stat-value">Visible</div>
+                <div class="stat-desc">Special instructions appear here.</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Hall Duty List -->
+    <section class="glass-panel rounded-[28px] p-5 sm:p-7">
+
+        <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+                <h2 class="text-2xl font-black text-slate-950 sm:text-3xl">
+                    Hall Duty List
+                </h2>
+
+                <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">
+                    Check your course, exam type, exam date, time, exam room, duty room, and any note from the Exam Controller.
+                </p>
+            </div>
+
+            {% if hall_duties %}
+                <span class="badge badge-green">
+                    {{ hall_duties|length }} Duty{{ hall_duties|length|pluralize }}
+                </span>
+            {% else %}
+                <span class="badge badge-slate">
+                    No Duty
+                </span>
+            {% endif %}
+        </div>
+
+        {% if hall_duties %}
+
+            <!-- Mobile / Tablet Cards -->
+            <div class="space-y-4 xl:hidden">
+                {% for duty in hall_duties %}
+                    <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.04)] transition hover:border-emerald-200 hover:shadow-[0_20px_45px_rgba(22,163,74,0.08)]">
+
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div class="min-w-0">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Course
+                                </p>
+
+                                <h3 class="mt-1 text-xl font-black text-slate-950">
+                                    {{ duty.exam_routine.course_offering.course.code }}
+                                </h3>
+
+                                <p class="mt-1 break-words text-sm leading-5 text-slate-500">
+                                    {{ duty.exam_routine.course_offering.course.title }}
+                                </p>
+                            </div>
+
+                            <span class="badge badge-green">
+                                {{ duty.exam_routine.get_exam_type_display }}
+                            </span>
+                        </div>
+
+                        <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <div class="rounded-2xl bg-emerald-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-emerald-600">
+                                    Batch
+                                </p>
+                                <p class="mt-1 font-black text-emerald-700">
+                                    {{ duty.exam_routine.course_offering.batch }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl bg-blue-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-blue-500">
+                                    Semester
+                                </p>
+                                <p class="mt-1 font-black text-blue-700">
+                                    {{ duty.exam_routine.course_offering.semester }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl bg-slate-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Exam Type
+                                </p>
+                                <p class="mt-1 font-black text-slate-700">
+                                    {{ duty.exam_routine.get_exam_type_display }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Exam Date
+                                </p>
+                                <p class="mt-1 text-lg font-black text-slate-950">
+                                    {{ duty.exam_routine.exam_date }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Time
+                                </p>
+                                <p class="mt-1 text-sm font-black text-slate-950">
+                                    {{ duty.exam_routine.start_time }} - {{ duty.exam_routine.end_time }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    Exam Room
+                                </p>
+                                <p class="mt-1 text-lg font-black text-slate-950">
+                                    {{ duty.exam_routine.room }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-widest text-emerald-600">
+                                    Duty Room
+                                </p>
+                                <p class="mt-1 text-lg font-black text-emerald-700">
+                                    {{ duty.duty_room }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="mt-3 rounded-2xl bg-slate-50 p-4">
+                            <p class="text-xs font-black uppercase tracking-widest text-slate-400">
+                                Note
+                            </p>
+
+                            <p class="mt-2 text-sm leading-6 text-slate-600">
+                                {% if duty.duty_note %}
+                                    {{ duty.duty_note }}
+                                {% else %}
+                                    No note
+                                {% endif %}
+                            </p>
+                        </div>
+
+                    </article>
+                {% endfor %}
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="table-wrap hidden xl:block">
+                <table style="min-width:1200px;">
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Title</th>
+                        <th>Batch</th>
+                        <th>Semester</th>
+                        <th>Exam Type</th>
+                        <th>Exam Date</th>
+                        <th>Time</th>
+                        <th>Exam Room</th>
+                        <th>Duty Room</th>
+                        <th>Note</th>
+                    </tr>
+
+                    {% for duty in hall_duties %}
+                    <tr>
+                        <td>
+                            <strong>{{ duty.exam_routine.course_offering.course.code }}</strong>
+                        </td>
+
+                        <td>
+                            {{ duty.exam_routine.course_offering.course.title }}
+                        </td>
+
+                        <td>
+                            {{ duty.exam_routine.course_offering.batch }}
+                        </td>
+
+                        <td>
+                            {{ duty.exam_routine.course_offering.semester }}
+                        </td>
+
+                        <td>
+                            <span class="badge badge-green">
+                                {{ duty.exam_routine.get_exam_type_display }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ duty.exam_routine.exam_date }}
+                        </td>
+
+                        <td>
+                            {{ duty.exam_routine.start_time }} - {{ duty.exam_routine.end_time }}
+                        </td>
+
+                        <td>
+                            <span class="badge badge-slate">
+                                {{ duty.exam_routine.room }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="badge badge-green">
+                                {{ duty.duty_room }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if duty.duty_note %}
+                                {{ duty.duty_note }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+        {% else %}
+
+            <div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+                    —
+                </div>
+
+                <h3 class="mt-4 text-lg font-black text-slate-700">
+                    No hall duty assigned yet
+                </h3>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    Your hall duties will appear here after the Exam Controller assigns them.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- Important Note -->
+    <section class="rounded-[28px] border border-emerald-200 bg-emerald-50 p-5 sm:p-6">
+        <h2 class="text-xl font-black text-emerald-800">
+            Duty Reminder
+        </h2>
+
+        <p class="mt-2 text-sm leading-6 text-emerald-700">
+            Please check your duty room, exam room, date, and time before exam day. Follow any note added by the Exam Controller.
+        </p>
+    </section>
+
+</div>
+
+{% endblock %}

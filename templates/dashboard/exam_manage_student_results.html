@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .result-manage-page {
+        display: grid;
+        gap: 16px;
+        width: min(100%, 1120px);
+        margin: 0 auto;
+    }
+
+    .rm-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: none;
+    }
+
+    .rm-panel {
+        padding: 22px 24px;
+    }
+
+    .rm-kicker {
+        color: #9f1c1c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .rm-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .rm-text {
+        margin-top: 8px;
+        max-width: 820px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .rm-section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .rm-section-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .rm-section-text {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .rm-filter-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr 1fr 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .rm-badge {
+        display: inline-flex;
+        align-items: center;
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .rm-student-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .rm-student-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        padding: 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .rm-student-row:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .rm-main {
+        color: #0f172a;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .rm-muted {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .rm-view-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 15px;
+        border-radius: 10px;
+        background: #9f1c1c;
+        border: 1px solid #9f1c1c;
+        color: white;
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .rm-view-btn:hover {
+        background: #7f1717;
+    }
+
+    .rm-empty {
+        padding: 34px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        background: #f8fafc;
+        text-align: center;
+    }
+
+    .rm-empty-title {
+        color: #0f172a;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .rm-empty-text {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    @media (max-width: 1050px) {
+        .rm-filter-grid,
+        .rm-student-row {
+            grid-template-columns: 1fr;
+        }
+
+        .rm-view-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="result-manage-page">
+
+    <section class="rm-card rm-panel">
+        <div class="rm-kicker">Exam Office</div>
+        <h1 class="rm-title">Manage Student Results</h1>
+        <p class="rm-text">
+            Search by student ID, or filter by department, semester, and exam type. Open a student profile to view results semester-wise and request official corrections.
+        </p>
+    </section>
+
+    <section class="rm-card rm-panel">
+        <div class="rm-section-head">
+            <div>
+                <h2 class="rm-section-title">Search & Filter</h2>
+                <p class="rm-section-text">
+                    Student ID opens a specific student result page. Department and semester filters show matching students.
+                </p>
+            </div>
+
+            <span class="rm-badge">Result search</span>
+        </div>
+
+        <form method="GET" action="{% url 'exam_manage_student_results' %}" class="rm-filter-grid">
+            <div>
+                <label>Student ID</label>
+                <input
+                    type="text"
+                    name="student_id"
+                    value="{{ student_id_query }}"
+                    placeholder="Example: 12411058"
+                    class="input-control mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Department</label>
+                <select name="department" class="input-control mt-2">
+                    <option value="">All departments</option>
+                    {% for department in departments %}
+                        <option value="{{ department.id }}"
+                            {% if selected_department_id|stringformat:"s" == department.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ department.code }} - {{ department.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label>Semester</label>
+                <select name="semester" class="input-control mt-2">
+                    <option value="">All semesters</option>
+                    {% for semester in semesters %}
+                        <option value="{{ semester.id }}"
+                            {% if selected_semester_id|stringformat:"s" == semester.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ semester }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label>Exam Type</label>
+                <select name="exam_type" class="input-control mt-2">
+                    <option value="">All exam types</option>
+                    <option value="midterm" {% if selected_exam_type == 'midterm' %}selected{% endif %}>Midterm</option>
+                    <option value="final" {% if selected_exam_type == 'final' %}selected{% endif %}>Final</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                Search
+            </button>
+        </form>
+    </section>
+
+    <section class="rm-card rm-panel">
+        <div class="rm-section-head">
+            <div>
+                <h2 class="rm-section-title">Students</h2>
+                <p class="rm-section-text">
+                    Click a student to open detailed semester-wise result records.
+                </p>
+            </div>
+
+            <span class="rm-badge">{{ student_rows|length }} Student{{ student_rows|length|pluralize }}</span>
+        </div>
+
+        {% if student_rows %}
+            <div class="rm-student-list">
+                {% for row in student_rows %}
+                    <article class="rm-student-row">
+                        <div>
+                            <div class="rm-main">
+                                {{ row.student.student_id }} · {{ row.student.user.get_full_name|default:row.student.user.username }}
+                            </div>
+                            <div class="rm-muted">
+                                {{ row.student.department|default:"No department" }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="rm-main">{{ row.student.batch|default:"No batch" }}</div>
+                            <div class="rm-muted">Batch</div>
+                        </div>
+
+                        <div>
+                            <div class="rm-main">{{ row.student.current_semester|default:"No semester" }}</div>
+                            <div class="rm-muted">
+                                {{ row.marks_count }} submitted mark{{ row.marks_count|pluralize }} · {{ row.published_count }} published record{{ row.published_count|pluralize }}
+                            </div>
+                        </div>
+
+                        <a
+                            href="{% url 'exam_student_result_detail' row.student.id %}?semester={{ selected_semester_id }}&exam_type={{ selected_exam_type }}"
+                            class="rm-view-btn"
+                        >
+                            View Results
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rm-empty">
+                <div class="rm-empty-title">No student result found</div>
+                <div class="rm-empty-text">
+                    Search by student ID, or choose department and semester filters.
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

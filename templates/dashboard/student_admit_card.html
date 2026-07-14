@@ -1,0 +1,811 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .admit-page {
+        --ap-ink: #0f172a;
+        --ap-text: #334155;
+        --ap-muted: #64748b;
+        --ap-faint: #94a3b8;
+        --ap-line: #e2e8f0;
+        --ap-line-soft: #eef2f7;
+        --ap-canvas: #f8fafc;
+        --ap-surface: #ffffff;
+
+        --ap-accent: #9f1c1c;
+        --ap-accent-dark: #7f1717;
+        --ap-accent-soft: #fff1f2;
+
+        --ap-success: #047857;
+        --ap-success-soft: #ecfdf5;
+        --ap-success-line: #bbf7d0;
+
+        --ap-warning: #b45309;
+        --ap-warning-soft: #fffbeb;
+        --ap-warning-line: #fde68a;
+
+        --ap-danger: #dc2626;
+        --ap-danger-soft: #fef2f2;
+        --ap-danger-line: #fecaca;
+
+        width: 100%;
+        display: grid;
+        gap: 16px;
+    }
+
+    .admit-page,
+    .admit-page * {
+        box-sizing: border-box;
+    }
+
+    .ap-surface {
+        background: var(--ap-surface);
+        border: 1px solid var(--ap-line);
+        border-radius: 14px;
+        box-shadow: none;
+    }
+
+    .ap-link {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .ap-link:hover {
+        background: var(--ap-canvas);
+    }
+
+    .ap-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .ap-chip.brand {
+        background: var(--ap-accent-soft);
+        color: var(--ap-accent-dark);
+        border-color: #fecaca;
+    }
+
+    .ap-chip.success {
+        background: var(--ap-success-soft);
+        color: var(--ap-success);
+        border-color: var(--ap-success-line);
+    }
+
+    .ap-chip.warning {
+        background: var(--ap-warning-soft);
+        color: var(--ap-warning);
+        border-color: var(--ap-warning-line);
+    }
+
+    .ap-chip.danger {
+        background: var(--ap-danger-soft);
+        color: var(--ap-danger);
+        border-color: var(--ap-danger-line);
+    }
+
+    .ap-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid var(--ap-line);
+        flex: none;
+    }
+
+    .ap-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .ap-icon.success {
+        background: var(--ap-success-soft);
+        color: var(--ap-success);
+        border-color: var(--ap-success-line);
+    }
+
+    .ap-icon.warning {
+        background: var(--ap-warning-soft);
+        color: var(--ap-warning);
+        border-color: var(--ap-warning-line);
+    }
+
+    .ap-icon.danger {
+        background: var(--ap-danger-soft);
+        color: var(--ap-danger);
+        border-color: var(--ap-danger-line);
+    }
+
+    .ap-kicker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        color: var(--ap-accent);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .ap-title {
+        margin: 0;
+        color: var(--ap-ink);
+        font-size: clamp(30px, 3.4vw, 42px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+    }
+
+    .ap-subtitle {
+        margin: 8px auto 0;
+        max-width: 760px;
+        color: var(--ap-muted);
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    .ap-section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .ap-section-title {
+        margin: 0;
+        color: var(--ap-ink);
+        font-size: 22px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .ap-section-subtitle {
+        margin-top: 5px;
+        color: var(--ap-muted);
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .ap-hero {
+        padding: 24px 24px 0;
+    }
+
+    .ap-hero-main {
+        text-align: center;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--ap-line-soft);
+    }
+
+    .ap-actions {
+        margin-top: 16px;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .ap-summary-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .ap-summary-item {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 36px;
+        gap: 12px;
+        padding: 18px;
+        min-height: 104px;
+        border-right: 1px solid var(--ap-line-soft);
+    }
+
+    .ap-summary-item:last-child {
+        border-right: none;
+    }
+
+    .ap-label {
+        color: var(--ap-faint);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .ap-value {
+        margin-top: 6px;
+        color: var(--ap-ink);
+        font-size: 24px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+    }
+
+    .ap-value.success {
+        color: var(--ap-success);
+    }
+
+    .ap-value.warning {
+        color: var(--ap-warning);
+    }
+
+    .ap-value.danger {
+        color: var(--ap-danger);
+    }
+
+    .ap-text {
+        margin-top: 5px;
+        color: var(--ap-muted);
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    .ap-main-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(340px, 0.9fr);
+        gap: 18px;
+        align-items: stretch;
+    }
+
+    .ap-main-grid > .ap-surface {
+        height: 100%;
+    }
+
+    .ap-panel {
+        padding: 20px 22px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ap-row-list {
+        display: grid;
+        border: 1px solid var(--ap-line);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #ffffff;
+        flex: 1;
+    }
+
+    .ap-row {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid var(--ap-line-soft);
+        transition: background 0.15s ease;
+    }
+
+    .ap-row:last-child {
+        border-bottom: none;
+    }
+
+    .ap-row:hover {
+        background: var(--ap-canvas);
+    }
+
+    .ap-row-title {
+        color: var(--ap-ink);
+        font-size: 15px;
+        line-height: 1.4;
+        font-weight: 750;
+    }
+
+    .ap-row-text {
+        margin-top: 4px;
+        color: var(--ap-muted);
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    .ap-progress {
+        margin-top: 14px;
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid var(--ap-line-soft);
+    }
+
+    .ap-progress-fill {
+        height: 100%;
+        border-radius: 999px;
+    }
+
+    .ap-progress-fill.success {
+        background: var(--ap-success);
+    }
+
+    .ap-progress-fill.danger {
+        background: var(--ap-danger);
+    }
+
+    .ap-final-box {
+        border: 1px solid var(--ap-line);
+        border-radius: 14px;
+        background: #ffffff;
+        padding: 22px;
+        text-align: center;
+    }
+
+    .ap-final-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .ap-final-icon.success {
+        background: var(--ap-success-soft);
+        color: var(--ap-success);
+        border: 1px solid var(--ap-success-line);
+    }
+
+    .ap-final-icon.danger {
+        background: var(--ap-danger-soft);
+        color: var(--ap-danger);
+        border: 1px solid var(--ap-danger-line);
+    }
+
+    .ap-final-title {
+        margin-top: 14px;
+        color: var(--ap-ink);
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+    }
+
+    .ap-final-text {
+        margin-top: 6px;
+        color: var(--ap-muted);
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    .ap-final-actions {
+        margin-top: 16px;
+        display: grid;
+        gap: 8px;
+    }
+
+    .ap-link-list {
+        display: grid;
+        border: 1px solid var(--ap-line);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    .ap-quick-link {
+        min-height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--ap-line-soft);
+        color: var(--ap-text);
+        font-size: 14px;
+        font-weight: 700;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .ap-quick-link:last-child {
+        border-bottom: none;
+    }
+
+    .ap-quick-link:hover {
+        background: var(--ap-canvas);
+        color: var(--ap-ink);
+    }
+
+    .ap-note {
+        border: 1px solid var(--ap-warning-line);
+        border-radius: 14px;
+        background: var(--ap-warning-soft);
+        padding: 16px;
+    }
+
+    .ap-note-title {
+        color: var(--ap-warning);
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .ap-note-text {
+        margin-top: 6px;
+        color: #92400e;
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+    @media (max-width: 1180px) {
+        .ap-summary-row {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .ap-summary-item:nth-child(2) {
+            border-right: none;
+        }
+
+        .ap-summary-item:nth-child(1),
+        .ap-summary-item:nth-child(2) {
+            border-bottom: 1px solid var(--ap-line-soft);
+        }
+
+        .ap-main-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .ap-hero {
+            padding: 20px 18px 0;
+        }
+
+        .ap-title {
+            font-size: 30px;
+        }
+
+        .ap-summary-row {
+            grid-template-columns: 1fr;
+        }
+
+        .ap-summary-item {
+            border-right: none;
+            border-bottom: 1px solid var(--ap-line-soft);
+        }
+
+        .ap-summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .ap-panel {
+            padding: 18px;
+        }
+
+        .ap-section-header {
+            flex-direction: column;
+        }
+
+        .ap-row {
+            grid-template-columns: 38px minmax(0, 1fr);
+        }
+
+        .ap-row .ap-chip {
+            grid-column: 2;
+            width: fit-content;
+        }
+    }
+</style>
+
+<div class="admit-page">
+
+    <!-- HERO -->
+    <section class="ap-surface ap-hero">
+        <div class="ap-hero-main">
+            <div class="ap-kicker">Exam Permission</div>
+
+            <h1 class="ap-title">Admit Card Eligibility</h1>
+
+            <p class="ap-subtitle">
+                Check whether you are eligible to download your admit card based on payment clearance and attendance requirements.
+            </p>
+
+            <div class="ap-actions">
+                <a href="{% url 'student_dashboard' %}" class="btn-secondary">
+                    ← Back to Overview
+                </a>
+
+                {% if admit_final_eligible %}
+                    <a href="{% url 'download_student_admit_card_by_type' 'midterm' %}" class="btn-primary">
+                        Download Midterm Admit Card
+                    </a>
+
+                    <a href="{% url 'download_student_admit_card_by_type' 'final' %}" class="btn-secondary">
+                        Download Final Admit Card
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="ap-summary-row">
+
+            <a href="{% url 'student_payments_page' %}" class="ap-link ap-summary-item">
+                <div>
+                    <div class="ap-label">Payment</div>
+
+                    {% if admit_payment_ok %}
+                        <div class="ap-value success">Clear</div>
+                        <div class="ap-text">No payment restriction.</div>
+                    {% else %}
+                        <div class="ap-value danger">Due</div>
+                        <div class="ap-text">Clear your due first.</div>
+                    {% endif %}
+                </div>
+
+                {% if admit_payment_ok %}
+                    <div class="ap-icon success">
+                {% else %}
+                    <div class="ap-icon danger">
+                {% endif %}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a4 4 0 00-8 0v2M5 9h14l-1 11H6L5 9z"/>
+                    </svg>
+                </div>
+            </a>
+
+            <a href="{% url 'student_attendance_page' %}" class="ap-link ap-summary-item">
+                <div>
+                    <div class="ap-label">Attendance</div>
+
+                    {% if admit_attendance_ok %}
+                        <div class="ap-value success">Eligible</div>
+                        <div class="ap-text">Requirement fulfilled.</div>
+                    {% else %}
+                        <div class="ap-value danger">Not Eligible</div>
+                        <div class="ap-text">Requirement not fulfilled.</div>
+                    {% endif %}
+                </div>
+
+                {% if admit_attendance_ok %}
+                    <div class="ap-icon success">
+                {% else %}
+                    <div class="ap-icon danger">
+                {% endif %}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+            </a>
+
+            <a href="{% url 'student_attendance_page' %}" class="ap-link ap-summary-item">
+                <div>
+                    <div class="ap-label">Average Attendance</div>
+                    <div class="ap-value">{{ average_attendance }}%</div>
+                    <div class="ap-text">Current overall attendance.</div>
+                </div>
+
+                <div class="ap-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m4 14v-6m4 6V9m4 10v-3m4 3V7"/>
+                    </svg>
+                </div>
+            </a>
+
+            <a href="{% url 'student_payments_page' %}" class="ap-link ap-summary-item">
+                <div>
+                    <div class="ap-label">Credit Balance</div>
+
+                    {% if credit_balance > 0 %}
+                        <div class="ap-value">{{ credit_balance }}</div>
+                        <div class="ap-text">BDT credit available.</div>
+                    {% else %}
+                        <div class="ap-value">0</div>
+                        <div class="ap-text">No credit balance.</div>
+                    {% endif %}
+                </div>
+
+                <div class="ap-icon">
+                    +
+                </div>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- DETAILS -->
+    <section class="ap-main-grid">
+
+        <section class="ap-surface ap-panel">
+            <div class="ap-section-header">
+                <div>
+                    <h2 class="ap-section-title">Eligibility Breakdown</h2>
+                    <p class="ap-section-subtitle">
+                        Admit card eligibility is determined by payment clearance and attendance status.
+                    </p>
+                </div>
+
+                {% if admit_final_eligible %}
+                    <span class="ap-chip success">Eligible</span>
+                {% else %}
+                    <span class="ap-chip danger">Restricted</span>
+                {% endif %}
+            </div>
+
+            <div class="ap-row-list">
+
+                <div class="ap-row">
+                    {% if admit_payment_ok %}
+                        <div class="ap-icon success">✓</div>
+                    {% else %}
+                        <div class="ap-icon danger">!</div>
+                    {% endif %}
+
+                    <div>
+                        <div class="ap-row-title">Payment Requirement</div>
+                        <div class="ap-row-text">
+                            Student must have clear payment status to download admit card.
+                        </div>
+                    </div>
+
+                    {% if admit_payment_ok %}
+                        <span class="ap-chip success">Clear</span>
+                    {% else %}
+                        <span class="ap-chip danger">Due Available</span>
+                    {% endif %}
+                </div>
+
+                <div class="ap-row">
+                    {% if admit_attendance_ok %}
+                        <div class="ap-icon success">✓</div>
+                    {% else %}
+                        <div class="ap-icon danger">!</div>
+                    {% endif %}
+
+                    <div>
+                        <div class="ap-row-title">Attendance Requirement</div>
+                        <div class="ap-row-text">
+                            Student must meet the minimum attendance requirement for admit card eligibility.
+                        </div>
+                    </div>
+
+                    {% if admit_attendance_ok %}
+                        <span class="ap-chip success">Eligible</span>
+                    {% else %}
+                        <span class="ap-chip danger">Not Eligible</span>
+                    {% endif %}
+                </div>
+
+                <div class="ap-row">
+                    {% if admit_attendance_ok %}
+                        <div class="ap-icon success">%</div>
+                    {% else %}
+                        <div class="ap-icon danger">%</div>
+                    {% endif %}
+
+                    <div>
+                        <div class="ap-row-title">Average Attendance</div>
+                        <div class="ap-row-text">
+                            Current attendance value calculated from attendance records.
+                        </div>
+
+                        <div class="ap-progress">
+                            {% if admit_attendance_ok %}
+                                <div class="ap-progress-fill success" style="width:{{ average_attendance }}%;"></div>
+                            {% else %}
+                                <div class="ap-progress-fill danger" style="width:{{ average_attendance }}%;"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if admit_attendance_ok %}
+                        <span class="ap-chip success">{{ average_attendance }}%</span>
+                    {% else %}
+                        <span class="ap-chip danger">{{ average_attendance }}%</span>
+                    {% endif %}
+                </div>
+
+                {% if credit_balance > 0 %}
+                    <div class="ap-row">
+                        <div class="ap-icon">+</div>
+
+                        <div>
+                            <div class="ap-row-title">Credit Balance</div>
+                            <div class="ap-row-text">
+                                Extra amount is available in your student account.
+                            </div>
+                        </div>
+
+                        <span class="ap-chip">{{ credit_balance }} BDT</span>
+                    </div>
+                {% endif %}
+
+            </div>
+        </section>
+
+        <aside class="ap-surface ap-panel">
+            <div class="ap-section-header">
+                <div>
+                    <h2 class="ap-section-title">Final Status</h2>
+                    <p class="ap-section-subtitle">Current admit card access status.</p>
+                </div>
+            </div>
+
+            <div class="ap-final-box">
+                {% if admit_final_eligible %}
+                    <div class="ap-final-icon success">✓</div>
+
+                    <div class="ap-final-title">Eligible</div>
+
+                    <div class="ap-final-text">
+                        Your payment and attendance requirements are fulfilled. Your admit cards are ready to download.
+                    </div>
+
+                    <div class="ap-final-actions">
+                        <a href="{% url 'download_student_admit_card_by_type' 'midterm' %}" class="btn-primary">
+                            Download Midterm Admit Card
+                        </a>
+
+                        <a href="{% url 'download_student_admit_card_by_type' 'final' %}" class="btn-secondary">
+                            Download Final Admit Card
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="ap-final-icon danger">!</div>
+
+                    <div class="ap-final-title">Not Eligible</div>
+
+                    <div class="ap-final-text">
+                        Fulfill both payment and attendance requirements to download your admit card.
+                    </div>
+                {% endif %}
+            </div>
+        </aside>
+
+    </section>
+
+    <!-- LINKS + NOTE -->
+    <section class="ap-main-grid">
+
+        <section class="ap-surface ap-panel">
+            <div class="ap-section-header">
+                <div>
+                    <h2 class="ap-section-title">Quick Links</h2>
+                    <p class="ap-section-subtitle">Useful pages related to admit card eligibility.</p>
+                </div>
+            </div>
+
+            <div class="ap-link-list">
+                <a href="{% url 'student_payments_page' %}" class="ap-quick-link">
+                    Payments <span>→</span>
+                </a>
+
+                <a href="{% url 'student_attendance_page' %}" class="ap-quick-link">
+                    Attendance <span>→</span>
+                </a>
+
+                <a href="{% url 'student_exam_routine_page' %}" class="ap-quick-link">
+                    Exam Routine <span>→</span>
+                </a>
+            </div>
+        </section>
+
+        <aside class="ap-note">
+            <div class="ap-note-title">Important Note</div>
+            <div class="ap-note-text">
+                Admit card download becomes available only when both payment and attendance requirements are satisfied.
+            </div>
+        </aside>
+
+    </section>
+
+</div>
+
+{% endblock %}
