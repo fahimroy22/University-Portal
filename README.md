@@ -359,7 +359,55 @@ Long-term vision includes an Android app, AI academic advisor, LMS integration, 
 
 ## 🖼 Screenshots
 
-*(Add screenshots of the Student, Faculty, and Admin dashboards here as the UI stabilizes.)*
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/fc991b1a-86f8-4d85-8200-35b9d1e445ca" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/75e9b7ea-8e59-4e97-9ad6-3c15e5005023" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/23ff8d55-387b-4863-bd12-99f08bdc5801" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/0a63bf8e-05e1-413d-8e1d-65256378a803" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/4b5a9e71-4184-43f0-9516-a3e90cfc36c0" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/5c15168f-eaa6-4b2c-938d-fb6814d6bfd2" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/d8a76c86-89d1-4e00-a054-2f59c0b7dcdd" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/b50116e1-a3f2-48f5-b9d1-67575a7c8390" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/572244d5-ed0e-44a4-9a8b-0c6dc7962086" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/c6794dc0-e4c7-4331-8266-680c7dbb1d41" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/1b080922-b2c1-4dee-81a4-44b8f31be266" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/47ed1210-60c4-4f1d-9e91-f98c226cc16d" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/9e3d6ff5-3df5-4230-a7ae-451acbf20630" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/c00a8e5a-9df2-407b-b0d9-7a609a6de81c" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/e6e99f13-1fab-44c7-aef0-254ff258e4dd" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/89c12e22-a4bb-4744-82d7-5d9c45672a1a" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/4ca6e8f0-b8dd-48db-8140-3050066c03bd" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/a201de44-1f15-4c97-900d-2661d1c49044" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/ad58fee6-a514-4458-8865-7b2bcb9911c0" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/8de24ce8-f8d3-4f72-9a6e-4bd7f84a1c60" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/e1355e2a-c267-4107-b190-c833b2358a02" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/2c8cae27-0b0a-404d-b721-6465dabbc07a" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/7ada50b4-cb6b-4fa1-8340-f33c052cbaf2" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/d405f803-6a55-4752-ba06-73ea6db8b096" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/b7a9f0fa-6866-4f3d-8ca8-f640c79b8a92" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/a81a1edd-64fd-4768-9b55-b36155c9aec4" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/8afe6a52-2fab-4ffa-88b4-de5e6dd7e841" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/76daad79-da3d-41db-98ef-f12b044418f6" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/7bc81a5c-d9b1-4cbf-887a-a1318b6e5e6e" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/45795488-34c7-4965-8f08-4b7e05476088" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/2f2394c9-9c26-4d51-9fa7-8670b227c827" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
