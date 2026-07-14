@@ -24,7 +24,7 @@
 
 ## 📖 Overview
 
-**Smart University Portal** is an Enterprise Resource Planning (ERP) system being developed for the **University of Global Village (UGV)**. Rather than a simple student management tool, it aims to replicate how a real university actually operates — bringing academics, finance, examinations, faculty operations, student services, and administration into a single, connected platform.
+**Smart University Portal** is an Enterprise Resource Planning (ERP) system being developed for an University. Rather than a simple student management tool, it aims to replicate how a real university actually operates — bringing academics, finance, examinations, faculty operations, student services, and administration into a single, connected platform.
 
 The project follows a **modular monolith** architecture: every domain (students, faculty, finance, exams, etc.) lives in its own Django app with its own models, views, templates, and URLs, while sharing a common academic data backbone (`Department → Program → Batch → Semester → Course → Course Offering`).
 
