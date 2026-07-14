@@ -1,4 +1,4 @@
-# Contributing to UGV Smart University Portal
+# Contributing to Smart University Portal
 
 Thank you for your interest in contributing to the **UGV Smart University Portal**.
 
