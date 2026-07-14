@@ -1,213 +1,331 @@
 # Contributing to Smart University Portal
 
-Thank you for your interest in contributing to the **UGV Smart University Portal**.
+Thank you for your interest in contributing to the **Smart University Portal**.
 
-This project is a Django-based university ERP designed around realistic academic and administrative workflows. Contributions should preserve the project's modular architecture, role-based permissions, consistent UI language, and workflow integrity.
+This project is a Django-based University ERP designed to manage academic, administrative, financial, examination, and student services through a unified platform. Contributions should preserve the project's modular architecture, role-based permissions, consistent UI design, and workflow integrity.
 
-## Code of Conduct
+---
 
-Be respectful, constructive, and professional in all discussions, reviews, and contributions.
+# Code of Conduct
 
-## Before You Start
+Please be respectful, constructive, and professional in all discussions, code reviews, and pull requests.
 
-1. Check the existing issues and roadmap.
-2. Create or select an issue for the work you plan to complete.
-3. Avoid combining unrelated changes in one pull request.
-4. Do not commit secrets, local databases, uploaded media, virtual environments, or generated files.
+---
 
-## Development Setup
+# Before You Start
 
-Clone the repository:
+Before contributing:
+
+1. Check the existing Issues and Roadmap.
+2. Create (or select) an issue before starting work.
+3. Keep pull requests focused on a single feature or fix.
+4. Avoid mixing unrelated changes.
+5. Never commit secrets, databases, uploaded media, virtual environments, or generated files.
+
+---
+
+# Development Requirements
+
+The project has been tested with:
+
+- Python 3.14
+- Django 6.x
+- Node.js
+- npm
+- Git
+
+---
+
+# Development Setup
+
+## Clone the repository
 
 ```bash
-git clone https://github.com/fahimryo22/University-Portal.git
+git clone https://github.com/fahimroy22/University-Portal.git
 cd University-Portal
 ```
 
-Create and activate a virtual environment:
+## Create a virtual environment
+
+macOS / Linux
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 ```
 
-On Windows:
+Windows
 
 ```bash
 venv\Scripts\activate
 ```
 
-Install Python dependencies:
+---
+
+## Install Python dependencies
 
 ```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Install frontend dependencies when required:
+---
+
+## Install frontend dependencies
 
 ```bash
 npm install
 ```
 
-Apply migrations:
+---
+
+## Apply database migrations
 
 ```bash
 python manage.py migrate
 ```
 
-Run the development server:
+---
+
+## Create an administrator account
+
+```bash
+python manage.py createsuperuser
+```
+
+---
+
+## Verify the installation
+
+```bash
+python manage.py check
+```
+
+---
+
+## Run the development server
 
 ```bash
 python manage.py runserver
 ```
 
-## Branch Naming
+The application will be available at:
 
-Create a new branch before starting work:
+```
+http://127.0.0.1:8000/
+```
+
+---
+
+# Branch Naming
+
+Always create a new branch before beginning work.
 
 ```bash
-git checkout -b feature/short-feature-name
+git checkout -b feature/your-feature-name
 ```
 
 Recommended prefixes:
 
-- `feature/` — new functionality
-- `fix/` — bug fixes
-- `ui/` — layout and styling improvements
-- `refactor/` — internal code improvements
-- `docs/` — documentation changes
-- `test/` — tests and test data
+| Prefix | Purpose |
+|---------|----------|
+| feature/ | New functionality |
+| fix/ | Bug fixes |
+| ui/ | UI or UX improvements |
+| refactor/ | Internal code improvements |
+| docs/ | Documentation |
+| test/ | Testing |
 
 Examples:
 
-```text
-feature/result-correction-audit-log
-fix/faculty-review-spacing
-ui/student-course-history
-docs/update-architecture
+```
+feature/result-correction-workflow
+feature/course-registration
+fix/faculty-mark-review
+ui/student-dashboard
+docs/update-readme
 ```
 
-## Commit Messages
+---
 
-Use short, meaningful, imperative commit messages.
+# Commit Messages
+
+Use concise, meaningful, imperative commit messages.
 
 Good examples:
 
-```text
-Add faculty result correction review
-Fix student course history ordering
-Refine exam controller correction layout
+```
+Add faculty mark review workflow
+
+Fix student dashboard pagination
+
+Improve exam controller correction layout
+
 Update installation documentation
 ```
 
-Avoid vague messages such as:
+Avoid:
 
-```text
+```
 update
+
 changes
-fix stuff
+
+fix
+
+stuff
 ```
 
-## Coding Guidelines
+---
 
-### Python and Django
+# Coding Guidelines
 
-- Follow PEP 8 where practical.
-- Use clear function and variable names.
+## Python & Django
+
+- Follow PEP 8 whenever practical.
+- Use descriptive variable and function names.
 - Keep business logic out of templates.
-- Keep views focused and extract reusable logic into helpers or services when needed.
-- Protect role-specific views with authentication and permission checks.
-- Validate object ownership, not only the user's role.
+- Protect all views with authentication.
+- Validate object ownership instead of relying only on user roles.
 - Preserve historical academic and financial records.
+- Keep reusable logic inside helpers, services, or model methods.
 
-### Templates and UI
+---
 
-- Reuse the established portal design language.
-- Keep layouts responsive.
-- Avoid deeply nested cards and unnecessary visual clutter.
-- Use the project color palette and consistent status badges.
-- Do not change form field names, URL names, POST action values, or template variables without updating the corresponding backend.
-- Prefer independent vertical stacks over row-based layouts when card heights differ.
-- Test desktop, tablet, and mobile layouts.
+## HTML Templates
 
-### Database Changes
+- Follow the existing design system.
+- Maintain responsive layouts.
+- Prefer reusable components.
+- Avoid unnecessary nesting.
+- Keep spacing consistent.
+- Use semantic HTML.
 
-- Create migrations for model changes.
-- Review generated migrations before committing.
-- Never edit production data directly in a migration unless the migration is specifically designed and tested for that purpose.
-- Preserve referential integrity across Students, Course Offerings, Finance, Examinations, and Results.
+---
 
-## Testing
+## CSS / Tailwind
+
+- Reuse existing utility classes.
+- Avoid inline styling.
+- Maintain consistent spacing.
+- Follow the established color palette.
+
+---
+
+## JavaScript
+
+- Keep scripts modular.
+- Avoid unnecessary global variables.
+- Prefer progressive enhancement.
+
+---
+
+# Database Changes
+
+If modifying models:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+Before committing:
+
+- Review generated migrations.
+- Preserve existing data.
+- Maintain referential integrity.
+- Never edit production data inside migrations unless absolutely necessary.
+
+---
+
+# Testing
 
 Before submitting a pull request, run:
 
 ```bash
 python manage.py check
+
 python manage.py test
 ```
 
-Also manually test:
+Also verify manually:
 
-- Authentication and role access
-- Direct URL access restrictions
+- Authentication
+- Role permissions
+- Direct URL restrictions
 - Form validation
+- Empty states
+- Error handling
 - Mobile responsiveness
-- Existing workflows related to your change
-- Empty states and error states
+- Existing workflows
 
-## Pull Request Checklist
+---
 
-Before opening a pull request, confirm that:
+# Pull Request Checklist
 
-- [ ] The branch contains one focused change.
-- [ ] The application starts without errors.
-- [ ] `python manage.py check` passes.
-- [ ] Relevant tests pass.
-- [ ] No secrets, databases, media files, or virtual environments are committed.
-- [ ] UI changes are responsive.
-- [ ] Existing workflows are not broken.
-- [ ] Documentation is updated when behavior changes.
-- [ ] Screenshots are included for meaningful UI changes.
+Before opening a pull request, ensure:
 
-## Pull Request Description
+- [ ] One focused change per PR
+- [ ] Application starts successfully
+- [ ] `python manage.py check` passes
+- [ ] Tests pass
+- [ ] UI is responsive
+- [ ] Existing workflows remain functional
+- [ ] Documentation updated if needed
+- [ ] Screenshots included for UI changes
+- [ ] No secrets committed
+- [ ] No database files committed
+- [ ] No media uploads committed
+- [ ] No virtual environments committed
 
-Include:
+---
 
-- What changed
-- Why the change was needed
-- Which roles or modules are affected
-- How the change was tested
-- Screenshots for visual changes
-- Any migrations or setup steps
+# Pull Request Description
 
-## Reporting Bugs
+Please include:
 
-A useful bug report should include:
+- Summary of the change
+- Reason for the change
+- Affected modules
+- Testing performed
+- Screenshots (if applicable)
+- Migration notes (if applicable)
 
-- A clear title
+---
+
+# Reporting Bugs
+
+Please include:
+
+- Title
 - User role
 - Page or URL
 - Steps to reproduce
 - Expected behavior
 - Actual behavior
-- Screenshot or terminal error
-- Browser and operating system
-- Relevant logs with sensitive data removed
+- Screenshots
+- Browser
+- Operating system
+- Relevant logs (without sensitive information)
 
-## Security
+---
 
-Do not open public issues containing:
+# Security
+
+Do **not** submit public issues containing:
 
 - Passwords
-- API keys
 - Secret keys
+- API keys
 - Access tokens
-- Student personal data
+- Student personal information
 - Financial records
-- Private uploaded documents
+- Uploaded confidential documents
 
-Report sensitive issues privately to the repository owner.
+Report sensitive vulnerabilities privately to the repository owner.
 
-## License
+---
 
-By contributing, you agree that your contributions will be licensed under the repository's MIT License.
+# License
+
+By contributing to this repository, you agree that your contributions will be licensed under the project's MIT License.
